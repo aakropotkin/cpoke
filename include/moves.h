@@ -24,7 +24,7 @@ typedef struct {
 
 const_fn int8_t
 decode_stat_buff( stat_buff_t buff ) {
-  return buff.debuffp ? buff.amount : - buff.amount
+  return buff.debuffp ? buff.amount : ( - buff.amount );
 }
 
 typedef struct {
