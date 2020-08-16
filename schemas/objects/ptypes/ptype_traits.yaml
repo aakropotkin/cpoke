@@ -1,6 +1,7 @@
 components:
   schemas:
     ptype_traits:
+      description: An elemental type's interaction with other types
       type: object
       properties:
         resistances:

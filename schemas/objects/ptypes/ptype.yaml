@@ -1,6 +1,7 @@
 components:
   schemas:
     ptype:
+      description: An elemental type
       type: string
       nullable: true
       enum:

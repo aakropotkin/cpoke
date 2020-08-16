@@ -1,6 +1,7 @@
 components:
   schemas:
     ptypes:
+      description: A list of elemental types
       type: array
       items:
         type: ptype
