@@ -6,12 +6,11 @@
 
 CC = gcc
 
-LIBMIOPATH  = ${HOME}/src/c/common/include
 SRCPATH     = src
 INCLUDEPATH = include
 
 # `-fms-extensions' enables struct inheritence
-CFLAGS      = -I${LIBMIOPATH} -I${INCLUDEPATH} -fms-extensions
+CFLAGS      = -I${INCLUDEPATH} -fms-extensions
 LINKERFLAGS = -lm
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h)

@@ -12,7 +12,7 @@ main( int argc, char * argv[], char ** envp ) {
 
   /* Parse file */
   gm_parser_t gparser;
-  size_t rsl = init_gm_parser( "/home/camus/GAME_MASTER.json", &gparser );
+  size_t rsl = init_gm_parser( "./data/GAME_MASTER.json", &gparser );
   assert( rsl != 0 );
 
   /* Compile Regex */
