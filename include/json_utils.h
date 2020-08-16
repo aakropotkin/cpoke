@@ -6,8 +6,8 @@
 /* ========================================================================= */
 
 #include <assert.h>
-#include <files.h>
-#include <jsmn.h>
+#include "files.h"
+#include "jsmn.h"
 #include <limits.h>
 #include <math.h>
 #include <regex.h>

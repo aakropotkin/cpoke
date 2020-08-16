@@ -3,11 +3,11 @@
 /* ========================================================================= */
 
 #include <stdint.h>
-#include <ptypes.h>
-#include <pokedex.h>
-#include <moves.h>
+#include "ptypes.h"
+#include "pokedex.h"
+#include "moves.h"
 #include <math.h>
-#include <macros.h>
+#include "macros.h"
 
 /* ------------------------------------------------------------------------- */
 
