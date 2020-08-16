@@ -13,8 +13,8 @@ INCLUDEPATH = include
 CFLAGS      = -I${INCLUDEPATH} -fms-extensions
 LINKERFLAGS = -lm
 
-HEADERS := $(wildcard ${INCLUDEPATH}/*.h)
-SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/test/*.c)
+HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
+SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon
 
 

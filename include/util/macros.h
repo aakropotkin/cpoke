@@ -1,6 +1,7 @@
+/* -*- mode: c; -*- */
 
-#ifndef MACROS_H
-#define MACROS_H
+#ifndef _MACROS_H
+#define _MACROS_H
 
 /* Assert the use of GCC so we can use extension. */
 #ifndef __GNUC__
@@ -9,13 +10,13 @@
 
 /* ======================================================================== */
 
+#include <assert.h>
+
 /* Note: ------------------------------------------------------------- {{{1 *
  * A Macro collection to be used across projects.
  *
  * Limitations:
  *  - You must use GCC, or a compiler which supports GCC's extensions.
- *  - Many macros depend on <assert.h>, but it is NOT included here.
- *    The user must import it themselves.
  * End Note ---------------------------------------------------------- }}}1 */
 
 
@@ -432,7 +433,7 @@
 
 /* ======================================================================== */
 
-#endif /* def MACROS_H */
+#endif /* macros.h */
 #endif /* def __GNUC__ */
 
-/* vim: set foldmethod=marker foldlevel=0 : */
+/* vim: set filetype=c foldmethod=marker foldlevel=0 : */

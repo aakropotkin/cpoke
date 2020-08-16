@@ -1,15 +1,18 @@
+/* -*- mode: c; -*- */
+
 #ifndef _PTYPES_H
 #define _PTYPES_H
+
 /* ========================================================================= */
 
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "bits.h"
-#include "macros.h"
+#include "util/bits.h"
+#include "util/macros.h"
+
 
 /* ------------------------------------------------------------------------- */
-
 
 /** A "list" of types can be encoded as a bitmask. */
 typedef uint32_t  ptype_mask_t;
@@ -269,7 +272,9 @@ fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm ) {
 }
 
 
+
 /* ========================================================================= */
+
 #endif /* ptypes.h */
 
 
@@ -329,3 +334,5 @@ fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm ) {
  *   }
  * }
  */
+
+/* vim: set filetype=c : */

@@ -1,10 +1,14 @@
+/* -*- mode: c; -*- */
+
 #ifndef _BATTLE_H
 #define _BATTLE_H
+
 /* ========================================================================= */
 
 #include <stdint.h>
-#include "macros.h"
+#include "util/macros.h"
 #include "pokemon.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -58,4 +62,7 @@ typedef enum packed { FIRST_FAINT, BOTH_FAINT } battle_end_cond_t
 
 
 /* ========================================================================= */
+
 #endif /* battle.h */
+
+/* vim: set filetype=c : */

@@ -1,11 +1,14 @@
+/* -*- mode: c; -*- */
+
 /* ========================================================================= */
 
-#include <ptypes.h>
+#include "ptypes.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <test.h>
+#include "util/test.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -94,6 +97,7 @@ test_get_damage_modifier( void ) {
   return true;
 }
 
+/* ------------------------------------------------------------------------- */
 
 
 int
@@ -110,3 +114,5 @@ main( int argc, char * argv[], char ** envp ) {
 
 
 /* ========================================================================= */
+
+/* vim: set filetype=c : */

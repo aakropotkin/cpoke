@@ -52,3 +52,6 @@ Mkfile.old
 dkms.conf
 parse_gm
 cpoke
+test_pokemon
+test_ptypes
+test_utils

@@ -1,5 +1,8 @@
+/* -*- mode: c; -*- */
+
 #ifndef _POKEMON_H
 #define _POKEMON_H
+
 /* ========================================================================= */
 
 #include <stdint.h>
@@ -7,7 +10,8 @@
 #include "pokedex.h"
 #include "moves.h"
 #include <math.h>
-#include "macros.h"
+#include "util/macros.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -35,9 +39,9 @@ calculate_cpm_from_full_levels( float level ) {
            ? CPMS_full[( (int) level - 1 )]
            : sqrt( ( pow( CPMS_full[( (int) floor( level ) - 1 )], 2 )
                      + pow( CPMS_full[( (int) ceil( level ) - 1 )], 2 )
-                     ) / 2.0
-                   )
-           );
+                   ) / 2.0
+                 )
+         );
 }
 #endif
 
@@ -101,4 +105,7 @@ get_cp_from_stats( stats_t base, stats_t ivs, float level ) {
 
 
 /* ========================================================================= */
+
 #endif /* pokemon.h */
+
+/* vim: set filetype=c : */

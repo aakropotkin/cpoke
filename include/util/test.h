@@ -1,8 +1,11 @@
+/* -*- mode: c; -*- */
+
 #ifndef _TEST_H
 #define _TEST_H
+
 /* ========================================================================= */
 
-#include "macros.h"
+#include "util/macros.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -25,4 +28,7 @@
 
 
 /* ========================================================================= */
+
 #endif /* test.h */
+
+/* vim: set filetype=c : */

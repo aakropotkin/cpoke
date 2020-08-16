@@ -1,13 +1,13 @@
 /* -*- mode: c; -*- */
 
-#ifndef _JSON_UTILS_H
-#define _JSON_UTILS_H
+#ifndef _JSON_UTIL_H
+#define _JSON_UTIL_H
 
 /* ========================================================================= */
 
 #include <assert.h>
-#include "files.h"
-#include "jsmn.h"
+#include "util/files.h"
+#include "ext/jsmn.h"
 #include <limits.h>
 #include <math.h>
 #include <regex.h>
@@ -254,6 +254,6 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex ) {
 
 /* ========================================================================= */
 
-#endif /* json_utils.h */
+#endif /* json_util.h */
 
 /* vim: set filetype=c : */

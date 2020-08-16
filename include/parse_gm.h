@@ -6,7 +6,7 @@
 /* ========================================================================= */
 
 #include <assert.h>
-#include "json_utils.h"
+#include "util/json_util.h"
 #include <regex.h>
 #include <stdio.h>
 

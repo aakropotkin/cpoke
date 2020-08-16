@@ -1,13 +1,16 @@
+/* -*- mode: c; -*- */
+
 /* ========================================================================= */
 
-#include <jsmn.h>
-#include <json_utils.h>
-#include <macros.h>
+#include "ext/jsmn.h"
+#include "util/json_util.h"
+#include "util/macros.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <test.h>
+#include "util/test.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -67,6 +70,8 @@ test_jsoneq_typed( void ) {
 }
 
 
+/* ------------------------------------------------------------------------- */
+
 int
 main( int argc, char * argv[], char ** envp ) {
 
@@ -78,3 +83,5 @@ main( int argc, char * argv[], char ** envp ) {
 
 
 /* ========================================================================= */
+
+/* vim: set filetype=c : */

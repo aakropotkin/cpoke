@@ -1,11 +1,13 @@
+/* -*- mode: c; -*- */
+
 /* ========================================================================= */
 
-#include <pokemon.h>
+#include "pokemon.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <test.h>
+#include "util/test.h"
 
 /* ------------------------------------------------------------------------- */
 
@@ -30,4 +32,7 @@ main( int argc, char * argv[], char ** envp ) {
 }
 
 
+
 /* ========================================================================= */
+
+/* vim: set filetype=c : */
