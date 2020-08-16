@@ -1,0 +1,11 @@
+components:
+  schemas:
+    ptype_traits:
+      type: object
+      properties:
+        resistances:
+          type: ptypes
+        weaknesses:
+          type: ptypes
+        immunities:
+          type: ptypes

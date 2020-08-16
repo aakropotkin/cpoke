@@ -1,0 +1,7 @@
+components:
+  schemas:
+    ptypes:
+      type: array
+      items:
+        type: ptype
+      uniqueItems: true
