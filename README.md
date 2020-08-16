@@ -12,4 +12,3 @@ A Pokemon Go PvP Simulator written in C
 - Merge test files
 - Automatically fetch latest `GAME_MASTER.json` file
 - Complete types/structs for `battle.h`
-- Organize headers into subfolders
