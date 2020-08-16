@@ -1,0 +1,10 @@
+{
+  "key1": 3,
+  "key2": [ "hey", "there" ],
+  "people": [
+    { "name": "bob", "age": 25},
+    { "name": "suzy", "age": 21},
+    { "name": "joe", "age": 28},
+    { "name": "sarah", "age": 35}
+  ]
+}
