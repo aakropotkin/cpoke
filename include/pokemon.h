@@ -81,6 +81,17 @@ typedef struct {
 } roster_pokemon_t;
 
 
+/**
+ * A roster is essentially a players full collection of pokemon.
+ * In a Silph Cup format this might only have 6 members; but for GBL it could
+ * include all possible pokemon that they have in their bag.
+ */
+typedef struct {
+  roster_pokemon_t * roster_pokemon;
+  size_t             roster_length;
+} roster_t;
+
+
 typedef struct {
   base_pokemon_t;
   uint8_t              hp;
@@ -89,6 +100,12 @@ typedef struct {
   pvp_fast_move_t    * fast_move;
   pvp_charged_move_t * charged_moves[2];
 } pvp_pokemon_t;
+
+
+/**
+ * A "team" is explicitly 3 pokemon which are being used in PvP battle.
+ */
+typedef struct { pvp_pokemon_t pokemon[3]; } pvp_team_t;
 
 
 const_fn uint16_t
