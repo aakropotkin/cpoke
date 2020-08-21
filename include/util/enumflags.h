@@ -4,9 +4,9 @@
 
 /* ========================================================================= */
 
-#include "macros.h"
-#include "bits.h"
-#include "fnmacros.h"
+#include "util/macros.h"
+#include "util/bits.h"
+#include "util/fnmacros.h"
 
 
 /* ------------------------------------------------------------------------- */
