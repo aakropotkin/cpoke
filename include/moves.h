@@ -16,7 +16,7 @@ typedef enum packed {
   bc_1000, bc_0500, bc_0300, bc_0125, bc0100, bc0000
 } buff_chance_t; /* 3 bits used, 4 total */
 
-typedef struct {
+typedef struct packed {
   uint8_t target  : 1; /* 0 --> self; 1 --> opponent */
   uint8_t debuffp : 1; /* 1 --> Debuff --> ( - amount ) */
   uint8_t amount  : 2;
@@ -27,7 +27,7 @@ decode_stat_buff( stat_buff_t buff ) {
   return buff.debuffp ? buff.amount : ( - buff.amount );
 }
 
-typedef struct {
+typedef struct packed {
   buff_chance_t chance;   /* I think 3 bits */
   stat_buff_t   atk_buff;
   stat_buff_t   def_buff;
@@ -47,7 +47,7 @@ typedef enum packed {
 } buff_level_t;
 
 
-typedef struct {
+typedef struct packed {
   buff_level_t atk_buff_lv;
   buff_level_t def_buff_lv;
 } buff_state_t;
@@ -103,7 +103,7 @@ apply_buff( buff_state_t * buff_state, buff_t buff ) {
 
 
 
-typedef struct {
+typedef struct packed {
   uint16_t move_id;
   char *   move_name;
   ptype_t  type;
@@ -112,19 +112,19 @@ typedef struct {
 } base_move_t;
 
 
-typedef struct {
+typedef struct packed {
   base_move_t;          /* Inherit */
   uint16_t    cooldown;
 } pve_move_t;
 
 
-typedef struct {
+typedef struct packed {
   base_move_t;      /* Inherit */
   buff_t      buff; /* A pointer could be used, but it costs more */
 } pvp_charged_move_t;
 
 
-typedef struct {
+typedef struct packed {
   base_move_t;           /* Inherit */
   uint8_t     turns : 2; /* 1-4 */
 } pvp_fast_move_t;

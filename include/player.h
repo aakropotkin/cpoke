@@ -14,7 +14,7 @@
 
 /* ------------------------------------------------------------------------ */
 
-typedef struct {
+typedef struct packed {
   roster_t roster;
   uint16_t wins;
   uint16_t battles;
@@ -28,19 +28,20 @@ typedef enum packed {
   USER_CONTROLLED, NOVICE, RIVAL, ELITE, CHAMPION
 } ai_level_t;
 
+/* transparent attribute is applied to `strat_flags_t' */
 DEFINE_ENUM_WITH_FLAGS( strat, DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC,
                         SWITCH_FARM, SWITCH_ADVANCED, FARM_ENERGY, OVERFARM,
                         BAIT_SHIELDS, WAIT_CLOCK, PRESERVE_SWITCH_ADVANTAGE,
                         ADVANCED_SHIELDING, BAD_DECISION_PROTECTION,
                         SACRIFICIAL_SWAP
-                      );
+                      ) transparent;
 
 const uint8_t NUM_STRATS = SACRIFICIAL_SWAP + 1;
 
 #define get_strat_mask( strat )  ( (strat_mask_t) to_mask( ( strat ) ) )
 
 
-typedef struct {
+typedef struct packed {
   bool          two_charged_moves     : 1;
   uint16_t      iv_combo_range        : 15;  /*   200-3000  */
   uint8_t       energy_guess_accuracy : 4;   /*    0-15     */
@@ -95,7 +96,7 @@ const ai_t AI_ARCHETYPES[] = {
 };
 
 
-typedef struct {
+typedef struct packed {
   pvp_team_t team;
   ai_level_t ai_level;
   uint8_t    active_pokemon : 2;   /*    0-2   */

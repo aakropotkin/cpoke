@@ -66,7 +66,7 @@ const double CPMS[] = {
 #define get_cpm_for_level( lvl )  CPMS[( (int) ( ( ( lvl ) - 1 ) * 2 ) )]
 
 
-typedef struct {
+typedef struct packed {
   pdex_mon_t;
   char *      custom_name;
   float       level;
@@ -74,7 +74,7 @@ typedef struct {
 } base_pokemon_t;
 
 
-typedef struct {
+typedef struct packed {
   base_pokemon_t;
   base_move_t fast_move;
   base_move_t charged_moves[2];
@@ -86,13 +86,13 @@ typedef struct {
  * In a Silph Cup format this might only have 6 members; but for GBL it could
  * include all possible pokemon that they have in their bag.
  */
-typedef struct {
+typedef struct packed {
   roster_pokemon_t * roster_pokemon;
   size_t             roster_length;
 } roster_t;
 
 
-typedef struct {
+typedef struct packed {
   base_pokemon_t;
   uint8_t              hp;
   uint16_t             cooldown;

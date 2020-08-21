@@ -10,26 +10,21 @@
 #include <stdbool.h>
 #include "util/bits.h"
 #include "util/macros.h"
+#include "util/enumflags.h"
 
 
 /* ------------------------------------------------------------------------- */
 
-/**
- * A "list" of types can be encoded as a bitmask.
- */
-typedef uint32_t  ptype_mask_t;
+DEFINE_ENUM_WITH_FLAGS( ptype, PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY,
+                        FIGHTING, FIRE, FLYING, GHOST, GRASS, GROUND, ICE,
+                        NORMAL, POISON, PSYCHIC, ROCK, STEEL, WATER
+                      );
 
 int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
 #define print_ptype_mask( sep, pm ) fprint_ptype_mask( stdout, ( sep ), ( pm ) )
 
 
 /* ------------------------------------------------------------------------- */
-
-
-typedef enum packed {
-  PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY, FIGHTING, FIRE, FLYING, GHOST,
-  GRASS, GROUND, ICE, NORMAL, POISON, PSYCHIC, ROCK, STEEL, WATER
-} ptype_t; /* 4 bits */
 
 const uint8_t NUM_PTYPES = WATER + 1; /* 18 types, 19 including `PT_NONE' */
 
@@ -44,58 +39,6 @@ const uint8_t NUM_PTYPES = WATER + 1; /* 18 types, 19 including `PT_NONE' */
  * returns 0.
  */
 #define get_ptype_mask( pt )  ( (ptype_mask_t) to_mask( ( pt ) ) )
-
-
-const ptype_mask_t PT_NONE_M  = get_ptype_mask( PT_NONE );
-const ptype_mask_t BUG_M      = get_ptype_mask( BUG );
-const ptype_mask_t DARK_M     = get_ptype_mask( DARK );
-const ptype_mask_t DRAGON_M   = get_ptype_mask( DRAGON );
-const ptype_mask_t ELECTRIC_M = get_ptype_mask( ELECTRIC );
-const ptype_mask_t FAIRY_M    = get_ptype_mask( FAIRY );
-const ptype_mask_t FIGHTING_M = get_ptype_mask( FIGHTING );
-const ptype_mask_t FIRE_M     = get_ptype_mask( FIRE );
-const ptype_mask_t FLYING_M   = get_ptype_mask( FLYING );
-const ptype_mask_t GHOST_M    = get_ptype_mask( GHOST );
-const ptype_mask_t GRASS_M    = get_ptype_mask( GRASS );
-const ptype_mask_t GROUND_M   = get_ptype_mask( GROUND );
-const ptype_mask_t ICE_M      = get_ptype_mask( ICE );
-const ptype_mask_t NORMAL_M   = get_ptype_mask( NORMAL );
-const ptype_mask_t POISON_M   = get_ptype_mask( POISON );
-const ptype_mask_t PSYCHIC_M  = get_ptype_mask( PSYCHIC );
-const ptype_mask_t ROCK_M     = get_ptype_mask( ROCK );
-const ptype_mask_t STEEL_M    = get_ptype_mask( STEEL );
-const ptype_mask_t WATER_M    = get_ptype_mask( WATER );
-
-
-/**
- * Don't even try to compile this without GCC.
- * The ordering of Bitfields is NOT guaranteed by a lot of compilers.
- * GCC is love, GCC is life.
- */
-typedef union {
-  ptype_mask_t mask;         /* 32 bits */
-  struct {
-    uint32_t _unused  : 14;  /* 32 - 18 */
-    bool     water    : 1;
-    bool     steel    : 1;
-    bool     rock     : 1;
-    bool     psychic  : 1;
-    bool     poison   : 1;
-    bool     normal   : 1;
-    bool     ice      : 1;
-    bool     ground   : 1;
-    bool     grass    : 1;
-    bool     ghost    : 1;
-    bool     flying   : 1;
-    bool     fire     : 1;
-    bool     fighting : 1;
-    bool     fairy    : 1;
-    bool     electric : 1;
-    bool     dragon   : 1;
-    bool     dark     : 1;
-    bool     bug      : 1;
-  } flags;
-} ptypes_t transparent;
 
 
 const char * ptype_names[] = {
@@ -116,7 +59,7 @@ const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
 /**
  * While `ptypes_t' would be more convenient, this saves 32 bits.
  */
-typedef struct {
+typedef struct packed {
   ptype_mask_t resistances : 18;
   ptype_mask_t weaknesses  : 18;
   ptype_mask_t immunities  : 18;
@@ -262,7 +205,6 @@ get_damage_modifier_duo( ptype_t def_type1,
          get_damage_modifier_mono( def_type2, atk_type );
 }
 
-
 const_fn float
 get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
   float m = 1.0;
@@ -280,6 +222,12 @@ get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
            );
   }
   return m;
+}
+
+
+const_fn float
+get_damage_modifier_flags( ptype_flags_t def_types, ptype_t atk_type ) {
+  return get_damage_modifier( def_types.mask, atk_type );
 }
 
 

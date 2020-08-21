@@ -31,7 +31,7 @@ typedef enum packed {
 } stype_t;
 
 
-typedef struct {
+typedef struct packed {
   stype_t    name;
   /* battler_t  opponent; */
   uint32_t * matchups;
@@ -40,7 +40,7 @@ typedef struct {
 } scenario_t;
 
 
-typedef struct {
+typedef struct packed {
   pokemon_t    pokemon;
   scenario_t * scenarios;
   uint32_t     average;
@@ -51,7 +51,7 @@ typedef enum packed {
   COUNTER_LAST_LEAD
 } dtype_t;
 
-typedef struct {
+typedef struct packed {
   dtype_t  name;
   uint32_t weight;
 } decision_option_t;

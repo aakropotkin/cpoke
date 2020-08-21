@@ -12,10 +12,10 @@
 /* ------------------------------------------------------------------------- */
 
 
-typedef struct { uint16_t attack, stamina, defense; } stats_t;
+typedef struct packed { uint16_t attack, stamina, defense; } stats_t;
 
 
-typedef struct {
+typedef struct packed {
   uint16_t     dex_number; /* Highest is Melmetal with 809 */
   char *       name;
   uint16_t     family;     /* Dex # of "base" monster ( lowest non-baby ) */

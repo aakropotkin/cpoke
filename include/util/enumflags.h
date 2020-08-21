@@ -27,13 +27,21 @@
   } TNAME
 
 
+/**
+ * There are oddball cases where this union cannot be declared transparent,
+ * however, GCC will implicitly make it transparent because packing the inner
+ * struct does not match the alignment of the mask.
+ * Don't sweat this too much, you can sneakily add the transparent attribute
+ * after the closing parenthesis and before the semicolon to properly place the
+ * `transparent' attribute.
+ */
 #define DEFINE_FLAG_UNION( TNAME, MTNAME, MNAME, FST, ... )                   \
   typedef union {                                                             \
     MTNAME MNAME;                                                             \
     struct packed {                                                           \
       MAP( FLAG_DEF, SEMICOLON, __VA_ARGS__ );                                \
     };                                                                        \
-  } TNAME transparent
+  } TNAME
 
 
 /**
