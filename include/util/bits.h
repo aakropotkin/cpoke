@@ -18,19 +18,33 @@ ishowbits ( unsigned int ui ) {
   putchar( '\n' );
 }
 
-#define showbits( x ) _Generic( (x),                          \
-  long: lshowbits( (unsigned long) x ),                       \
-  const long: lshowbits( (unsigned long ) x ),                \
-  unsigned long: lshowbits( x ),                              \
-  const unsigned long: lshowbits( (unsigned long) x ),        \
-  int: ishowbits( (unsigned int) x ),                         \
-  const int: ishowbits( (unsigned int) x ),                   \
-  unsigned int: ishowbits( x ),                               \
-  const unsigned int: ishowbits( (unsigned int) x ),          \
-  default: ({                                                 \
-    fprintf( stderr, "Unrecognized type in `showbits`!" );    \
-    exit( EXIT_FAILURE );                                     \
-  }) )
+#define showbits( x ) _Generic( ( x ),                                        \
+  long: lshowbits( (unsigned long) x ),                                       \
+  const long: lshowbits( (unsigned long ) x ),                                \
+  unsigned long: lshowbits( x ),                                              \
+  const unsigned long: lshowbits( (unsigned long) x ),                        \
+  int: ishowbits( (unsigned int) x ),                                         \
+  const int: ishowbits( (unsigned int) x ),                                   \
+  unsigned int: ishowbits( x ),                                               \
+  const unsigned int: ishowbits( (unsigned int) x ),                          \
+  default: ( {                                                                \
+    fprintf( stderr, "Unrecognized type in `showbits`!" );                    \
+    exit( EXIT_FAILURE );                                                     \
+  } ) )
+
+
+/**
+ * Convert a positive integer to a bitmask.
+ * Doesn't check that input is positive so just don't fuck it up.
+ * Notably 0 and 1 consume the same bit.
+ */
+#define to_mask( NUM )  ( ( ( !! ( NUM ) ) << ( NUM ) ) >> 1 )
+
+
+/**
+ * Tests if the <code>NTH</code> bit in <code>MASK</code> a 1.
+ */
+#define has_nth_bit( MASK, NTH )  ( !! ( ( MASK ) & ( 1 << ( NTH ) ) ) )
 
 
 /**

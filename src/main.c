@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "moves.h"
+#include "player.h"
 
 
 /* ------------------------------------------------------------------------- */

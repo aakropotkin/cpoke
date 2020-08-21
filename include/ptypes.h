@@ -14,7 +14,9 @@
 
 /* ------------------------------------------------------------------------- */
 
-/** A "list" of types can be encoded as a bitmask. */
+/**
+ * A "list" of types can be encoded as a bitmask.
+ */
 typedef uint32_t  ptype_mask_t;
 
 int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
@@ -41,8 +43,7 @@ const uint8_t NUM_PTYPES = WATER + 1; /* 18 types, 19 including `PT_NONE' */
  * extra bitwise magic to handle <code>get_ptype_mask( 0 )</code> which
  * returns 0.
  */
-#define get_ptype_mask( pt )                                                  \
-  ( (ptype_mask_t) ( ( ( !! ( pt ) ) << ( pt ) ) >> 1 ) )
+#define get_ptype_mask( pt )  ( (ptype_mask_t) to_mask( ( pt ) ) )
 
 
 const ptype_mask_t PT_NONE_M  = get_ptype_mask( PT_NONE );
@@ -71,6 +72,7 @@ const char * ptype_names[] = {
   "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",
   "rock", "steel", "water"
 };
+
 
 #define get_ptype_name( pt )  ptype_names[( pt )]
 

@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "util/bits.h"
 #include "pokemon.h"
 
 
@@ -27,23 +28,51 @@ typedef enum packed {
 } ai_level_t;
 
 
-typedef enum {
-  DEFAULT_STRAT             = 0b0,
-  SHIELD_STRAT              = 0b1,
-  SWITCH_BASIC              = 0b10,
-  SWITCH_FARM               = 0b100,
-  SWITCH_ADVANCED           = 0b1000,
-  FARM_ENERGY               = 0b10000,
-  OVERFARM                  = 0b100000,
-  BAIT_SHIELDS              = 0b1000000,
-  WAIT_CLOCK                = 0b10000000,
-  PRESERVE_SWITCH_ADVANTAGE = 0b100000000,
-  ADVANCED_SHIELDING        = 0b1000000000,
-  BAD_DECISION_PROTECTION   = 0b10000000000,
-  SACRIFICIAL_SWAP          = 0b100000000000
+typedef enum packed {
+  DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC, SWITCH_FARM, SWITCH_ADVANCED,
+  FARM_ENERGY, OVERFARM, BAIT_SHIELDS, WAIT_CLOCK, PRESERVE_SWITCH_ADVANTAGE,
+  ADVANCED_SHIELDING, BAD_DECISION_PROTECTION, SACRIFICIAL_SWAP
 } strategy_t;
 
-typedef strategy_t strategies_t;
+const uint8_t NUM_STRATS = SACRIFICIAL_SWAP + 1;
+
+typedef uint16_t strat_mask_t;
+#define get_strat_mask( strat )  ( (strat_mask_t) to_mask( ( strat ) ) )
+
+const strat_mask_t DEFAULT_STRAT_M    = get_strat_mask( DEFAULT_STRAT );
+const strat_mask_t SHIELD_STRAT_M     = get_strat_mask( SHIELD_STRAT );
+const strat_mask_t SWITCH_BASIC_M     = get_strat_mask( SWITCH_BASIC );
+const strat_mask_t SWITCH_FARM_M      = get_strat_mask( SWITCH_FARM );
+const strat_mask_t SWITCH_ADVANCED_M  = get_strat_mask( SWITCH_ADVANCED );
+const strat_mask_t FARM_ENERGY_M      = get_strat_mask( FARM_ENERGY );
+const strat_mask_t OVERFARM_M         = get_strat_mask( OVERFARM );
+const strat_mask_t BAIT_SHIELDS_M     = get_strat_mask( BAIT_SHIELDS );
+const strat_mask_t WAIT_CLOCK_M       = get_strat_mask( WAIT_CLOCK );
+const strat_mask_t SACRIFICIAL_SWAP_M = get_strat_mask( SACRIFICIAL_SWAP );
+const strat_mask_t
+PRESERVE_SWITCH_ADVANTAGE_M = get_strat_mask( PRESERVE_SWITCH_ADVANTAGE );
+const strat_mask_t
+ADVANCED_SHIELDING_M        = get_strat_mask( ADVANCED_SHIELDING );
+const strat_mask_t
+BAD_DECISION_PROTECTION_M   = get_strat_mask( BAD_DECISION_PROTECTION );
+
+typedef union {
+  strat_mask_t mask;
+  struct {
+    bool    shield                    : 1;
+    bool    switch_basic              : 1;
+    bool    switch_farm               : 1;
+    bool    switch_advanced           : 1;
+    bool    farm_energy               : 1;
+    bool    overfarm                  : 1;
+    bool    bait_shileds              : 1;
+    bool    wait_clock                : 1;
+    bool    preserve_switch_advantage : 1;
+    bool    advanced_shielding        : 1;
+    bool    bad_decision_protection   : 1;
+    bool    sacrificial_swap          : 1;
+  } strat_flags;
+} strategies_t transparent;
 
 
 typedef struct {
@@ -52,50 +81,51 @@ typedef struct {
   uint8_t      energy_guess_accuracy : 4;   /*    0-15     */
   uint8_t      reaction_time         : 4;   /* 0, 4, 8, 12 */
   uint8_t      move_guess_certainty  : 2;   /*    0-3      */
-  strategies_t strategies            : 12;
+  strategies_t strategies;
 } ai_t;
 
 
-const AI_ARCHETYPES[] = {
+const ai_t AI_ARCHETYPES[] = {
   /* User Controlled */ {
     .two_charged_moves     = true,
     .iv_combo_range        = 0,
     .energy_guess_accuracy = 0,
     .reaction_time         = 0,
     .move_guess_certainty  = 0,
-    .strategies            = DEFAULT_STRAT
+    .strategies            = DEFAULT_STRAT_M
   }, /* Novice */ {
     .two_charged_moves     = false,
     .iv_combo_range        = 3000,
     .energy_guess_accuracy = 15,
     .reaction_time         = 12,
     .move_guess_certainty  = 0,
-    .strategies            = SHIELD_STRAT
+    .strategies            = SHIELD_STRAT_M
   }, /* Rival */ {
     .two_charged_moves     = true,
     .iv_combo_range        = 2000,
     .energy_guess_accuracy = 10,
     .reaction_time         = 8,
     .move_guess_certainty  = 1,
-    .strategies            = SHIELD_STRAT | SWITCH_BASIC
+    .strategies            = SHIELD_STRAT_M | SWITCH_BASIC_M
   }, /* Elite */ {
     .two_charged_moves     = true,
     .iv_combo_range        = 1000,
     .energy_guess_accuracy = 5,
     .reaction_time         = 4,
     .move_guess_certainty  = 2,
-    .strategies            = SHIELD_STRAT | SWITCH_BASIC | FARM_ENERGY |
-                             BAIT_SHIELDS
+    .strategies            = SHIELD_STRAT_M | SWITCH_BASIC_M | FARM_ENERGY_M |
+                             BAIT_SHIELDS_M
   }, /* Champion */ {
     .two_charged_moves     = true,
     .iv_combo_range        = 200,
     .energy_guess_accuracy = 0,
     .reaction_time         = 0,
     .move_guess_certainty  = 3,
-    .strategies            = SHIELD_STRAT | SWITCH_BASIC | FARM_ENERGY |
-                             OVERFARM | BAIT_SHIELDS | WAIT_CLOCK |
-                             PRESERVE_SWITCH_ADVANTAGE | ADVANCED_SHIELDING |
-                             BAD_DECISION_PROTECTION | SACRIFICIAL_SWAP
+    .strategies            = SHIELD_STRAT_M | SWITCH_BASIC_M | FARM_ENERGY_M |
+                             OVERFARM_M | BAIT_SHIELDS_M | WAIT_CLOCK_M |
+                             PRESERVE_SWITCH_ADVANTAGE_M |
+                             ADVANCED_SHIELDING_M |
+                             BAD_DECISION_PROTECTION_M | SACRIFICIAL_SWAP_M
   }
 };
 
@@ -114,7 +144,7 @@ get_remaining_pokemon( pvp_player_t * player ) {
   assert( player != NULL );
   uint8_t rem = 0;
   /* If you wanted to be REAL cool you would unroll this into a one liner... */
-  for ( pvp_pokemon_t p = player->team;
+  for ( pvp_pokemon_t * p = player->team;
         p < player->team + 3;
         rem += ( ( p != NULL ) && ( p->hp > 0 ) ), p++
       );

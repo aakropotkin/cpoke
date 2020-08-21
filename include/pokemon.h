@@ -105,7 +105,8 @@ typedef struct {
 /**
  * A "team" is explicitly 3 pokemon which are being used in PvP battle.
  */
-typedef struct { pvp_pokemon_t pokemon[3]; } pvp_team_t;
+//typedef struct { pvp_pokemon_t pokemon[3]; } pvp_team_t;
+typedef pvp_pokemon_t pvp_team_t[3];
 
 
 const_fn uint16_t
