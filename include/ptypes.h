@@ -67,6 +67,37 @@ const ptype_mask_t STEEL_M    = get_ptype_mask( STEEL );
 const ptype_mask_t WATER_M    = get_ptype_mask( WATER );
 
 
+/**
+ * Don't even try to compile this without GCC.
+ * The ordering of Bitfields is NOT guaranteed by a lot of compilers.
+ * GCC is love, GCC is life.
+ */
+typedef union {
+  ptype_mask_t mask;
+  struct {
+    uint32_t _unused  : 14;  /* 32 - 18 */
+    bool     water    : 1;
+    bool     steel    : 1;
+    bool     rock     : 1;
+    bool     psychic  : 1;
+    bool     poison   : 1;
+    bool     normal   : 1;
+    bool     ice      : 1;
+    bool     ground   : 1;
+    bool     grass    : 1;
+    bool     ghost    : 1;
+    bool     flying   : 1;
+    bool     fire     : 1;
+    bool     fighting : 1;
+    bool     fairy    : 1;
+    bool     electric : 1;
+    bool     dragon   : 1;
+    bool     dark     : 1;
+    bool     bug      : 1;
+  } flags;
+} ptypes_t transparent;
+
+
 const char * ptype_names[] = {
   "null", "bug", "dark", "dragon", "electric", "fairy", "fighting", "fire",
   "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",

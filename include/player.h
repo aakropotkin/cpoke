@@ -56,22 +56,29 @@ ADVANCED_SHIELDING_M        = get_strat_mask( ADVANCED_SHIELDING );
 const strat_mask_t
 BAD_DECISION_PROTECTION_M   = get_strat_mask( BAD_DECISION_PROTECTION );
 
+
+/**
+ * Don't even try to compile this without GCC.
+ * The ordering of Bitfields is NOT guaranteed by a lot of compilers.
+ * GCC is love, GCC is life.
+ */
 typedef union {
   strat_mask_t mask;
   struct {
-    bool    shield                    : 1;
-    bool    switch_basic              : 1;
-    bool    switch_farm               : 1;
-    bool    switch_advanced           : 1;
-    bool    farm_energy               : 1;
-    bool    overfarm                  : 1;
-    bool    bait_shileds              : 1;
-    bool    wait_clock                : 1;
-    bool    preserve_switch_advantage : 1;
-    bool    advanced_shielding        : 1;
-    bool    bad_decision_protection   : 1;
+    uint8_t _unused                   : 4;
     bool    sacrificial_swap          : 1;
-  } strat_flags;
+    bool    bad_decision_protection   : 1;
+    bool    advanced_shielding        : 1;
+    bool    preserve_switch_advantage : 1;
+    bool    wait_clock                : 1;
+    bool    bait_shileds              : 1;
+    bool    overfarm                  : 1;
+    bool    farm_energy               : 1;
+    bool    switch_advanced           : 1;
+    bool    switch_farm               : 1;
+    bool    switch_basic              : 1;
+    bool    shield                    : 1;
+  } flags;
 } strategies_t transparent;
 
 
