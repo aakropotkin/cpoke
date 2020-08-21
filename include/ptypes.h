@@ -73,7 +73,7 @@ const ptype_mask_t WATER_M    = get_ptype_mask( WATER );
  * GCC is love, GCC is life.
  */
 typedef union {
-  ptype_mask_t mask;
+  ptype_mask_t mask;         /* 32 bits */
   struct {
     uint32_t _unused  : 14;  /* 32 - 18 */
     bool     water    : 1;
@@ -113,6 +113,9 @@ const float RESIST_DMG_MOD = 0.625;
 const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
 
 
+/**
+ * While `ptypes_t' would be more convenient, this saves 32 bits.
+ */
 typedef struct {
   ptype_mask_t resistances : 18;
   ptype_mask_t weaknesses  : 18;
@@ -241,7 +244,7 @@ const ptype_traits_t * WATER_TRAITS    = & ptype_traits[WATER];
 
 const_fn float
 get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type) {
-  ptype_mask_t   atk_mask = get_ptype_mask( atk_type );
+  ptype_mask_t   atk_mask   = get_ptype_mask( atk_type );
   ptype_traits_t def_traits = get_ptype_traits( def_type );
   return ( def_traits.resistances & atk_mask ) ? RESIST_DMG_MOD :
          ( def_traits.weaknesses & atk_mask )  ? WEAK_DMG_MOD   :
