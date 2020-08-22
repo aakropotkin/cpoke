@@ -5,11 +5,10 @@
 
 /* ========================================================================= */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "util/bits.h"
-#include "util/enumflags.h"
+#include "ai/ai.h"
 #include "pokemon.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 
 /* ------------------------------------------------------------------------ */
@@ -21,97 +20,17 @@ typedef struct packed {
 } player_t;
 
 
-uint16_t SWITCH_TIME = 60000;
-
-
-/**
- * NOTE: Okay so down the line we want the AI decision engine to be modular.
- * In <code>battle.h</code> the function <code>decide_action</code> should
- * allow completely different AI systems to run.
- * This implementation here is pulled almost directly from PvPoke essentially
- * serves as a proof of concept.
- * This type of AI design might be useful for GPGPU because it is simple and
- * it's rules can be encoded tightly; but something like an Expert System or
- * an AI Agent are probably more accurate.
- */
-typedef enum packed {
-  USER_CONTROLLED, NOVICE, RIVAL, ELITE, CHAMPION
-} ai_level_t;
-
-/* transparent attribute is applied to `strat_flags_t' */
-DEFINE_ENUM_WITH_FLAGS( strat, DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC,
-                        SWITCH_FARM, SWITCH_ADVANCED, FARM_ENERGY, OVERFARM,
-                        BAIT_SHIELDS, WAIT_CLOCK, PRESERVE_SWITCH_ADVANTAGE,
-                        ADVANCED_SHIELDING, BAD_DECISION_PROTECTION,
-                        SACRIFICIAL_SWAP
-                      ) transparent;
-
-const uint8_t NUM_STRATS = SACRIFICIAL_SWAP + 1;
-
-#define get_strat_mask( strat )  ( (strat_mask_t) to_mask( ( strat ) ) )
-
-
-typedef struct packed {
-  bool          two_charged_moves     : 1;
-  uint16_t      iv_combo_range        : 15;  /*   200-3000  */
-  uint8_t       energy_guess_accuracy : 4;   /*    0-15     */
-  uint8_t       reaction_time         : 4;   /* 0, 4, 8, 12 */
-  uint8_t       move_guess_certainty  : 2;   /*    0-3      */
-  strat_flags_t strategies;
-} ai_t;
-
-
-const ai_t AI_ARCHETYPES[] = {
-  /* User Controlled */ {
-    .two_charged_moves     = true,
-    .iv_combo_range        = 0,
-    .energy_guess_accuracy = 0,
-    .reaction_time         = 0,
-    .move_guess_certainty  = 0,
-    .strategies            = { DEFAULT_STRAT_M }
-  }, /* Novice */ {
-    .two_charged_moves     = false,
-    .iv_combo_range        = 3000,
-    .energy_guess_accuracy = 15,
-    .reaction_time         = 12,
-    .move_guess_certainty  = 0,
-    .strategies            = { SHIELD_STRAT_M }
-  }, /* Rival */ {
-    .two_charged_moves     = true,
-    .iv_combo_range        = 2000,
-    .energy_guess_accuracy = 10,
-    .reaction_time         = 8,
-    .move_guess_certainty  = 1,
-    .strategies            = { SHIELD_STRAT_M | SWITCH_BASIC_M }
-  }, /* Elite */ {
-    .two_charged_moves     = true,
-    .iv_combo_range        = 1000,
-    .energy_guess_accuracy = 5,
-    .reaction_time         = 4,
-    .move_guess_certainty  = 2,
-    .strategies            = { SHIELD_STRAT_M | SWITCH_BASIC_M | FARM_ENERGY_M |
-                               BAIT_SHIELDS_M }
-  }, /* Champion */ {
-    .two_charged_moves     = true,
-    .iv_combo_range        = 200,
-    .energy_guess_accuracy = 0,
-    .reaction_time         = 0,
-    .move_guess_certainty  = 3,
-    .strategies            = { SHIELD_STRAT_M | SWITCH_BASIC_M | FARM_ENERGY_M |
-                               OVERFARM_M | BAIT_SHIELDS_M | WAIT_CLOCK_M |
-                               PRESERVE_SWITCH_ADVANTAGE_M |
-                               ADVANCED_SHIELDING_M |
-                               BAD_DECISION_PROTECTION_M | SACRIFICIAL_SWAP_M }
-  }
-};
-
-
-typedef struct packed {
-  pvp_team_t team;
-  ai_level_t ai_level;             /* Should be replaced with a function pointer. */
-  uint8_t    active_pokemon : 2;   /* 0-2  */
-  uint8_t    shields        : 2;   /* 0-2  */
-  uint8_t    switch_turns;         /* 0-12 */
+typedef struct packed pvp_player_s {
+  pvp_team_t         team;
+  uint8_t            active_pokemon : 2;   /* 0-2  */
+  uint8_t            shields        : 2;   /* 0-2  */
+  uint8_t            switch_turns   : 4;   /* 0-12 */
+  #ifdef AI_AUX_TYPE
+  ai_aux_t           ai_aux;
+  #endif
+  #ifndef NO_DECIDE_ACTION_FNS
+  decide_action_fn_t decide_action_fn;
+  #endif
 } pvp_player_t;
 
 

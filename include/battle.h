@@ -5,26 +5,35 @@
 
 /* ========================================================================= */
 
-#include <stdint.h>
-#include "util/macros.h"
 #include "pokemon.h"
-#include "player.h"
+#include "pvp_action.h"
+#include "util/macros.h"
+#include <stdint.h>
 
 
 /* ------------------------------------------------------------------------- */
 
-
-const float PVP_FAST_BONUS_MOD   = 1.3;
-const float PVP_CHARGE_BONUS_MOD = 1.3;
-const float CHARGE_BASE_MOD      = 0.25;
-const float CHARGE_NICE_MOD      = 0.5;
-const float CHARGE_GREAT_MOD     = 0.75;
-const float CHARGE_EXCELLENT_MOD = 1.0;
+struct pvp_player_s;
 
 
-typedef enum packed {
-  FAST, CHARGED, WAIT, SHIELD, SWAP
-} action_t;
+const float   PVP_FAST_BONUS_MOD   = 1.3;
+const float   PVP_CHARGE_BONUS_MOD = 1.3;
+const float   CHARGE_BASE_MOD      = 0.25;
+const float   CHARGE_NICE_MOD      = 0.5;
+const float   CHARGE_GREAT_MOD     = 0.75;
+const float   CHARGE_EXCELLENT_MOD = 1.0;
+
+
+const uint8_t MAX_CHARGE           = 100;
+const uint8_t CHARGE_RATE          = 20;
+const float   CHARGE_DECAY_RATE    = 0.5;
+
+const uint8_t TURN_TIME            = 500;    /* ms */
+const uint8_t CHARGED_TIME         = 4000;   /* ms */
+const uint8_t SWITCH_TIME          = 13000;  /* ms */
+
+const uint8_t CHARGED_TURNS        = 8;
+const uint8_t SWITCH_TURNS         = 26;
 
 
 typedef enum packed {
@@ -64,6 +73,8 @@ typedef struct packed {
 
 typedef enum packed { SIMULATE, EMULATE } battle_mode_t;
 typedef enum packed { FIRST_FAINT, BOTH_FAINT } battle_end_cond_t;
+
+
 /**
  * Controls how CMP Ties should be handled.
  *  - "Ideal" is the way that Niantic claims it works ( as of 2020 it doesn't )
@@ -76,6 +87,7 @@ typedef enum packed {
   CMP_IDEAL, CMP_ALTERNATE, CMP_FAVOR_P1, CMP_FAVOR_P2
 } cmp_rule_t;
 
+
 /**
  * I'm pretty sure these are only used for UI animations during
  * interactive battles.
@@ -85,35 +97,6 @@ typedef enum packed {
   SUSPEND_CHARGED_SHIELD, SUSPEND_CHARGED_NO_SHIELD, SUSPEND_SWITCH_P1,
   SUSPEND_SWITCH_P2, ANIMATING, GAME_OVER
 } battle_phase_t;
-typedef
-
-/**
- * PvPoke has separate constructs for "Actions" and "Timeline Events".
- * From what I can tell these are nearly identical, and they spent a huge amount
- * of resources converting between the two during simulation and analysis.
- * I have combined them so that a list of actions can represent the full
- * decision tree of a battle.
- *
- * FIXME:
- * The effect of random chance buffs are unfortunately not going to appear in
- * this encoding. This should be fixed once the simulator is more fleshed out
- * and we understand how buffs are relevant to analysis.
- */
-typedef enum packed {
-  ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2, SHIELD
-} pvp_action_t;
-
-
-const uint8_t MAX_CHARGE        = 100;
-const uint8_t CHARGE_RATE       = 20;
-const float   CHARGE_DECAY_RATE = 0.5;
-
-const uint8_t TURN_TIME         = 500;    /* ms */
-const uint8_t CHARGED_TIME      = 4000;   /* ms */
-const uint8_t SWITCH_TIME       = 13000;  /* ms */
-
-const uint8_t CHARGED_TURNS     = 8;
-const uint8_t SWITCH_TURNS      = 26;
 
 
 /**
@@ -146,16 +129,17 @@ typedef pvp_pokemon_log_t pvp_team_log_t[3];
  * specific detailed data after the fact.
  */
 typedef struct packed {
-  pvp_player_t   p1;
-  pvp_player_t   p2;
-  pvp_action_t   p1_action;  /* Queued/Current action */
-  pvp_action_t   p2_action;
-  uint32_t       turn;
+  struct pvp_player_s  p1;
+  struct pvp_player_s  p2;
+  pvp_action_t         p1_action;  /* Queued/Current action */
+  pvp_action_t         p2_action;
+  uint32_t             turn;
   //battle_phase_t phase;      /* Not sure if we actually need this */
 } pvp_battle_t;
 
 
 pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
+
 
 /**
  * Returns <code>true</code> when the battle is over.
