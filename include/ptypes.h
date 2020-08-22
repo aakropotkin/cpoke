@@ -185,6 +185,38 @@ const ptype_traits_t * WATER_TRAITS    = & ptype_traits[WATER];
          ( get_ptype_mask( ( atk ) ) ) ) )
 
 
+/* Defender Type 1 x Defender Type 2 ( or NULL ) x Attack Type */
+float DAMAGE_MODIFIERS[18][19][18] =
+#include "damage_modifiers.def"
+  ;
+
+#if 0
+/**
+ * Used to build DAMAGE_MODIFIERS from scratch.
+ */
+void
+init_damage_modifier_mat( void ) {
+  printf( "{ " );
+  for ( ptype_t d1 = BUG; d1 <= WATER; d1++ ) {
+    if ( d1 != BUG ) printf( ", " );
+    printf( "{ " );
+    for ( ptype_t d2 = PT_NONE; d2 <= WATER; d2++ ) {
+      if ( d2 != PT_NONE ) printf( ", " );
+      printf( "{ " );
+      for ( ptype_t a = BUG; a <= WATER; a++ ) {
+        DAMAGE_MODIFIERS[d1 - 1][d2][a - 1] =
+          get_damage_modifier_duo( d1, d2, a );
+        if ( a != BUG ) printf( ", " );
+        printf( "%f", DAMAGE_MODIFIERS[d1 - 1][d2][a - 1] );
+      }
+      printf( " }\n  " );
+    }
+    printf( "}\n" );
+  }
+  printf( "}\n" );
+}
+
+
 const_fn float
 get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type) {
   ptype_mask_t   atk_mask   = get_ptype_mask( atk_type );
@@ -223,7 +255,45 @@ get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
   }
   return m;
 }
+#endif
 
+
+const_fn float
+get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type ) {
+  return DAMAGE_MODIFIERS[def_type - 1][PT_NONE][atk_type - 1];
+}
+
+const_fn float
+get_damage_modifier_duo( ptype_t def_type1,
+                         ptype_t def_type2,
+                         ptype_t atk_type
+                       ) {
+  return DAMAGE_MODIFIERS[def_type1 - 1][def_type2][atk_type - 1];
+}
+
+const_fn float
+get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
+  switch( popcount( def_types ) ) {
+  case 2:
+    return DAMAGE_MODIFIERS[highest_bit( def_types ) - 1]
+                           [lowest_bit( def_types )]
+                           [atk_type];
+    break;
+  case 1:
+    return DAMAGE_MODIFIERS[highest_bit( def_types ) - 1][PT_NONE][atk_type];
+    break;
+  case 0:
+    return 1.0;
+    break;
+  default:
+    fprintf( stderr,
+             "'get_damage_modifier' received a 'ptype_mask_t' with more than "
+             "two types! Returning '1.0'."
+             );
+    return 1.0;
+    break;
+  }
+}
 
 const_fn float
 get_damage_modifier_flags( ptype_flags_t def_types, ptype_t atk_type ) {

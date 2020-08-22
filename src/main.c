@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ptypes.h"
-#include "player.h"
+#include "ptypes.h"
 
 
 /* ------------------------------------------------------------------------- */

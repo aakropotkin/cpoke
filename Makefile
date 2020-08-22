@@ -8,12 +8,14 @@ CC = gcc
 
 SRCPATH     = src
 INCLUDEPATH = include
+DEFSPATH    = data/defs
 
 # `-fms-extensions' enables struct inheritence
-CFLAGS      = -I${INCLUDEPATH} -fms-extensions
+CFLAGS      = -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions
 LINKERFLAGS = -lm
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
+DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon
 
