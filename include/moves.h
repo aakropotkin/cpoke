@@ -34,6 +34,13 @@ typedef struct packed {
 } buff_t; /* 11 bits used, 16 total */
 
 
+
+const buff_t NO_BUFF = { .chance = bc0000,
+                         .atk_buff = { .target = 0, .debuffp = 0, .amount = 0 },
+                         .def_buff = { .target = 0, .debuffp = 0, .amount = 0 }
+                       };
+
+
 const double BUFF_MOD[] = {
   0.5000000, 0.5714286, 0.6666667, 0.8000000,  /* Debuff */
   1.0000000,
