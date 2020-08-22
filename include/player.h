@@ -24,6 +24,16 @@ typedef struct packed {
 uint16_t SWITCH_TIME = 60000;
 
 
+/**
+ * NOTE: Okay so down the line we want the AI decision engine to be modular.
+ * In <code>battle.h</code> the function <code>decide_action</code> should
+ * allow completely different AI systems to run.
+ * This implementation here is pulled almost directly from PvPoke essentially
+ * serves as a proof of concept.
+ * This type of AI design might be useful for GPGPU because it is simple and
+ * it's rules can be encoded tightly; but something like an Expert System or
+ * an AI Agent are probably more accurate.
+ */
 typedef enum packed {
   USER_CONTROLLED, NOVICE, RIVAL, ELITE, CHAMPION
 } ai_level_t;
@@ -98,7 +108,7 @@ const ai_t AI_ARCHETYPES[] = {
 
 typedef struct packed {
   pvp_team_t team;
-  ai_level_t ai_level;
+  ai_level_t ai_level;             /* Should be replaced with a function pointer. */
   uint8_t    active_pokemon : 2;   /* 0-2  */
   uint8_t    shields        : 2;   /* 0-2  */
   uint8_t    switch_turns;         /* 0-12 */
