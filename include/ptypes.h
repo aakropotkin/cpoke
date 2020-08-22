@@ -101,7 +101,7 @@ typedef struct packed {
  * Used to build DAMAGE_MODIFIERS from scratch.
  */
 void
-init_damage_modifier_mat( void ) {
+generate_damage_modifier_mat( void ) {
   printf( "{ " );
   for ( ptype_t d1 = BUG; d1 <= WATER; d1++ ) {
     if ( d1 != BUG ) printf( ", " );
