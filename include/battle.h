@@ -28,9 +28,9 @@ const uint8_t MAX_CHARGE           = 100;
 const uint8_t CHARGE_RATE          = 20;
 const float   CHARGE_DECAY_RATE    = 0.5;
 
-const uint8_t TURN_TIME            = 500;    /* ms */
-const uint8_t CHARGED_TIME         = 4000;   /* ms */
-const uint8_t SWITCH_TIME          = 13000;  /* ms */
+const uint16_t TURN_TIME            = 500;    /* ms */
+const uint16_t CHARGED_TIME         = 4000;   /* ms */
+const uint16_t SWITCH_TIME          = 13000;  /* ms */
 
 const uint8_t CHARGED_TURNS        = 8;
 const uint8_t SWITCH_TURNS         = 26;
@@ -51,9 +51,9 @@ typedef struct packed {
 
 
 typedef struct packed {
-  pokemon_t    pokemon;
-  scenario_t * scenarios;
-  uint32_t     average;
+  roster_pokemon_t * pokemon;
+  scenario_t       * scenarios;
+  uint32_t           average;
 } roster_performance_t;
 
 
@@ -129,11 +129,11 @@ typedef pvp_pokemon_log_t pvp_team_log_t[3];
  * specific detailed data after the fact.
  */
 typedef struct packed {
-  struct pvp_player_s  p1;
-  struct pvp_player_s  p2;
-  pvp_action_t         p1_action;  /* Queued/Current action */
-  pvp_action_t         p2_action;
-  uint32_t             turn;
+  struct pvp_player_s * p1;
+  struct pvp_player_s * p2;
+  pvp_action_t          p1_action;  /* Queued/Current action */
+  pvp_action_t          p2_action;
+  uint32_t              turn;
   //battle_phase_t phase;      /* Not sure if we actually need this */
 } pvp_battle_t;
 
@@ -144,10 +144,12 @@ pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
 /**
  * Returns <code>true</code> when the battle is over.
  */
-bool           eval_turn( pvp_battle_t * battle );
-bool           is_battle_over( pvp_battle_t * battle );
-bool           is_p1_winner( pvp_battle_t * battle );
-pvp_player_t * get_battle_winner( pvp_battle_t * battle );
+bool eval_turn( pvp_battle_t * battle );
+bool is_battle_over( pvp_battle_t * battle );
+bool is_p1_winner( pvp_battle_t * battle );
+
+struct pvp_player_s *
+get_battle_winner( pvp_battle_t * battle );
 
 
 /* ========================================================================= */

@@ -41,7 +41,10 @@ typedef pvp_action_t (* decide_action_fn_t ) ( bool, pvp_battle_t * );
  * will need to be defined explicitly.
  */
 #ifdef AI_AUX_TYPE
-typedef AI_AUX_TYPE ai_aux_t
+typedef AI_AUX_TYPE ai_aux_t;
+#ifndef AI_AUX_BITS
+#define AI_AUX_BITS
+#endif
 #endif
 
 

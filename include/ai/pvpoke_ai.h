@@ -7,8 +7,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "pvp_action.h"
 #include "battle.h"
-#include "ai/ai.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -24,7 +25,14 @@
  */
 typedef enum packed {
   USER_CONTROLLED, NOVICE, RIVAL, ELITE, CHAMPION
-} ai_level_t;
+} pvpoke_ai_level_t;
+
+/**
+ * AI Level can be used to reference AI rules
+ */
+#define AI_AUX_TYPE pvpoke_ai_level_t
+#define AI_AUX_BITS : 3
+
 
 /* transparent attribute is applied to `strat_flags_t' */
 DEFINE_ENUM_WITH_FLAGS( strat, DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC,
@@ -46,10 +54,10 @@ typedef struct packed {
   uint8_t       reaction_time         : 4;   /* 0, 4, 8, 12 */
   uint8_t       move_guess_certainty  : 2;   /*    0-3      */
   strat_flags_t strategies;
-} ai_t;
+} pvpoke_ai_rules_t;
 
 
-const ai_t AI_ARCHETYPES[] = {
+const pvpoke_ai_rules_t AI_ARCHETYPES[] = {
   /* User Controlled */ {
     .two_charged_moves     = true,
     .iv_combo_range        = 0,
@@ -92,6 +100,9 @@ const ai_t AI_ARCHETYPES[] = {
                                BAD_DECISION_PROTECTION_M | SACRIFICIAL_SWAP_M }
   }
 };
+
+
+pvp_action_t pvpoke_ai_decide_action( bool decide_p1, pvp_battle_t * battle );
 
 
 /* ========================================================================= */

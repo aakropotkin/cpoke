@@ -6,6 +6,7 @@
 /* ========================================================================= */
 
 #include "ai/ai.h"
+#include "battle.h"
 #include "pokemon.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -26,7 +27,7 @@ typedef struct packed pvp_player_s {
   uint8_t            shields        : 2;   /* 0-2  */
   uint8_t            switch_turns   : 4;   /* 0-12 */
   #ifdef AI_AUX_TYPE
-  ai_aux_t           ai_aux;
+  ai_aux_t           ai_aux AI_AUX_BITS;
   #endif
   #ifndef NO_DECIDE_ACTION_FNS
   decide_action_fn_t decide_action_fn;
@@ -62,15 +63,15 @@ use_shield( pvp_player_t * player ) {
 void
 start_switch_timer( pvp_player_t * player ) {
   assert( player != NULL );
-  player->switch_timer = SWITCH_TIME;
+  player->switch_turns = SWITCH_TURNS;
 }
 
 
 void
 decr_switch_timer( pvp_player_t * player, uint16_t delta_time ) {
   assert( player != NULL );
-  if ( player->switch_timer > 0 )
-    player->switch_timer = max( 0, ( player->switch_timer - delta_time ) );
+  if ( player->switch_turns > 0 )
+    player->switch_turns = max( 0, ( player->switch_turns - 1 ) );
 }
 
 
