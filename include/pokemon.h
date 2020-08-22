@@ -95,10 +95,10 @@ typedef struct packed {
 typedef struct packed {
   base_pokemon_t;
   uint8_t              hp;
-  uint16_t             cooldown;
+  uint8_t              cooldown;          /* # Turns until next action */
   buff_state_t         buffs;
-  pvp_fast_move_t    * fast_move;
-  pvp_charged_move_t * charged_moves[2];
+  pvp_fast_move_t    * fast_move;         /* TODO: Hold value for GPGPU */
+  pvp_charged_move_t * charged_moves[2];  /* TODO: Hold value for GPGPU */
 } pvp_pokemon_t;
 
 

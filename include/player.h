@@ -99,9 +99,9 @@ const ai_t AI_ARCHETYPES[] = {
 typedef struct packed {
   pvp_team_t team;
   ai_level_t ai_level;
-  uint8_t    active_pokemon : 2;   /*    0-2   */
-  uint8_t    shields        : 2;   /*    0-2   */
-  uint16_t   switch_timer;         /* 0-60,000 */
+  uint8_t    active_pokemon : 2;   /* 0-2  */
+  uint8_t    shields        : 2;   /* 0-2  */
+  uint8_t    switch_turns;         /* 0-12 */
 } pvp_player_t;
 
 
