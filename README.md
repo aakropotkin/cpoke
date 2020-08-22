@@ -5,6 +5,7 @@ For example, `cpoke` may implement a GUI/TUI system, but the core code should no
 
 
 One of the core issues in PvPoke was it's memory management. While C is significantly more flexible in this regard, still be mindful to keep allocations to a minimum, and be as efficient as possible. The more lightweight the codebase can remain, the easier it will be to expand simulation detail. For example, simulating all pokemon with all movesets in all shield scenarios is simply not feasible if we are bogged down by poor MM. It is a slippery slope to start sacrificing movesets and pokemon selections to make up for slow simulations.
+Having said that you will notice that in some cases (ex move encoding) space is sacrificed to avoid dereferencing data. This allows pokemon to hold their move definitions, and leaves the opportunity to calculate battles with GPGPU! 
 
 
 API/headers should operate in such a generalized that data sources ( whether by SQL, JSON Parsing, etc ) are abstracted away from the Simulator. Similarly the codebase should remain in separate modules such that shared objects may be compiled and wrapped by other languages, so that parts of this system might be used by Python, C++, etc without needing to modify the codebase extensively. Our own compilation can of course flatten these modules, optimizing out separations into a single binary for direct usage.
