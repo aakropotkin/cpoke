@@ -152,8 +152,18 @@ typedef struct packed {
   pvp_action_t   p2_action;
   uint32_t       turn;
   //battle_phase_t phase;      /* Not sure if we actually need this */
-} pvp_battle_t
+} pvp_battle_t;
 
+
+pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
+
+/**
+ * Returns <code>true</code> when the battle is over.
+ */
+bool           eval_turn( pvp_battle_t * battle );
+bool           is_battle_over( pvp_battle_t * battle );
+bool           is_p1_winner( pvp_battle_t * battle );
+pvp_player_t * get_battle_winner( pvp_battle_t * battle );
 
 
 /* ========================================================================= */
