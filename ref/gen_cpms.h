@@ -1,8 +1,10 @@
+/* -*- mode: c; -*- */
+/* ========================================================================= */
 /* THIS FILE IS FOR REFERENCE ONLY. DO NOT INCLUDE IT IN ANY OTHER FILES. */
 /* THIS FILE IS FOR REFERENCE ONLY. DO NOT INCLUDE IT IN ANY OTHER FILES. */
 /* THIS FILE IS FOR REFERENCE ONLY. DO NOT INCLUDE IT IN ANY OTHER FILES. */
-
 #if 0
+/* ------------------------------------------------------------------------- */
 
 #include <math.h>
 
@@ -34,4 +36,8 @@ calculate_cpm_from_full_levels( float level ) {
          );
 }
 
+
+/* ------------------------------------------------------------------------- */
 #endif
+/* ========================================================================= */
+/* vim: set filetype=c : */
