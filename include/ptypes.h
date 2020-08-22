@@ -58,6 +58,9 @@ const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
 
 /**
  * While `ptypes_t' would be more convenient, this saves 32 bits.
+ *
+ * <code>ptype_traits_t</code> isn't super useful because in practice
+ * <code>DAMAGE_MODIFIERS</code> should be read to find type interactions.
  */
 typedef struct packed {
   ptype_mask_t resistances : 18;
@@ -255,7 +258,7 @@ get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
   }
   return m;
 }
-#endif
+#endif /* 0 */
 
 
 const_fn float
@@ -277,10 +280,12 @@ get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type ) {
   case 2:
     return DAMAGE_MODIFIERS[highest_bit( def_types ) - 1]
                            [lowest_bit( def_types )]
-                           [atk_type];
+                           [atk_type - 1];
     break;
   case 1:
-    return DAMAGE_MODIFIERS[highest_bit( def_types ) - 1][PT_NONE][atk_type];
+    return DAMAGE_MODIFIERS[highest_bit( def_types ) - 1]
+                           [PT_NONE]
+                           [atk_type - 1];
     break;
   case 0:
     return 1.0;
