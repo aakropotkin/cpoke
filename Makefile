@@ -22,10 +22,14 @@ BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon
 
 # -------------------------------------------------------------------------- #
 
+ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+
 main.o: ${SRCPATH}/main.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-cpoke: main.o ${HEADERS}
+cpoke: main.o ptypes.o ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
 
 
