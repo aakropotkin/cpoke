@@ -33,7 +33,6 @@ const pdex_mon_t bulbasaur = {
 
 const base_move_t vine_whip = {
   .move_id   = 214,
-  .move_name = "VINE_WHIP_FAST",
   .type      = GRASS,
   .power     = 5,
   .energy    = 8,
@@ -46,7 +45,6 @@ const pvp_fast_move_t vine_whip_pvp = {
 
 const base_move_t power_whip = {
   .move_id   = 118,
-  .move_name = "POWER_WHIP",
   .type      = GRASS,
   .power     = 90,
   .energy    = 50,
@@ -65,7 +63,6 @@ main( int argc, char * argv[], char ** envp ) {
 
   roster_pokemon_t bulby_boi = {
     bulbasaur,
-    .custom_name   = "Bulby Boi",
     .level         = 20,
     .ivs           = { 10, 10, 10 },
     .fast_move     = vine_whip,

@@ -2,7 +2,7 @@
 
 
 .DEFAULT_GOAL := cpoke
-.PHONY = all clean
+.PHONY = all clean gamemaster
 
 CC = gcc
 
@@ -63,9 +63,19 @@ test_pokemon: test_pokemon.o ${HEADERS}
 
 # -------------------------------------------------------------------------- #
 
+data/GAME_MASTER.json: FORCE
+	wget -O $@ 'https://github.com/pokemongo-dev-contrib/pokemongo-game-master/raw/master/versions/latest/GAME_MASTER.json'
+
+gamemaster: data/GAME_MASTER.json
+
+
+# -------------------------------------------------------------------------- #
+
 clean:
 	@echo "Cleaning Up..."
 	rm -rvf *.o ${BINS};
 
+
+FORCE:
 
 # ========================================================================== #
