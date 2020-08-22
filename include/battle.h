@@ -110,8 +110,9 @@ const float   CHARGE_DECAY_RATE = 0.5;
 
 const uint8_t TURN_TIME         = 500;    /* ms */
 const uint8_t CHARGED_TIME      = 4000;   /* ms */
-const uint8_t CHARGED_TURNS     = 8;
 const uint8_t SWITCH_TIME       = 13000;  /* ms */
+
+const uint8_t CHARGED_TURNS     = 8;
 const uint8_t SWITCH_TURNS      = 26;
 
 
@@ -121,14 +122,14 @@ const uint8_t SWITCH_TURNS      = 26;
  */
 typedef struct packed {
   uint32_t total_damage;
-  uint32_t total_charged_damage;         /* Damage dealt with Charged Moves */
-  uint32_t total_damage_blocked;         /* Damage prevent by shielding     */
+  uint32_t total_charged_damage;        /* Damage dealt with Charged Moves */
+  uint32_t total_damage_blocked;        /* Damage prevent by shielding     */
   uint32_t total_energy_gained;
   uint32_t total_energy_used;
-  uint32_t damage_against_shields;       /* Damage wasted on enemy shields  */
-  uint8_t  damage_through_shields;       /* Damage taken while shielding    */
-  uint8_t  shields_used            : 2;  /* 0-2 */
-  uint8_t  shields_hit             : 2;  /* 0-2 */
+  uint32_t damage_against_shields;      /* Damage wasted on enemy shields  */
+  uint8_t  damage_through_shields;      /* Damage taken while shielding    */
+  uint8_t  shields_used           : 2;  /* 0-2 */
+  uint8_t  shields_hit            : 2;  /* 0-2 */
   uint8_t  switch_advantages;
 } pvp_pokemon_log_t;
 
