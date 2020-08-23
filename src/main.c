@@ -1,5 +1,4 @@
 /* -*- mode: c; -*- */
-
 /* ========================================================================= */
 
 #include <stdlib.h>
@@ -10,6 +9,7 @@
 #include "pokemon.h"
 #include "pvp_action.h"
 #include "battle.h"
+#include <curl/curl.h>
 
 #include "ai/pvpoke_ai.h"
 /* Must come after AI implementation */
@@ -23,7 +23,6 @@
 
 const pdex_mon_t bulbasaur = {
   .dex_number = 1,
-  .name       = "BULBASAUR",
   .family     = 1,
   .form       = 1,
   .types      = GRASS_M | POISON_M,
@@ -81,5 +80,4 @@ main( int argc, char * argv[], char ** envp ) {
 
 
 /* ========================================================================= */
-
 /* vim: set filetype=c : */

@@ -11,13 +11,13 @@ INCLUDEPATH = include
 DEFSPATH    = data/defs
 
 # `-fms-extensions' enables struct inheritence
-CFLAGS      = -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions
-LINKERFLAGS = -lm
+CFLAGS      += -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions
+LINKERFLAGS = -lm $(shell curl-config --libs)
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
-BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon
+BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon fetch_gm
 
 
 # -------------------------------------------------------------------------- #
@@ -39,6 +39,15 @@ parse_gm.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 parse_gm: parse_gm.o ${HEADERS}
+	${CC} ${LINKERFLAGS} $< -o $@
+
+
+# -------------------------------------------------------------------------- #
+
+fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+fetch_gm: fetch_gm.o ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
 
 
