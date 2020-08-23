@@ -19,3 +19,4 @@ See "Projects" tab for full details. JSON Parsing and Simulation boilerplate are
 - "ext" files are those which are not authored by devs here, but have been included to lock versions/ease build process.
 - Many "util" files are authored by alexameen for use across projects, and should not be explicitly targeted for `cpoke`. ( If you extend them, keep things genearalized for use in "any project" ).
 - I am particularly picky about code formatting; but don't let that stop you from putting in PRs. Just don't be surprised if I swoop in and reformat after the fact. <3
+- I don't care that Windows thinks .def is a module, I use it for headers that exclusively contain const variables definitions. 
