@@ -16,25 +16,26 @@
 
 /* ------------------------------------------------------------------------- */
 
+const float WEAK_DMG_MOD   = 1.6;
+const float RESIST_DMG_MOD = 0.625;
+const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
+const float STAB_DMG_MOD   = 1.2;
+
+
+/* ------------------------------------------------------------------------- */
+
 DEFINE_ENUM_WITH_FLAGS( ptype, PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY,
                         FIGHTING, FIRE, FLYING, GHOST, GRASS, GROUND, ICE,
                         NORMAL, POISON, PSYCHIC, ROCK, STEEL, WATER
                       );
 
-int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
-#define print_ptype_mask( sep, pm ) fprint_ptype_mask( stdout, ( sep ), ( pm ) )
-#define get_ptype_mask( pt )  ( (ptype_mask_t) to_mask( ( pt ) ) )
-
-
-/* ------------------------------------------------------------------------- */
-
 const uint8_t NUM_PTYPES   = WATER + 1; /* 18 types, 19 including `PT_NONE' */
 
-const float WEAK_DMG_MOD   = 1.6;
-const float RESIST_DMG_MOD = 0.625;
-const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
+int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
 
-const float STAB_DMG_MOD = 1.2;
+#define print_ptype_mask( sep, pm ) fprint_ptype_mask( stdout, ( sep ), ( pm ) )
+
+#define get_ptype_mask( pt )  ( (ptype_mask_t) to_mask( ( pt ) ) )
 
 
 /* ------------------------------------------------------------------------- */
@@ -45,11 +46,13 @@ const float STAB_DMG_MOD = 1.2;
  * <code>ptype_traits_t</code> isn't super useful because in practice
  * <code>DAMAGE_MODIFIERS</code> should be read to find type interactions.
  */
-typedef struct packed {
+struct ptype_traits_s {
   ptype_mask_t resistances : 18;
   ptype_mask_t weaknesses  : 18;
   ptype_mask_t immunities  : 18;
-} ptype_traits_t; /* 54 bits used, 64 total */
+} packed; /* 54 bits used, 64 total */
+
+typedef struct ptype_traits_s  ptype_traits_t;
 
 /* This must come after the definition of `ptype_traits_t` */
 #include "ptype_traits.def"
@@ -74,20 +77,23 @@ get_damage_modifier_flags( ptype_flags_t def_types, ptype_t atk_type );
 
 /* ------------------------------------------------------------------------- */
 
-static inline const_fn bool
-pt_resistp( ptype_t def, ptype_t atk ) {
+  static inline const_fn bool
+pt_resistp( ptype_t def, ptype_t atk )
+{
   return ( !! ( ( get_ptype_traits( ( def ) ).resistances ) &
                 ( get_ptype_mask( ( atk ) ) ) ) );
 }
 
-static inline const_fn bool
-pt_weakp( ptype_t def, ptype_t atk ) {
+  static inline const_fn bool
+pt_weakp( ptype_t def, ptype_t atk )
+{
   return ( !! ( ( get_ptype_traits( ( def ) ).weaknesses ) &
                 ( get_ptype_mask( ( atk ) ) ) ) );
 }
 
-static inline const_fn bool
-pt_immunep( ptype_t def, ptype_t atk ) {
+  static inline const_fn bool
+pt_immunep( ptype_t def, ptype_t atk )
+{
   return ( !! ( ( get_ptype_traits( ( def ) ).immunities ) &
                 ( get_ptype_mask( ( atk ) ) ) ) );
 }
@@ -101,8 +107,10 @@ const char * ptype_names[] = {
   "rock", "steel", "water"
 };
 
-
 #define get_ptype_name( pt )  ptype_names[( pt )]
+
+
+/* ------------------------------------------------------------------------- */
 
 
 

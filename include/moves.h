@@ -16,23 +16,34 @@ typedef enum packed {
   bc_1000, bc_0500, bc_0300, bc_0125, bc0100, bc0000
 } buff_chance_t; /* 3 bits used, 4 total */
 
-typedef struct packed {
+
+/* ------------------------------------------------------------------------- */
+
+struct stat_buff_s {
   uint8_t target  : 1; /* 0 --> self; 1 --> opponent */
   uint8_t debuffp : 1; /* 1 --> Debuff --> ( - amount ) */
   uint8_t amount  : 2;
-} stat_buff_t; /* 4 bits */
+} packed;
 
-const_fn int8_t
-decode_stat_buff( stat_buff_t buff ) {
+typedef struct stat_buff_s  stat_buff_t;
+
+
+  const_fn int8_t
+decode_stat_buff( stat_buff_t buff )
+{
   return buff.debuffp ? buff.amount : ( - buff.amount );
 }
 
-typedef struct packed {
+
+/* ------------------------------------------------------------------------- */
+
+struct buff_s {
   buff_chance_t chance;   /* I think 3 bits */
   stat_buff_t   atk_buff;
   stat_buff_t   def_buff;
-} buff_t; /* 11 bits used, 16 total */
+} packed; /* 11 bits used, 16 total */
 
+typedef struct buff_s  buff_t;
 
 
 const buff_t NO_BUFF = { .chance = bc0000,
@@ -40,6 +51,8 @@ const buff_t NO_BUFF = { .chance = bc0000,
                          .def_buff = { .target = 0, .debuffp = 0, .amount = 0 }
                        };
 
+
+/* ------------------------------------------------------------------------- */
 
 const double BUFF_MOD[] = {
   0.5000000, 0.5714286, 0.6666667, 0.8000000,  /* Debuff */
@@ -54,35 +67,45 @@ typedef enum packed {
 } buff_level_t;
 
 
-typedef struct packed {
+/* ------------------------------------------------------------------------- */
+
+struct buff_state_s {
   buff_level_t atk_buff_lv;
   buff_level_t def_buff_lv;
-} buff_state_t;
+} packed;
 
+typedef struct buff_state_s  buff_state_t;
 
 #define get_buff_mod( buff_level )  ( BUFF_MOD( ( buff_level ) ) )
 
 
-void
-apply_buff( buff_state_t * buff_state, buff_t buff ) {
+/* ------------------------------------------------------------------------- */
+
+  void
+apply_buff( buff_state_t * buff_state, buff_t buff )
+{
   /* Attack */
-  if ( buff.atk_buff.debuffp ) {
-    buff_state->atk_buff_lv =
-      max( B_4_8, buff_state->atk_buff_lv - buff.atk_buff.amount );
-  } else {
-    buff_state->atk_buff_lv =
-      min( B_8_4, buff_state->atk_buff_lv + buff.atk_buff.amount );
-  }
+  if ( buff.atk_buff.debuffp )
+    {
+      buff_state->atk_buff_lv =
+        max( B_4_8, buff_state->atk_buff_lv - buff.atk_buff.amount );
+    } else {
+      buff_state->atk_buff_lv =
+        min( B_8_4, buff_state->atk_buff_lv + buff.atk_buff.amount );
+    }
   /* Defense */
-  if ( buff.def_buff.debuffp ) {
-    buff_state->def_buff_lv =
-      max( B_4_8, buff_state->def_buff_lv - buff.def_buff.amount );
-  } else {
-    buff_state->def_buff_lv =
-      min( B_8_4, buff_state->def_buff_lv + buff.def_buff.amount );
-  }
+  if ( buff.def_buff.debuffp )
+    {
+      buff_state->def_buff_lv =
+        max( B_4_8, buff_state->def_buff_lv - buff.def_buff.amount );
+    } else {
+      buff_state->def_buff_lv =
+        min( B_8_4, buff_state->def_buff_lv + buff.def_buff.amount );
+    }
 }
 
+
+/* ------------------------------------------------------------------------- */
 
 /**
  * Calculating Damage:
@@ -108,6 +131,7 @@ apply_buff( buff_state_t * buff_state, buff_t buff ) {
  *                = 3
  */
 
+/* ------------------------------------------------------------------------- */
 
 /**
  * As of [2020-08-22] there are 342 moves

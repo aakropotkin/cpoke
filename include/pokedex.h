@@ -12,23 +12,28 @@
 
 /* ------------------------------------------------------------------------- */
 
+struct stats_s { uint16_t attack, stamina, defense; } packed;
+typedef struct stats_s  stats_t;
 
-typedef struct packed { uint16_t attack, stamina, defense; } stats_t;
 
+/* ------------------------------------------------------------------------- */
 
-typedef struct packed {
+struct pdex_mon_s {
   uint16_t     dex_number; /* Highest is Melmetal with 809 */
   char *       name;
   uint16_t     family;     /* Dex # of "base" monster ( lowest non-baby ) */
-
   uint8_t      form;       /* Usually normal/shadow, but sometimes legacy */
-
   ptype_mask_t types;
   stats_t      base_stats;
 
   /* FIXME add moves struct */
 
-} pdex_mon_t;
+} packed;
+
+typedef struct pdex_mon_s  pdex_mon_t;
+
+
+/* ------------------------------------------------------------------------- */
 
 
 

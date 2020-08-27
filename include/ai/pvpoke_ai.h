@@ -8,7 +8,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "pvp_action.h"
-#include "battle.h"
+#include "ai/ai.h"
+
+struct pvp_battle_s;
 
 
 /* ------------------------------------------------------------------------- */
@@ -27,12 +29,10 @@ typedef enum packed {
   USER_CONTROLLED, NOVICE, RIVAL, ELITE, CHAMPION
 } pvpoke_ai_level_t;
 
-/**
- * AI Level can be used to reference AI rules
- */
-#define AI_AUX_TYPE pvpoke_ai_level_t
-#define AI_AUX_BITS : 3
+typedef pvpoke_ai_level_t  pvpoke_ai_aux_t;
 
+
+/* ------------------------------------------------------------------------- */
 
 /* transparent attribute is applied to `strat_flags_t' */
 DEFINE_ENUM_WITH_FLAGS( strat, DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC,
@@ -47,15 +47,21 @@ const uint8_t NUM_STRATS = SACRIFICIAL_SWAP + 1;
 #define get_strat_mask( strat )  ( (strat_mask_t) to_mask( ( strat ) ) )
 
 
-typedef struct packed {
+/* ------------------------------------------------------------------------- */
+
+struct pvpoke_ai_rules_s {
   bool          two_charged_moves     : 1;
   uint16_t      iv_combo_range        : 15;  /*   200-3000  */
   uint8_t       energy_guess_accuracy : 4;   /*    0-15     */
   uint8_t       reaction_time         : 4;   /* 0, 4, 8, 12 */
   uint8_t       move_guess_certainty  : 2;   /*    0-3      */
   strat_flags_t strategies;
-} pvpoke_ai_rules_t;
+} packed;
 
+typedef struct pvpoke_ai_rules_s  pvpoke_ai_rules_t;
+
+
+/* ------------------------------------------------------------------------- */
 
 const pvpoke_ai_rules_t AI_ARCHETYPES[] = {
   /* User Controlled */ {
@@ -102,7 +108,72 @@ const pvpoke_ai_rules_t AI_ARCHETYPES[] = {
 };
 
 
-pvp_action_t pvpoke_ai_decide_action( bool decide_p1, pvp_battle_t * battle );
+/* ------------------------------------------------------------------------- */
+
+typedef enum packed {
+  BOTH_BAIT, NEITHER_BAIT, NO_BAIT, FARM
+} stype_t;
+
+
+struct scenario_s {
+  stype_t    name;
+  /* battler_t  opponent; */
+  uint32_t * matchups;
+  uint32_t   average;
+  uint8_t    min_shields;
+} packed;
+
+typedef struct scenario_s  scenario_t;
+
+
+/* ------------------------------------------------------------------------- */
+
+struct roster_performance_s {
+  roster_pokemon_t * pokemon;
+  scenario_t       * scenarios;
+  uint32_t           average;
+} packed;
+
+typedef struct roster_performance_s  roster_performance_t;
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * These decisions help AI pick teams from a roster.
+ */
+typedef enum packed {
+  BASIC, BEST, COUNTER, UNBALANCED, SAME_TEAM, SAME_TEAM_DIFFERENT_LEAD,
+  COUNTER_LAST_LEAD
+} dtype_t;
+
+struct decision_option_s {
+  dtype_t  name;
+  uint32_t weight;
+} packed;
+
+typedef struct decision_option_s  decision_option_t;
+
+
+
+/* ------------------------------------------------------------------------- */
+
+ai_status_t pvpoke_ai_select_team( roster_t   * our_roster,
+                                   roster_t   * their_roser,
+                                   pvp_team_t * team,
+                                   void       *
+                                 );
+
+ai_status_t pvpoke_ai_decide_action( bool                  decide_p1,
+                                     struct pvp_battle_s * battle,
+                                     pvp_action_t        * choice,
+                                     void                * aux
+                                   );
+
+ai_status_t pvpoke_ai_init( ai_t * ai );
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */

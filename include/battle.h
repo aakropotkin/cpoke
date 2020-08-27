@@ -10,11 +10,10 @@
 #include "util/macros.h"
 #include <stdint.h>
 
-
-/* ------------------------------------------------------------------------- */
-
 struct pvp_player_s;
 
+
+/* ------------------------------------------------------------------------- */
 
 const float   PVP_FAST_BONUS_MOD   = 1.3;
 const float   PVP_CHARGE_BONUS_MOD = 1.3;
@@ -36,44 +35,10 @@ const uint8_t CHARGED_TURNS        = 8;
 const uint8_t SWITCH_TURNS         = 26;
 
 
-typedef enum packed {
-  BOTH_BAIT, NEITHER_BAIT, NO_BAIT, FARM
-} stype_t;
-
-
-typedef struct packed {
-  stype_t    name;
-  /* battler_t  opponent; */
-  uint32_t * matchups;
-  uint32_t   average;
-  uint8_t    min_shields;
-} scenario_t;
-
-
-typedef struct packed {
-  roster_pokemon_t * pokemon;
-  scenario_t       * scenarios;
-  uint32_t           average;
-} roster_performance_t;
-
-
-/**
- * These decisions help AI pick teams from a roster.
- */
-typedef enum packed {
-  BASIC, BEST, COUNTER, UNBALANCED, SAME_TEAM, SAME_TEAM_DIFFERENT_LEAD,
-  COUNTER_LAST_LEAD
-} dtype_t;
-
-typedef struct packed {
-  dtype_t  name;
-  uint32_t weight;
-} decision_option_t;
-
+/* ------------------------------------------------------------------------- */
 
 typedef enum packed { SIMULATE, EMULATE } battle_mode_t;
 typedef enum packed { FIRST_FAINT, BOTH_FAINT } battle_end_cond_t;
-
 
 /**
  * Controls how CMP Ties should be handled.
@@ -88,6 +53,8 @@ typedef enum packed {
 } cmp_rule_t;
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * I'm pretty sure these are only used for UI animations during
  * interactive battles.
@@ -99,11 +66,13 @@ typedef enum packed {
 } battle_phase_t;
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * This can often be constructed from a battle timeline, and is not always
  * desired in a simulation, so it is not included in <code>battle_t</code>
  */
-typedef struct packed {
+struct pvp_pokemon_log_s {
   uint32_t total_damage;
   uint32_t total_charged_damage;        /* Damage dealt with Charged Moves */
   uint32_t total_damage_blocked;        /* Damage prevent by shielding     */
@@ -114,11 +83,14 @@ typedef struct packed {
   uint8_t  shields_used           : 2;  /* 0-2 */
   uint8_t  shields_hit            : 2;  /* 0-2 */
   uint8_t  switch_advantages;
-} pvp_pokemon_log_t;
+} packed;
+
+typedef struct pvp_pokemon_log_s  pvp_pokemon_log_t;
+
+typedef pvp_pokemon_log_t  pvp_team_log_t[3];
 
 
-typedef pvp_pokemon_log_t pvp_team_log_t[3];
-
+/* ------------------------------------------------------------------------- */
 
 /**
  * There are a lot of ways to represent a battle; but while one is being
@@ -128,28 +100,36 @@ typedef pvp_pokemon_log_t pvp_team_log_t[3];
  * analysis. Instead log the players and their actions to construct
  * specific detailed data after the fact.
  */
-typedef struct packed {
+struct pvp_battle_s {
   struct pvp_player_s * p1;
   struct pvp_player_s * p2;
   pvp_action_t          p1_action;  /* Queued/Current action */
   pvp_action_t          p2_action;
   uint32_t              turn;
   //battle_phase_t phase;      /* Not sure if we actually need this */
-} pvp_battle_t;
+} packed;
 
+typedef struct pvp_battle_s pvp_battle_t;
+
+
+/* ------------------------------------------------------------------------- */
 
 pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
-
 
 /**
  * Returns <code>true</code> when the battle is over.
  */
 bool eval_turn( pvp_battle_t * battle );
+
 bool is_battle_over( pvp_battle_t * battle );
+
 bool is_p1_winner( pvp_battle_t * battle );
 
-struct pvp_player_s *
-get_battle_winner( pvp_battle_t * battle );
+struct pvp_player_s * get_battle_winner( pvp_battle_t * battle );
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */
