@@ -32,6 +32,9 @@ struct pdex_mon_s {
 
 typedef struct pdex_mon_s  pdex_mon_t;
 
+void pdex_mon_init( pdex_mon_t * mon );
+void pdex_mon_free( pdex_mon_t * mon );
+
 
 /* ------------------------------------------------------------------------- */
 

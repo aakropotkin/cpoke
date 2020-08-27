@@ -89,6 +89,9 @@ typedef struct pvp_pokemon_log_s  pvp_pokemon_log_t;
 
 typedef pvp_pokemon_log_t  pvp_team_log_t[3];
 
+void pvp_pokemon_log_init( pvp_pokemon_log_t * pokemon_log );
+void pvp_pokemon_log_free( pvp_pokemon_log_t * pokemon_log );
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -110,6 +113,9 @@ struct pvp_battle_s {
 } packed;
 
 typedef struct pvp_battle_s pvp_battle_t;
+
+void pvp_battle_init( pvp_battle_t * battle );
+void pvp_battle_free( pvp_battle_t * battle );
 
 
 /* ------------------------------------------------------------------------- */

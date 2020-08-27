@@ -165,11 +165,11 @@ ai_status_t pvpoke_ai_select_team( roster_t   * our_roster,
 
 ai_status_t pvpoke_ai_decide_action( bool                  decide_p1,
                                      struct pvp_battle_s * battle,
-                                     pvp_action_t        * choice,
-                                     void                * aux
+                                     pvp_action_t        * choice
                                    );
 
 ai_status_t pvpoke_ai_init( ai_t * ai );
+ai_status_t pvpoke_ai_free( ai_t * ai );
 
 
 /* ------------------------------------------------------------------------- */
