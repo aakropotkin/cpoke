@@ -108,32 +108,6 @@ apply_buff( buff_state_t * buff_state, buff_t buff )
 /* ------------------------------------------------------------------------- */
 
 /**
- * Calculating Damage:
- *
- * https://www.reddit.com/r/TheSilphRoad/comments/a6pjb6/pvp_attack_bonus13_confirmed/
- *
- * move_power = floor( 0.5 * move_power * attacker.atk / defender.def * STAB * type_mod * 1.3 ) + 1
- *
- * the 1.3 is reflected in GAME_MASTER.json `COMBAT_SETTINGS.fastAttackBonusMultiplier'
- *
- * Ex: Vaporeon = { base_atk = 205, iv_atk = 14, lvl = 17 }
- *     Magikarp = { base_def = 85,  iv_def = 15, lvl = 40 }
- *
- *     attacker.atk = ( base_atk + iv_atk ) * CPM
- *     defender.def = ( base_def + iv_def ) * CPM
- *     Vaporeon.atk = ( 205 + 14 ) * 0.55079269 = 120.623599
- *     Magikarp.def = ( 85 + 15 ) * 0.7903 = 79.03
- *
- *     move = { name = water_gun, power = 3 }
- *
- *     move_power = floor( 0.5 * 3 * 120.623599 / 79.03 * 1.2 * 0.625 * 1.3 ) + 1
- *                = floor( 2.23 ) + 1
- *                = 3
- */
-
-/* ------------------------------------------------------------------------- */
-
-/**
  * As of [2020-08-22] there are 342 moves
  */
 struct base_move_s {

@@ -81,7 +81,14 @@ struct pvp_pokemon_s {
 
 typedef struct pvp_pokemon_s  pvp_pokemon_t;
 
-void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * )
+void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
+
+
+/* ------------------------------------------------------------------------- */
+
+#define get_pvp_mon_move( mon, idx )                                          \
+  ( ( ( idx ) == M_FAST ) ? ( mon ).fast_move                                 \
+                          : ( mon ).charged_moves[( idx )] )
 
 
 /* ------------------------------------------------------------------------- */
@@ -128,10 +135,7 @@ get_effective_stats( stats_t base, stats_t ivs, float level )
 get_pvp_damage( pmove_idx_t     attack_idx,
                 pvp_pokemon_t * attacker,
                 pvp_pokemon_t * defender
-              )
-{
-  reutrn 0;
-}
+              );
 
 
 /* ------------------------------------------------------------------------- */
