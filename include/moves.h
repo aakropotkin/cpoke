@@ -136,30 +136,44 @@ apply_buff( buff_state_t * buff_state, buff_t buff )
 /**
  * As of [2020-08-22] there are 342 moves
  */
-typedef struct packed {
+struct base_move_s {
   uint16_t move_id;
   ptype_t  type;
   uint8_t  power;   /* NOTE: These values are not always the same for PvP/PvE */
   uint8_t  energy;  /* NOTE: These values are not always the same for PvP/PvE */
-} base_move_t;
+} packed;
+
+typedef struct base_move_s  base_move_t;
 
 
-typedef struct packed {
+/* ------------------------------------------------------------------------- */
+
+struct pve_move_s {
   base_move_t;           /* Inherit */
   uint16_t    cooldown;  /* ms */
-} pve_move_t;
+} packed;
+
+typedef struct pve_move_s  pve_move_t;
 
 
-typedef struct packed {
+/* ------------------------------------------------------------------------- */
+
+struct pvp_charged_move_s {
   base_move_t;       /* Inherit */
   buff_t      buff;  /* A pointer could be used, but it costs more */
-} pvp_charged_move_t;
+} packed;
+
+typedef struct pvp_charged_move_s  pvp_charged_move_t;
 
 
-typedef struct packed {
+/* ------------------------------------------------------------------------- */
+
+struct pvp_fast_move_s {
   base_move_t;            /* Inherit */
   uint8_t     turns : 2;  /* 1-4 */
-} pvp_fast_move_t;
+} packed;
+
+typedef struct pvp_fast_move_s  pvp_fast_move_t;
 
 
 /* ------------------------------------------------------------------------- */

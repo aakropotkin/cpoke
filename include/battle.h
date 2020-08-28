@@ -134,6 +134,7 @@ bool is_p1_winner( pvp_battle_t * battle );
 struct pvp_player_s * get_battle_winner( pvp_battle_t * battle );
 
 
+
 /* ------------------------------------------------------------------------- */
 
 
