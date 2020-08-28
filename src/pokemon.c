@@ -3,6 +3,8 @@
 /* ========================================================================= */
 
 #include "battle.h"
+#include "moves.h"
+#include "ptypes.h"
 #include "pokemon.h"
 #include "util/macros.h"
 #include <stdint.h>
