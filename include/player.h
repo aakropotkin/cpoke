@@ -38,61 +38,16 @@ typedef struct pvp_player_s  pvp_player_t;
 
 /* ------------------------------------------------------------------------- */
 
-  uint8_t
-get_remaining_pokemon( pvp_player_t * player )
-{
-  assert( player != NULL );
-  uint8_t rem = 0;
-  /* If you wanted to be REAL cool you would unroll this into a one liner... */
-  for ( pvp_pokemon_t * p = player->team;
-        p < player->team + 3;
-        rem += ( ( p != NULL ) && ( p->hp > 0 ) ), p++
-      );
-  assert( rem <= 3 );
-  return rem;
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-  bool
-use_shield( pvp_player_t * player )
-{
-  assert( player != NULL );
-  if ( player->shields > 0 )
-    {
-      player->shields--;
-      return true;
-    }
-  return false;
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-  void
-start_switch_timer( pvp_player_t * player )
-{
-  assert( player != NULL );
-  player->switch_turns = SWITCH_TURNS;
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-  void
-decr_switch_timer( pvp_player_t * player, uint8_t delta_turns )
-{
-  assert( player != NULL );
-  if ( player->switch_turns > 0 )
-    player->switch_turns = max( 0, ( player->switch_turns - delta_turns ) );
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-#define get_active_pokemon( PLAYER )                                          \
+#define get_active_pokemon( PLAYER )              \
   ( ( PLAYER ).team[( PLAYER ).active_pokemon] )
+
+
+/* ------------------------------------------------------------------------- */
+
+uint8_t get_remaining_pokemon( pvp_player_t * player );
+bool    use_shield( pvp_player_t * player );
+void    start_switch_timer( pvp_player_t * player );
+void    decr_switch_timer( pvp_player_t * player, uint8_t delta_turns );
 
 
 /* ------------------------------------------------------------------------- */
