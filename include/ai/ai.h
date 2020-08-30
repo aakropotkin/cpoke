@@ -26,6 +26,8 @@ typedef enum {
 
 /* ------------------------------------------------------------------------- */
 
+struct ai_s;
+
 /**
  * Choose an action for an AI player to queue next.
  *
@@ -48,7 +50,7 @@ typedef ai_status_t ( * select_team_fn ) ( roster_t *,
                                            void *
                                          );
 
-typedef void ( * ai_free_fn ) ( ai_t * );
+typedef void ( * ai_free_fn ) ( struct ai_s * );
 
 
 /* ------------------------------------------------------------------------- */

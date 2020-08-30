@@ -306,11 +306,11 @@
                )
 
 /* Less safe, but useful for static assertions. */
-#define _in( lo, x, hi )       ( ( lo ) < ( x ) && ( x ) < ( hi ) )
-#define _in_eq( lo, x, hi )    ( ( lo ) <= ( x ) && ( x ) <= ( hi ) )
+#define _in( lo, x, hi )     ( ( lo ) <  ( x ) && ( x ) <  ( hi ) )
+#define _in_eq( lo, x, hi )  ( ( lo ) <= ( x ) && ( x ) <= ( hi ) )
 
 /* Force `x' into range */
-#define clamp( lo, x, hi )     ( min( ( hi ), max( ( lo ), ( x ) ) ) )
+#define clamp( lo, x, hi )     min( ( hi ), max( ( lo ), ( x ) ) )
 
 #define clamp_add( lo, x, i, hi )       clamp( ( lo ), ( x + i ), ( hi ) )
 #define clamp_incr( lo, x, hi )         clamp( ( lo ), ( x + 1 ), ( hi ) )
@@ -319,15 +319,18 @@
 #define clamp_multiply( lo, x, i, hi )  clamp( ( lo ), ( x * i ), ( hi ) )
 #define clamp_divide( lo, x, i, hi )    clamp( ( lo ), ( x / i ), ( hi ) )
 
-#define uint_decr( x )                  if ( 0 < ( x ) ) ( x )--
-
-#define uint_minus( x, i )  ( {                                               \
+#define uint_minus( x, i )                                                    \
+  __extension__(                                                              \
+  {                                                                           \
     if ( 0 < ( x ) ) {                                                        \
       if ( ( i ) < ( x ) ) ( x ) -= ( i );                                    \
       else ( x ) = 0;                                                         \
     }                                                                         \
     x                                                                         \
-  } )
+  }                                                                           \
+               )
+
+#define uint_decr( x )  uint_minus( ( x ), 1 )
 
 
 /* End Math ----------------------------------------------------------- }}}1 */

@@ -122,10 +122,11 @@ get_cp_from_stats( stats_t base, stats_t ivs, float level )
 get_effective_stats( stats_t base, stats_t ivs, float level )
 {
   const float cpm = get_cpm_for_level( level );
-  return { .attack = (uint16_t) cpm * ( base.attack + ivs.attack ),
-           .defense = (uint16_6) cpm * ( base.defense + ivs.defense ),
-           .stamina = max( cpm * ( base.defense + ivs.defense ), 10 )
-         };
+  return (stats_t) {
+    .attack  = (uint16_t) ( cpm * ( base.attack + ivs.attack ) ),
+    .stamina = max( (uint16_t) cpm * ( base.defense + ivs.defense ), 10 ),
+    .defense = ( (uint16_t) cpm * ( base.defense + ivs.defense ) )
+  };
 }
 
 

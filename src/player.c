@@ -53,8 +53,7 @@ start_switch_timer( pvp_player_t * player )
 decr_switch_timer( pvp_player_t * player, uint8_t delta_turns )
 {
   assert( player != NULL );
-  if ( player->switch_turns > 0 )
-    player->switch_turns = max( 0, ( player->switch_turns - delta_turns ) );
+  uint_minus( player->switch_turns, delta_turns );
 }
 
 
