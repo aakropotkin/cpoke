@@ -23,14 +23,13 @@ get_pvp_damage( pmove_idx_t     attack_idx,
     const float       bonus = ( attack_idx == M_FAST ) ? PVP_FAST_BONUS_MOD
                                                        : PVP_CHARGE_BONUS_MOD *
                                                          CHARGE_DEFAULT_MOD;
-    return floor( 0.5                                               *
-                  move.power                                        *
-                  attacker->stats.attack                            /
-                  defender->stats.defense                           *
-                  stab                                              *
-                  get_damage_modifier( defender->types, move.type ) *
-                  bonus
-               ) + 1;
+    const double      atk   = attacker->stats.attack *
+                              get_buff_mod( attacker->buffs.atk_buff_lv );
+    const double      def   = defender->stats.defense *
+                              get_buff_mod( defender->buffs.def_buff_lv );
+    const float       teff  = get_damage_modifier( defender->types, move.type );
+
+    return floor( 0.5 * move.power * atk / def * stab * teff * bonus ) + 1;
   }
 
 

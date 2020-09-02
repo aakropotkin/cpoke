@@ -76,7 +76,7 @@ struct buff_state_s {
 
 typedef struct buff_state_s  buff_state_t;
 
-#define get_buff_mod( buff_level )  ( BUFF_MOD( ( buff_level ) ) )
+#define get_buff_mod( buff_level )  ( BUFF_MOD[( buff_level )] )
 
 
 /* ------------------------------------------------------------------------- */
