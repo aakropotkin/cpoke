@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util/test.h"
+#include "util/test_util.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -24,6 +24,9 @@ json_str1[] = "{"
 static const size_t json_str1_len = array_size( json_str1 );
 static const size_t json_str1_nts = 7;
 
+
+/* ------------------------------------------------------------------------- */
+
 #define parse_json_str( STR_NAME, TOKEN_LIST_NAME, COUNT_NAME )               \
   jsmntok_t TOKEN_LIST_NAME[STR_NAME ## _nts];                                \
   jsmn_parser STR_NAME ## _PARSER;                                            \
@@ -36,9 +39,11 @@ static const size_t json_str1_nts = 7;
                              )
 
 
-static bool
-test_jsoneq( void ) {
+/* ------------------------------------------------------------------------- */
 
+  static bool
+test_jsoneq( void )
+{
   parse_json_str( json_str1, tokens, r );
   assert( r == 7 );
 
@@ -53,8 +58,11 @@ test_jsoneq( void ) {
 }
 
 
-static bool
-test_jsoneq_typed( void ) {
+/* ------------------------------------------------------------------------- */
+
+  static bool
+test_jsoneq_typed( void )
+{
 
   parse_json_str( json_str1, tokens, r );
   assert( r == 7 ); /* Use `assert' because we are not testing the parser */
@@ -72,14 +80,18 @@ test_jsoneq_typed( void ) {
 
 /* ------------------------------------------------------------------------- */
 
-int
-main( int argc, char * argv[], char ** envp ) {
-
-  do_test( jsoneq );
-  do_test( jsoneq_typed );
-
-  return EXIT_SUCCESS;
+  bool
+test_json( void )
+{
+  bool rsl = true;
+  rsl &= do_test( jsoneq );
+  rsl &= do_test( jsoneq_typed );
+  return rsl;
 }
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */

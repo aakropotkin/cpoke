@@ -7,14 +7,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "util/test.h"
+#include "util/test_util.h"
 
 /* ------------------------------------------------------------------------- */
 
 
-static bool
-test_get_cpm_for_level( void ) {
-
+  static bool
+test_get_cpm_for_level( void )
+ {
   expect( get_cpm_for_level( 1 ) == CPMS[0] );
   expect( get_cpm_for_level( 39.5 ) == CPMS[77] );
   expect( get_cpm_for_level( 40 ) == CPMS[78] );
@@ -23,13 +23,18 @@ test_get_cpm_for_level( void ) {
 }
 
 
-int
-main( int argc, char * argv[], char ** envp ) {
+/* ------------------------------------------------------------------------- */
 
-  do_test( get_cpm_for_level );
-
-  return EXIT_SUCCESS;
+  bool
+test_pokemon( void )
+{
+  bool rsl = true;
+  rsl &= do_test( get_cpm_for_level );
+  return rsl;
 }
+
+
+/* ------------------------------------------------------------------------- */
 
 
 

@@ -17,9 +17,10 @@ LINKERFLAGS = -lm $(shell curl-config --libs)
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
-BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon fetch_gm
+BINS    := cpoke parse_gm fetch_gm test
 
 CORE_OBJECTS := pokemon.o player.o ptypes.o battle.o files.o json_util.o
+TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o
 
 
 # -------------------------------------------------------------------------- #
@@ -71,24 +72,19 @@ json_util.o: ${SRCPATH}/util/json_util.c ${HEADERS}
 
 # -------------------------------------------------------------------------- #
 
-test_utils.o: ${SRCPATH}/test/test_utils.c ${HEADERS}
+test_json.o: ${SRCPATH}/test/test_json.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
-
-test_utils: test_utils.o ${HEADERS}
-	${CC} ${LINKERFLAGS} $< -o $@
-
-
-test_ptypes.o: ${SRCPATH}/test/test_ptypes.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-test_ptypes: test_ptypes.o ${HEADERS}
-	${CC} ${LINKERFLAGS} $< -o $@
-
 
 test_pokemon.o: ${SRCPATH}/test/test_pokemon.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-test_pokemon: test_pokemon.o ${HEADERS}
+test_ptypes.o: ${SRCPATH}/test/test_ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+test.o: ${SRCPATH}/test.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+test: test.o ${CORE_OBJECTS} ${TEST_OBJECTS} ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
 
 

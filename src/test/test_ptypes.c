@@ -7,15 +7,15 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "util/test.h"
+#include "util/test_util.h"
 
 
 /* ------------------------------------------------------------------------- */
 
 
-static bool
-test_get_ptype_mask( void ) {
-
+  static bool
+test_get_ptype_mask( void )
+{
   expect( get_ptype_mask( PT_NONE )  == 0b0 );
   expect( get_ptype_mask( BUG )      == 0b1 );
   expect( get_ptype_mask( DARK )     == 0b10 );
@@ -40,9 +40,11 @@ test_get_ptype_mask( void ) {
 }
 
 
-static bool
-test_pt_traitsp( void ) {
+/* ------------------------------------------------------------------------- */
 
+  static bool
+test_pt_traitsp( void )
+{
   expect( pt_resistp( WATER, FIRE )   == true  );
   expect( pt_immunep( WATER, POISON ) == false );
   expect( pt_immunep( STEEL, POISON ) == true  );
@@ -52,9 +54,11 @@ test_pt_traitsp( void ) {
 }
 
 
-static bool
-test_get_damage_modifier_mono( void ) {
+/* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_damage_modifier_mono( void )
+{
   expect( get_damage_modifier_mono( WATER, FIRE ) == RESIST_DMG_MOD );
   expect( get_damage_modifier_mono( WATER, POISON ) == 1.0 );
   expect( get_damage_modifier_mono( STEEL, POISON ) == IMMUNE_DMG_MOD );
@@ -64,9 +68,11 @@ test_get_damage_modifier_mono( void ) {
 }
 
 
-static bool
-test_get_damage_modifier_duo( void ) {
+/* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_damage_modifier_duo( void )
+{
   expect( get_damage_modifier_duo( WATER, PT_NONE, FIRE ) == RESIST_DMG_MOD );
   expect( get_damage_modifier_duo( WATER, PT_NONE, POISON ) == 1.0 );
   expect( get_damage_modifier_duo( STEEL, PT_NONE, POISON ) == IMMUNE_DMG_MOD );
@@ -80,9 +86,11 @@ test_get_damage_modifier_duo( void ) {
 }
 
 
-static bool
-test_get_damage_modifier( void ) {
+/* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_damage_modifier( void )
+{
   expect( get_damage_modifier( WATER_M | PT_NONE_M, FIRE ) == RESIST_DMG_MOD );
   expect( get_damage_modifier( WATER_M | PT_NONE_M, POISON ) == 1.0 );
   expect( get_damage_modifier( STEEL_M | PT_NONE_M, POISON ) ==
@@ -97,20 +105,25 @@ test_get_damage_modifier( void ) {
   return true;
 }
 
+
 /* ------------------------------------------------------------------------- */
 
+  bool
+test_ptypes( void )
+{
+  bool rsl = true;
+  rsl &= do_test( get_ptype_mask );
+  rsl &= do_test( pt_traitsp );
+  rsl &= do_test( get_damage_modifier_mono );
+  rsl &= do_test( get_damage_modifier_duo );
+  rsl &= do_test( get_damage_modifier );
 
-int
-main( int argc, char * argv[], char ** envp ) {
-
-  do_test( get_ptype_mask );
-  do_test( pt_traitsp );
-  do_test( get_damage_modifier_mono );
-  do_test( get_damage_modifier_duo );
-  do_test( get_damage_modifier );
-
-  return EXIT_SUCCESS;
+  return rsl;
 }
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */
