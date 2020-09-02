@@ -22,9 +22,9 @@
 /* ------------------------------------------------------------------------- */
 
 struct base_pokemon_s {
-  pdex_mon_t * pdex_mon;
-  float        level;
-  stats_t      ivs;
+  const pdex_mon_t * pdex_mon;
+  float              level;
+  stats_t            ivs;
 } packed;
 
 typedef struct base_pokemon_s  base_pokemon_t;
@@ -35,7 +35,7 @@ typedef struct base_pokemon_s  base_pokemon_t;
 struct roster_pokemon_s {
   base_pokemon_t * base;
   uint16_t         fast_move_id;
-  uint16_t         charged_moves_ids[2];
+  uint16_t         charged_move_ids[2];
 } packed;
 
 typedef struct roster_pokemon_s  roster_pokemon_t;
@@ -87,8 +87,8 @@ void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 /* ------------------------------------------------------------------------- */
 
 #define get_pvp_mon_move( mon, idx )                                          \
-  ( ( ( idx ) == M_FAST ) ? ( mon ).fast_move                                 \
-                          : ( mon ).charged_moves[( idx )] )
+  ( ( ( idx ) == M_FAST ) ? as_base_move( ( mon ).fast_move )                 \
+                          : as_base_move( ( mon ).charged_moves[( idx )] ) )
 
 
 /* ------------------------------------------------------------------------- */

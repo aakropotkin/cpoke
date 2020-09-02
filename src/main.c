@@ -60,12 +60,15 @@ const pvp_charged_move_t power_whip_pvp = {
 int
 main( int argc, char * argv[], char ** envp ) {
 
+  base_pokemon_t base_bulby_boi = { .pdex_mon = & bulbasaur,
+                                    .level    = 20,
+                                    .ivs      = { 10, 10, 10 }
+                                  };
+
   roster_pokemon_t bulby_boi = {
-    bulbasaur,
-    .level         = 20,
-    .ivs           = { 10, 10, 10 },
-    .fast_move     = vine_whip,
-    .charged_moves = { power_whip, power_whip }
+    .base             = & base_bulby_boi,
+    .fast_move_id     = vine_whip.move_id,
+    .charged_move_ids = { power_whip.move_id, power_whip.move_id }
   };
 
   const roster_t my_roster = {

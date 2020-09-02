@@ -119,6 +119,13 @@ struct base_move_s {
 
 typedef struct base_move_s  base_move_t;
 
+#define as_base_move( child_move )                                            \
+  ( (base_move_t) { .move_id = ( child_move ).move_id,                        \
+                    .type    = ( child_move ).type,                           \
+                    .power   = ( child_move ).power,                          \
+                    .energy  = ( child_move ).energy,                         \
+                  } )
+
 
 /* ------------------------------------------------------------------------- */
 

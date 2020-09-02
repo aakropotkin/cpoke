@@ -19,17 +19,15 @@ DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon fetch_gm
 
+CORE_OBJECTS := pokemon.o player.o ptypes.o battle.o files.o
+
 
 # -------------------------------------------------------------------------- #
-
-ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
 
 main.o: ${SRCPATH}/main.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-cpoke: main.o ptypes.o ${HEADERS}
+cpoke: main.o ${CORE_OBJECTS} ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
 
 
@@ -38,7 +36,7 @@ cpoke: main.o ptypes.o ${HEADERS}
 parse_gm.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-parse_gm: parse_gm.o ${HEADERS}
+parse_gm: parse_gm.o files.o ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
 
 
@@ -49,6 +47,24 @@ fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
 
 fetch_gm: fetch_gm.o ${HEADERS}
 	${CC} ${LINKERFLAGS} $< -o $@
+
+
+# -------------------------------------------------------------------------- #
+
+pokemon.o: ${SRCPATH}/pokemon.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+player.o: ${SRCPATH}/player.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+battle.o: ${SRCPATH}/battle.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+files.o: ${SRCPATH}/util/files.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
 
 
 # -------------------------------------------------------------------------- #

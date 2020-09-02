@@ -291,7 +291,7 @@
     __auto_type _lo = ( lo );                                                 \
     __auto_type _hi = ( lo );                                                 \
     __auto_type _x  = ( x );                                                  \
-    _lo < _x && _x < _hi                                                      \
+    _lo < _x && _x < _hi;                                                     \
   }                                                                           \
                )
 
@@ -301,7 +301,7 @@
     __auto_type _lo = ( lo );                                                 \
     __auto_type _hi = ( lo );                                                 \
     __auto_type _x  = ( x );                                                  \
-    _lo <= _x && _x <= _hi                                                    \
+    _lo <= _x && _x <= _hi;                                                   \
   }                                                                           \
                )
 
@@ -319,16 +319,16 @@
 #define clamp_multiply( lo, x, i, hi )  clamp( ( lo ), ( x * i ), ( hi ) )
 #define clamp_divide( lo, x, i, hi )    clamp( ( lo ), ( x / i ), ( hi ) )
 
-#define uint_minus( x, i )                                                    \
+#define _uint_minus( x, i )                                                   \
   __extension__(                                                              \
   {                                                                           \
-    if ( 0 < ( x ) ) {                                                        \
-      if ( ( i ) < ( x ) ) ( x ) -= ( i );                                    \
-      else ( x ) = 0;                                                         \
-    }                                                                         \
-    x                                                                         \
+    typeof( +( x ) ) _x = ( x );                                              \
+    typeof( +( i ) ) _i = ( i );                                              \
+    ( ( _x < _i ) || ( _x == 0 ) ) ? 0 : _x - _i;                             \
   }                                                                           \
-               )
+                       )
+
+#define uint_minus( x, i )  ( ( x ) = _uint_minus( ( x ), ( i ) ) )
 
 #define uint_decr( x )  uint_minus( ( x ), 1 )
 

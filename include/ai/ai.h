@@ -11,6 +11,7 @@
 
 struct pvp_battle_s;
 struct roster_s;
+struct pvp_pokemon_s;
 
 
 /* ------------------------------------------------------------------------- */
@@ -44,9 +45,9 @@ typedef ai_status_t ( * decide_action_fn ) ( bool,
                                              void *
                                            );
 
-typedef ai_status_t ( * select_team_fn ) ( roster_t *,
-                                           roster_t *,
-                                           pvp_team_t *,
+typedef ai_status_t ( * select_team_fn ) ( struct roster_s *,
+                                           struct roster_s *,
+                                           struct pvp_pokemon_s *, /* team  */
                                            void *
                                          );
 
