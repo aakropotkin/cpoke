@@ -19,7 +19,7 @@ DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm test_utils test_ptypes test_pokemon fetch_gm
 
-CORE_OBJECTS := pokemon.o player.o ptypes.o battle.o files.o
+CORE_OBJECTS := pokemon.o player.o ptypes.o battle.o files.o json_util.o
 
 
 # -------------------------------------------------------------------------- #
@@ -66,6 +66,8 @@ battle.o: ${SRCPATH}/battle.c ${HEADERS}
 files.o: ${SRCPATH}/util/files.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
+json_util.o: ${SRCPATH}/util/json_util.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
 
 # -------------------------------------------------------------------------- #
 
