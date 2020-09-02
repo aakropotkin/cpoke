@@ -17,19 +17,20 @@ get_pvp_damage( pmove_idx_t     attack_idx,
                 pvp_pokemon_t * defender
               )
   {
-    const base_move_t move  = get_pvp_mon_move( * attacker, attack_idx );
-    const float       stab  = ( get_ptype_mask( move.type ) & attacker->types
-                              ) ? STAB_BONUS : 1.0;
-    const float       bonus = ( attack_idx == M_FAST ) ? PVP_FAST_BONUS_MOD
-                                                       : PVP_CHARGE_BONUS_MOD *
-                                                         CHARGE_DEFAULT_MOD;
-    const double      atk   = attacker->stats.attack *
-                              get_buff_mod( attacker->buffs.atk_buff_lv );
-    const double      def   = defender->stats.defense *
-                              get_buff_mod( defender->buffs.def_buff_lv );
-    const float       teff  = get_damage_modifier( defender->types, move.type );
+    const uint8_t power = get_pvp_mon_move_power( * attacker, attack_idx );
+    const ptype_t mtype = get_pvp_mon_move_type( * attacker, attack_idx );
+    const float   stab  = ( get_ptype_mask( mtype ) & attacker->types
+                          ) ? STAB_BONUS : 1.0;
+    const float   bonus = ( attack_idx == M_FAST ) ? PVP_FAST_BONUS_MOD
+                                                   : PVP_CHARGE_BONUS_MOD *
+                                                     CHARGE_DEFAULT_MOD;
+    const double  atk   = attacker->stats.attack *
+                          get_buff_mod( attacker->buffs.atk_buff_lv );
+    const double  def   = defender->stats.defense *
+                          get_buff_mod( defender->buffs.def_buff_lv );
+    const float   teff  = get_damage_modifier( defender->types, mtype );
 
-    return floor( 0.5 * move.power * atk / def * stab * teff * bonus ) + 1;
+    return floor( 0.5 * power * atk / def * stab * teff * bonus ) + 1;
   }
 
 

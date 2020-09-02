@@ -86,9 +86,29 @@ void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 
 /* ------------------------------------------------------------------------- */
 
+#define _apply_to_pvp_mon_move( mon, idx, fn )                                \
+  ( ( ( idx ) == M_FAST ) ? fn( ( mon ).fast_move )                           \
+                          : fn( ( mon ).charged_moves[( idx )] ) )
+
 #define get_pvp_mon_move( mon, idx )                                          \
-  ( ( ( idx ) == M_FAST ) ? as_base_move( ( mon ).fast_move )                 \
-                          : as_base_move( ( mon ).charged_moves[( idx )] ) )
+  _apply_to_pvp_mon_move( ( mon ), ( idx ), as_base_move )
+
+#define _get_pvp_mon_move_id( mv )   ( mv ).move_id
+#define get_pvp_mon_move_id( mon, idx )                                       \
+  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_id )
+
+#define _get_pvp_mon_move_power( mv )   ( mv ).power
+#define get_pvp_mon_move_power( mon, idx )                                    \
+  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_power )
+
+
+#define _get_pvp_mon_move_type( mv )    ( mv ).type
+#define get_pvp_mon_move_type( mon, idx )                                     \
+  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_type )
+
+#define _get_pvp_mon_move_energy( mv )  ( mv ).energy
+#define get_pvp_mon_move_energy( mon, idx )                                   \
+  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_energy )
 
 
 /* ------------------------------------------------------------------------- */
