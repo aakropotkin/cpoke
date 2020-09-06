@@ -22,41 +22,29 @@ main( int argc, char * argv[], char ** envp ) {
   int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
   assert( rc_rsl == 0 );
 
-  /* Find first pokemon in GM */
-  //int first_pokemon_tok_idx = 0;
-  //for ( int i = 1; i < (int) rsl; i++ ) {
-  //  if ( jsonmatch_str( gparser.buffer,
-  //                      &( gparser.tokens[i] ),
-  //                      &pkmn_tmp_regex )
-  //     ) {
-  //    printf( "First Pokemon templateId at token # %d\n", i );
-  //    printf( "templateId = \"" );
-  //    print_tok( gparser.buffer, &( gparser.tokens[i] ) );
-  //    printf( "\"\n" );
-  //    first_pokemon_tok_idx = i - 2; /* The "Parent" token is a list member */
-  //    printf( "Full Token: \n" );
-  //    print_tok( gparser.buffer, &( gparser.tokens[first_pokemon_tok_idx] ) );
-  //    putchar( '\n' );
-  //    break;
-  //  }
-  //}
+  int i = json_find( gparser.buffer,
+                     gparser.tokens,
+                     jsonmatch_str_p,
+                     (void *) &pkmn_tmp_regex,
+                     rsl,
+                     0
+                   );
+  int first_pokemon_tok_idx = i - 2;
 
-  int first_pokemon_tok_idx = json_find( gparser.buffer,
-                                         gparser.tokens,
-                                         jsonmatch_str_p,
-                                         (void *) &pkmn_tmp_regex,
-                                         rsl,
-                                         0
-                                       );
-  int i = first_pokemon_tok_idx;
   printf( "First Pokemon templateId at token # %d\n", i );
   printf( "templateId = \"" );
   print_tok( gparser.buffer, &( gparser.tokens[i] ) );
   printf( "\"\n" );
-  first_pokemon_tok_idx = i - 2; /* The "Parent" token is a list member */
   printf( "Full Token: \n" );
   print_tok( gparser.buffer, &( gparser.tokens[first_pokemon_tok_idx] ) );
   putchar( '\n' );
+
+  for ( size_t j = i; gparser.tokens[j].end < gparser.tokens[i - 2].end; j++ )
+    {
+      printf( "token %d: ", j - i );
+      print_tok( gparser.buffer, &( gparser.tokens[j] ) );
+      printf( "\n" );
+    }
 
   /* Cleanup */
   regfree( &pkmn_tmp_regex );

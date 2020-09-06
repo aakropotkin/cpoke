@@ -162,6 +162,16 @@ jsonmatch_str_p( const char * json, const jsmntok_t * token, void * r )
   return jsonmatch_str( json, token, (regex_t *) r );
 }
 
+/**
+ * <code>jsmntok_predicate_fn</code> that unconditionally returns true.
+ * Useful as value predicate when finding keys in objects.
+ */
+  static bool
+json_true_pred( const char * json, const jsmntok_t * token, void * r )
+{
+  return true;
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -190,6 +200,57 @@ int jsmn_iterator_find_next( const char      *  json,
                              void            *  value_aux,
                              size_t             next_value_index
                            );
+
+
+/* ------------------------------------------------------------------------- */
+
+  static int
+jsmn_iterator_find_key( const char      *  json,
+                        jsmn_iterator_t *  iterator,
+                        jsmntok_t       ** jsmn_identifier,
+                        jsmntok_pred_fn    identifier_pred,
+                        void            *  identifier_aux,
+                        jsmntok_t       ** jsmn_value,
+                        size_t             next_value_index
+                      )
+{
+  return jsmn_iterator_find_next( json,
+                                  iterator,
+                                  jsmn_identifier,
+                                  identifier_pred,
+                                  identifier_aux,
+                                  jsmn_value,
+                                  json_true_pred,
+                                  NULL,
+                                  next_value_index
+                                );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
+json_iterator_has_key( const char      *  json,
+                       jsmn_iterator_t *  iterator,
+                       jsmntok_t       ** jsmn_identifier,
+                       jsmntok_pred_fn    identifier_pred,
+                       void            *  identifier_aux,
+                       jsmntok_t       ** jsmn_value,
+                       size_t             next_value_index
+                     )
+{
+  return 0 != json_iterator_find_key( json,
+                                      iterator,
+                                      jsmn_identifier,
+                                      identifier_pred,
+                                      identifier_aux,
+                                      jsmn_value,
+                                      json_true_pred,
+                                      NULL,
+                                      next_value_index
+                                    );
+}
+
 
 
 /* ------------------------------------------------------------------------- */
