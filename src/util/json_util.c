@@ -211,13 +211,21 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
 /* ------------------------------------------------------------------------- */
 
   int
-json_find( const char      * json,
-           const jsmntok_t * tokens,
-           size_t            jsmn_len,
-           size_t            parser_pos
+json_find( const char      *  json,
+           const jsmntok_t ** tokens,
+           jsmntok_pred_fn    pred,
+           void *             aux,
+           size_t             jsmn_len,
+           size_t             parser_pos
          )
 {
-  return 0;
+  assert( json != NULL );
+  assert( tokens != NULL );
+  for ( size_t i = parser_pos; i < jsmn_len; i++ )
+    {
+      if ( pred( json, tokens[i], aux ) ) return (int) i;
+    }
+  return -1;
 }
 
 
@@ -226,9 +234,11 @@ json_find( const char      * json,
   int
 jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
                          jsmntok_t       ** jsmn_identifier,
-                         jsmntok_pred_fn *  identifier_pred,
+                         jsmntok_pred_fn    identifier_pred,
+                         void            *  idnetifier_aux,
                          jsmntok_t       ** jsmn_value,
-                         jsmntok_pred_fn *  value_pred,
+                         jsmntok_pred_fn    value_pred,
+                         void            *  value_aux,
                          size_t             next_value_index
                        )
 {

@@ -156,10 +156,12 @@ jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
 
 /* ------------------------------------------------------------------------- */
 
-int json_find( const char      * json,
-               const jsmntok_t * tokens,
-               size_t            jsmn_len,
-               size_t            parser_pos
+int json_find( const char      *  json,
+               const jsmntok_t ** tokens,
+               jsmntok_pred_fn    pred,
+               void            *  aux,
+               size_t             jsmn_len,
+               size_t             parser_pos
              );
 
 
@@ -170,20 +172,17 @@ int json_find( const char      * json,
  */
 int jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
                              jsmntok_t       ** jsmn_identifier,
-                             jsmntok_pred_fn *  identifier_pred,
+                             jsmntok_pred_fn    identifier_pred,
+                             void            *  idnetifier_aux,
                              jsmntok_t       ** jsmn_value,
-                             jsmntok_pred_fn *  value_pred,
+                             jsmntok_pred_fn    value_pred,
+                             void            *  value_aux,
                              size_t             next_value_index
                            );
 
 
 /* ------------------------------------------------------------------------- */
 
-int json_find( const char      * json,
-               const jsmntok_t * tokens,
-               size_t            jsmn_len,
-               size_t            parser_pos
-             );
 
 
 /* ------------------------------------------------------------------------- */
