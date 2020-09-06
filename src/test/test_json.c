@@ -107,7 +107,6 @@ test_jsmn_iterator_object( void )
   jsmn_iterator_t iterator;
   jsmntok_t *     id = NULL;
   jsmntok_t *     value = NULL;
-  unsigned int    hint = 0;
   int             rsl  = 0;
 
   parse_json_str( json_str1, tokens, r );
@@ -116,25 +115,22 @@ test_jsmn_iterator_object( void )
   if ( jsmn_iterator_init( &iterator, tokens, r, 0 ) < 0 )
       expect( false && "Iterator initialization failed" );
 
-  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, &id, &value, 0 );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str1, id, "name" ) );
   expect( jsoneq_str( json_str1, value, "Suzy" ) );
 
-  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, &id, &value, value->start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str1, id, "age" ) );
   expect( jsoneq_int( json_str1, value, 23 ) );
 
-  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, &id, &value, value->start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str1, id, "occupation" ) );
   expect( jsoneq_str( json_str1, value, "mechanic" ) );
 
-  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, &id, &value, value->start );
   expect( 0 == rsl );
 
   return true;
@@ -160,27 +156,27 @@ test_jsmn_iterator_array( void )
   expect( 0 < rsl );
   expect( jsoneq_str( json_str2, value, "name" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq_str( json_str2, value, "Suzy" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq_str( json_str2, value, "age" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq_int( json_str2, value, 23 ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq_str( json_str2, value, "occupation" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq_str( json_str2, value, "mechanic" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 == rsl );
 
   return true;
@@ -207,16 +203,16 @@ test_jsmn_iterator_array_nested( void )
       expect( false && "Iterator initialization failed" );
 
   rsl = jsmn_iterator_next( &iterator, NULL, &value, 0 );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( jsoneq_str( json_str3, value, "mechanic" ) );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   expect( 0 < rsl );
   expect( jsoneq( json_str3, value, "[ 1, 2, 3 ]" ) );
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, value->start );
   /* Nothing left. The iterator DOES NOT dive recursively into the child list */
   expect( rsl == 0 );
 
@@ -226,7 +222,23 @@ test_jsmn_iterator_array_nested( void )
 
 /* ------------------------------------------------------------------------- */
 
+static bool
+test_json_find( void )
+{
 
+  parse_json_str( json_str1, tokens, r );
+  assert( r == 7 ); /* Use `assert' because we are not testing the parser */
+
+  expect( json_find( json_str1, tokens, jsoneq_int_p, (void *) 23, 7, 0 )
+          == 4
+        );
+
+  expect( json_find( json_str1, tokens, jsoneq_str_p, (void *) "Suzy", 7, 0 )
+          == 2
+        );
+
+  return true;
+}
 
 
 /* ------------------------------------------------------------------------- */
@@ -240,6 +252,7 @@ test_json( void )
   rsl &= do_test( jsmn_iterator_object );
   rsl &= do_test( jsmn_iterator_array );
   rsl &= do_test( jsmn_iterator_array_nested );
+  rsl &= do_test( json_find );
 
   return rsl;
 }

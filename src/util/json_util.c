@@ -211,19 +211,19 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
 /* ------------------------------------------------------------------------- */
 
   int
-json_find( const char      *  json,
-           const jsmntok_t ** tokens,
-           jsmntok_pred_fn    pred,
-           void *             aux,
-           size_t             jsmn_len,
-           size_t             parser_pos
+json_find( const char      * json,
+           const jsmntok_t * tokens,
+           jsmntok_pred_fn   pred,
+           void *            aux,
+           size_t            jsmn_len,
+           size_t            parser_pos
          )
 {
   assert( json != NULL );
   assert( tokens != NULL );
   for ( size_t i = parser_pos; i < jsmn_len; i++ )
     {
-      if ( pred( json, tokens[i], aux ) ) return (int) i;
+      if ( pred( json, &tokens[i], aux ) ) return (int) i;
     }
   return -1;
 }
@@ -232,17 +232,45 @@ json_find( const char      *  json,
 /* ------------------------------------------------------------------------- */
 
   int
-jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
+jsmn_iterator_find_next( const char      *  json,
+                         jsmn_iterator_t *  iterator,
                          jsmntok_t       ** jsmn_identifier,
                          jsmntok_pred_fn    identifier_pred,
-                         void            *  idnetifier_aux,
+                         void            *  identifier_aux,
                          jsmntok_t       ** jsmn_value,
                          jsmntok_pred_fn    value_pred,
                          void            *  value_aux,
                          size_t             next_value_index
                        )
 {
-  return 0;
+  assert( json != NULL );
+  assert( iterator != NULL );
+  int rsl = jsmn_iterator_next( iterator,
+                                jsmn_identifier,
+                                jsmn_value,
+                                next_value_index
+                              );
+  if ( rsl <= 0 ) return rsl;
+  bool pred_rsl = true;
+  if ( jsmn_identifier != NULL )
+    {
+      pred_rsl = identifier_pred( json, *jsmn_identifier, identifier_aux );
+    }
+  if ( pred_rsl )
+    {
+      pred_rsl = value_pred( json, *jsmn_value, value_aux );
+    }
+  return pred_rsl ? (int) next_value_index
+                  : jsmn_iterator_find_next( json,
+                                             iterator,
+                                             jsmn_identifier,
+                                             identifier_pred,
+                                             identifier_aux,
+                                             jsmn_value,
+                                             value_pred,
+                                             value_aux,
+                                             (* jsmn_value )->start
+                                           );
 }
 
 

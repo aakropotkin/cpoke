@@ -40,6 +40,8 @@ main( int argc, char * argv[], char ** envp )
                       tokens,
                       11
                     );
+  int i = json_find( json_str3, tokens, jsoneq_int_p, (void *) 23, 11, 0 );
+  printf( "%d\n", i );
 
 
   return EXIT_SUCCESS;

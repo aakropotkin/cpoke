@@ -118,7 +118,7 @@ bool jsonmatch_str( const char      * json,
  */
 typedef bool ( * jsmntok_pred_fn )( const char *,
                                     const jsmntok_t *,
-                                    void * aux
+                                    void *
                                   );
 /**
  * <code>jsmntok_predicate_fn</code> form of <code>jsoneq</code>.
@@ -156,24 +156,26 @@ jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
 
 /* ------------------------------------------------------------------------- */
 
-int json_find( const char      *  json,
-               const jsmntok_t ** tokens,
-               jsmntok_pred_fn    pred,
-               void            *  aux,
-               size_t             jsmn_len,
-               size_t             parser_pos
+int json_find( const char      * json,
+               const jsmntok_t * tokens,
+               jsmntok_pred_fn   pred,
+               void            * aux,
+               size_t            jsmn_len,
+               size_t            parser_pos
              );
 
 
 /* ------------------------------------------------------------------------- */
 
-/*
- *
+/**
+ * Find the next <code>jsmn_iterator_t</code> element that matches the provided
+ * predicate functions.
  */
-int jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
+int jsmn_iterator_find_next( const char      *  json,
+                             jsmn_iterator_t *  iterator,
                              jsmntok_t       ** jsmn_identifier,
                              jsmntok_pred_fn    identifier_pred,
-                             void            *  idnetifier_aux,
+                             void            *  identifier_aux,
                              jsmntok_t       ** jsmn_value,
                              jsmntok_pred_fn    value_pred,
                              void            *  value_aux,
