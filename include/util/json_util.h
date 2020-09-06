@@ -8,6 +8,7 @@
 #include "ext/jsmn.h"
 #include <regex.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 
 /* ------------------------------------------------------------------------- */

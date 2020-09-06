@@ -11,15 +11,14 @@
 #include "util/bits.h"
 #include "util/macros.h"
 #include "util/enumflags.h"
-#include "damage_modifiers.def"
 
 
 /* ------------------------------------------------------------------------- */
 
-const float WEAK_DMG_MOD   = 1.6;
-const float RESIST_DMG_MOD = 0.625;
-const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
-const float STAB_DMG_MOD   = 1.2;
+extern const float WEAK_DMG_MOD;
+extern const float RESIST_DMG_MOD;
+extern const float IMMUNE_DMG_MOD;
+extern const float STAB_DMG_MOD;
 
 
 /* ------------------------------------------------------------------------- */
@@ -29,7 +28,7 @@ DEFINE_ENUM_WITH_FLAGS( ptype, PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY,
                         NORMAL, POISON, PSYCHIC, ROCK, STEEL, WATER
                       );
 
-const uint8_t NUM_PTYPES   = WATER + 1; /* 18 types, 19 including `PT_NONE' */
+extern const uint8_t NUM_PTYPES; /* 18 types, 19 including `PT_NONE' */
 
 int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
 
@@ -54,14 +53,34 @@ struct ptype_traits_s {
 
 typedef struct ptype_traits_s  ptype_traits_t;
 
-/* This must come after the definition of `ptype_traits_t` */
-#include "ptype_traits.def"
+extern const ptype_traits_t ptype_traits[19];
+extern const ptype_traits_t * PT_NONE_TRAITS;
+extern const ptype_traits_t * BUG_TRAITS;
+extern const ptype_traits_t * DARK_TRAITS;
+extern const ptype_traits_t * DRAGON_TRAITS;
+extern const ptype_traits_t * ELECTRIC_TRAITS;
+extern const ptype_traits_t * FAIRY_TRAITS;
+extern const ptype_traits_t * FIGHTING_TRAITS;
+extern const ptype_traits_t * FIRE_TRAITS;
+extern const ptype_traits_t * FLYING_TRAITS;
+extern const ptype_traits_t * GHOST_TRAITS;
+extern const ptype_traits_t * GRASS_TRAITS;
+extern const ptype_traits_t * GROUND_TRAITS;
+extern const ptype_traits_t * ICE_TRAITS;
+extern const ptype_traits_t * NORMAL_TRAITS;
+extern const ptype_traits_t * POISON_TRAITS;
+extern const ptype_traits_t * PSYCHIC_TRAITS;
+extern const ptype_traits_t * ROCK_TRAITS;
+extern const ptype_traits_t * STEEL_TRAITS;
+extern const ptype_traits_t * WATER_TRAITS;
 
 
 #define get_ptype_traits( pt )  ptype_traits[( pt )]
 
 
 /* ------------------------------------------------------------------------- */
+
+extern const float DAMAGE_MODIFIERS[18][19][18];
 
 const_fn float get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type );
 const_fn float get_damage_modifier_duo( ptype_t def_type1,
@@ -101,11 +120,7 @@ pt_immunep( ptype_t def, ptype_t atk )
 
 /* ------------------------------------------------------------------------- */
 
-const char * ptype_names[] = {
-  "null", "bug", "dark", "dragon", "electric", "fairy", "fighting", "fire",
-  "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",
-  "rock", "steel", "water"
-};
+extern const char * ptype_names[];
 
 #define get_ptype_name( pt )  ptype_names[( pt )]
 

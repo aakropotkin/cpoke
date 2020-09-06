@@ -5,7 +5,6 @@
 
 /* ========================================================================= */
 
-#include "cpms.def"
 #include "moves.h"
 #include "pokedex.h"
 #include "ptypes.h"
@@ -15,6 +14,8 @@
 
 
 /* ------------------------------------------------------------------------- */
+
+extern const double CPMS[];
 
 #define get_cpm_for_level( lvl )  CPMS[( (int) ( ( ( lvl ) - 1 ) * 2 ) )]
 
@@ -121,36 +122,8 @@ typedef pvp_pokemon_t  pvp_team_t[3];
 
 /* ------------------------------------------------------------------------- */
 
-  const_fn uint16_t
-get_cp_from_stats( stats_t base, stats_t ivs, float level )
-{
-  return max( floor( 0.1                                  *
-                     pow( get_cpm_for_level( level ), 2 ) *
-                     ( base.attack + ivs.attack )         *
-                     sqrt( ( base.defense + ivs.defense ) *
-                           ( base.stamina + ivs.stamina )
-                         )
-                   ),
-              10
-            );
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-  const_fn stats_t
-get_effective_stats( stats_t base, stats_t ivs, float level )
-{
-  const float cpm = get_cpm_for_level( level );
-  return (stats_t) {
-    .attack  = (uint16_t) ( cpm * ( base.attack + ivs.attack ) ),
-    .stamina = max( (uint16_t) cpm * ( base.defense + ivs.defense ), 10 ),
-    .defense = ( (uint16_t) cpm * ( base.defense + ivs.defense ) )
-  };
-}
-
-
-/* ------------------------------------------------------------------------- */
+const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
+const_fn stats_t get_effective_stats( stats_t base, stats_t ivs, float level );
 
  const_fn uint16_t
 get_pvp_damage( pmove_idx_t     attack_idx,

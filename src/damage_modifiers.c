@@ -1,8 +1,5 @@
 /* -*- mode: c; -*- */
 /* ========================================================================= */
-#ifndef _DAMAGE_MODIFIERS_DEF
-#define _DAMAGE_MODIFIERS_DEF
-/* ------------------------------------------------------------------------- */
 
 /* Defender Type 1 x Defender Type 2 ( or NULL ) x Attack Type */
 const float DAMAGE_MODIFIERS[18][19][18] =
@@ -371,7 +368,7 @@ const float DAMAGE_MODIFIERS[18][19][18] =
 
 /* ------------------------------------------------------------------------- */
 
-#endif /* damage_modifiers.def */
+
 
 /* ========================================================================= */
 /* vim: set filetype=c : */

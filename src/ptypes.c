@@ -1,10 +1,29 @@
 /* -*- mode: c; -*- */
+
 /* ========================================================================= */
 
 #include "ptypes.h"
 #include "util/bits.h"
 #include "util/macros.h"
 #include <stdio.h>
+
+/* ------------------------------------------------------------------------- */
+
+const float WEAK_DMG_MOD   = 1.6;
+const float RESIST_DMG_MOD = 0.625;
+const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
+const float STAB_DMG_MOD   = 1.2;
+
+const uint8_t NUM_PTYPES   = WATER + 1; /* 18 types, 19 including `PT_NONE' */
+
+/* ------------------------------------------------------------------------- */
+
+const char * ptype_names[] = {
+  "null", "bug", "dark", "dragon", "electric", "fairy", "fighting", "fire",
+  "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",
+  "rock", "steel", "water"
+};
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -158,5 +177,10 @@ fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm ) {
 }
 
 
+/* ------------------------------------------------------------------------- */
+
+
+
 /* ========================================================================= */
+
 /* vim: set filetype=c : */

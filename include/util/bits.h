@@ -1,22 +1,18 @@
+/* -*- mode: c; -*- */
+
 #ifndef BITS_H
 #define BITS_H
 
-#include <stdio.h>
+/* ========================================================================= */
+
 #include <stdlib.h>
+#include <stdio.h>
 
-void
-lshowbits ( unsigned long ul ) {
-  for ( int i = 8 * sizeof( unsigned long ) -1; i >= 0; i-- )
-      printf( "%lu", ( ul >> i ) & 1 );
-  putchar( '\n' );
-}
+/* ------------------------------------------------------------------------- */
 
-void
-ishowbits ( unsigned int ui ) {
-  for ( int j = 8 * sizeof( unsigned int ) -1; j >= 0; j-- )
-    printf( "%u", ( ui >> j ) & 1 );
-  putchar( '\n' );
-}
+void lshowbits( unsigned long ul );
+
+void ishowbits ( unsigned int ui );
 
 #define showbits( x ) _Generic( ( x ),                                        \
   long: lshowbits( (unsigned long) x ),                                       \
@@ -97,21 +93,10 @@ ishowbits ( unsigned int ui ) {
   _mask_to_array( ( ptm ), array_type, array_name, mask_count( ( ptm ) ) )
 
 
+/* ------------------------------------------------------------------------- */
 
-#ifdef TEST_BITS
-int
-test_bits (void)
-{
-  showbits( (int) 10 );
-  showbits( (long) 10 );
-  showbits( (unsigned int) 10 );
-  showbits( (unsigned long) 10 );
-  showbits( (const int) 10 );
-  showbits( (const long) 10 );
-  showbits( (const unsigned int) 10 );
-  showbits( (const unsigned long) 10 );
-  showbits( 1.5 );
-}
-#endif /* def TEST_BITS */
+
+
+/* ========================================================================= */
 
 #endif /* def BITS_H */
