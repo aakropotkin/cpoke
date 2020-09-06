@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util/test_util.h"
+#include <regex.h>
 
 /* ------------------------------------------------------------------------- */
 

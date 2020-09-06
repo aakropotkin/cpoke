@@ -153,6 +153,15 @@ jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
   return jsoneq_int( json, token, (int) ( (long) i ) );
 }
 
+/**
+ * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_int</code>.
+ */
+  static bool
+jsonmatch_str_p( const char * json, const jsmntok_t * token, void * r )
+{
+  return jsonmatch_str( json, token, (regex_t *) r );
+}
+
 
 /* ------------------------------------------------------------------------- */
 
