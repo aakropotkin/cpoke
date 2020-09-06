@@ -260,7 +260,7 @@ jsmn_iterator_find_next( const char      *  json,
     {
       pred_rsl = value_pred( json, *jsmn_value, value_aux );
     }
-  return pred_rsl ? (int) next_value_index
+  return pred_rsl ? rsl
                   : jsmn_iterator_find_next( json,
                                              iterator,
                                              jsmn_identifier,
