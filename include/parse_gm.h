@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <pokedex.h>
 #include <string.h>
+#include "ptypes.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -75,11 +76,11 @@ init_gm_parser( const char * gm_fpath, gm_parser_t * gm_parser )
   static ptype_t
 parse_gm_type( const char * json, jsmntok_t * token )
 {
-  if ( ( str == NULL ) || ( token == NULL ) ) return PTYPE_NONE;
-  if ( token->size < 16 ) return PTYPE_NONE; /* Ice is shortest at 16 */
+  if ( ( json == NULL ) || ( token == NULL ) ) return PT_NONE;
+  if ( token->size < 16 ) return PT_NONE; /* Ice is shortest at 16 */
   if ( strncmp( json + token->start, "POKEMON_TYPE_", 13 ) != 0 )
     {
-      return PTYPE_NONE;
+      return PT_NONE;
     }
 
   for ( int i = 1; i < NUM_PTYPES; i++ )
@@ -91,13 +92,13 @@ parse_gm_type( const char * json, jsmntok_t * token )
          ) return (ptype_t) i;
     }
 
-  return PTYPE_NONE;
+  return PT_NONE;
 }
 
 
 /* ------------------------------------------------------------------------- */
 
-static const TARGET_KEYS[] = {
+static const char * TARGET_KEYS[] = {
   "templateId",                    /* Holds Dex # */
   "pokemon . uniqueId",
   "pokemon . type1",
@@ -119,14 +120,14 @@ parse_pdex_mon( const char * json,
               )
 {
   assert( json != NULL );
-  assert( tokens != NULL );
+  assert( all_tokens != NULL );
   assert( mon != NULL );
 
   const jsmntok_t * tokens = &( all_tokens[tidx] );
-  pdex_mon_init( mon );
+  //pdex_mon_init( mon );
 
   /* Parse Dex Number */
-  const char dex_str = {
+  const char dex_str[] = {
     json[tokens[0].start + 1],
     json[tokens[0].start + 2],
     json[tokens[0].start + 3],
@@ -136,7 +137,7 @@ parse_pdex_mon( const char * json,
   mon->dex_number = atoi( dex_str );
   assert( mon->dex_number != 0 );
 
-  mon->name = strndup( tokens[4], tokens[4].size );
+  //mon->name = strndup( tokens[4], tokens[4].size );
   assert( mon->name != NULL );
 
   return mon->dex_number;

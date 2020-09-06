@@ -46,6 +46,23 @@ main( int argc, char * argv[], char ** envp ) {
       printf( "\n" );
     }
 
+  printf( "Looking for pokemon key\n" );
+
+  jsmn_iterator_t iter;
+  jsmn_iterator_init( &iter, gparser.tokens, rsl, i - 2 );
+  jsmntok_t * id = NULL;
+  jsmntok_t * value = NULL;
+  bool has_pokemon = json_iterator_has_key( gparser.buffer,
+                                            &iter,
+                                            &id,
+                                            jsoneq_str_p,
+                                            (void *) "pokemon",
+                                            &value,
+                                            gparser.tokens[i - 2].start
+                                          );
+  if ( has_pokemon ) printf( "Has pokemon\n" );
+  else               printf( "Does not have pokemon\n" );
+
   /* Cleanup */
   regfree( &pkmn_tmp_regex );
   free_gm_parser( &gparser );
