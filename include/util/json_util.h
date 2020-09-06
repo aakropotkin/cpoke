@@ -6,6 +6,7 @@
 /* ========================================================================= */
 
 #include "ext/jsmn.h"
+#include "ext/jsmn_iterator.h"
 #include <regex.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -101,10 +102,88 @@ bool jsoneq_int( const char * json, const jsmntok_t * token, const int i );
 
 /* ------------------------------------------------------------------------- */
 
-bool jsonmatch_str( const char * json,
+bool jsonmatch_str( const char      * json,
                     const jsmntok_t * token,
-                    regex_t * regex
+                    regex_t         * regex
                   );
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Predicate function operating on JSMN tokens.
+ * To be used for filters/finders.
+ * Wrapped <code>jsoneq</code> functions that cast <code>void *</code> are
+ * perfect examples.
+ */
+typedef bool ( * jsmntok_pred_fn )( const char *,
+                                    const jsmntok_t *,
+                                    void * aux
+                                  );
+/**
+ * <code>jsmntok_predicate_fn</code> form of <code>jsoneq</code>.
+ */
+  static bool
+jsoneq_p( const char      * json,
+          const jsmntok_t * token,
+          void            * str
+        )
+{
+  return jsoneq( json, token, (const char *) str );
+}
+
+/**
+ * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_str</code>.
+ */
+  static bool
+jsoneq_str_p( const char      * json,
+              const jsmntok_t * token,
+              void            * str
+            )
+{
+  return jsoneq_str( json, token, (const char *) str );
+}
+
+/**
+ * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_int</code>.
+ */
+  static bool
+jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
+{
+  return jsoneq_int( json, token, (int) ( (long) i ) );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+int json_find( const char      * json,
+               const jsmntok_t * tokens,
+               size_t            jsmn_len,
+               size_t            parser_pos
+             );
+
+
+/* ------------------------------------------------------------------------- */
+
+/*
+ *
+ */
+int jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
+                             jsmntok_t       ** jsmn_identifier,
+                             jsmntok_pred_fn *  identifier_pred,
+                             jsmntok_t       ** jsmn_value,
+                             jsmntok_pred_fn *  value_pred,
+                             size_t             next_value_index
+                           );
+
+
+/* ------------------------------------------------------------------------- */
+
+int json_find( const char      * json,
+               const jsmntok_t * tokens,
+               size_t            jsmn_len,
+               size_t            parser_pos
+             );
 
 
 /* ------------------------------------------------------------------------- */

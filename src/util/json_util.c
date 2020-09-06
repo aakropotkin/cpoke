@@ -210,6 +210,34 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
 
 /* ------------------------------------------------------------------------- */
 
+  int
+json_find( const char      * json,
+           const jsmntok_t * tokens,
+           size_t            jsmn_len,
+           size_t            parser_pos
+         )
+{
+  return 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  int
+jsmn_iterator_find_next( jsmn_iterator_t *  iterator,
+                         jsmntok_t       ** jsmn_identifier,
+                         jsmntok_pred_fn *  identifier_pred,
+                         jsmntok_t       ** jsmn_value,
+                         jsmntok_pred_fn *  value_pred,
+                         size_t             next_value_index
+                       )
+{
+  return 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */

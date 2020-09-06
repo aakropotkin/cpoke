@@ -12,9 +12,7 @@
 #include <string.h>
 #include "util/test_util.h"
 
-
 /* ------------------------------------------------------------------------- */
-
 
 static const char
 json_str1[] = "{"
@@ -28,7 +26,6 @@ static const size_t json_str1_nts = 7;
 
 /* ------------------------------------------------------------------------- */
 
-
 static const char
 json_str2[] = "["
   "\"name\",       \"Suzy\""
@@ -37,6 +34,16 @@ json_str2[] = "["
   "]";
 static const size_t json_str2_len = array_size( json_str2 );
 static const size_t json_str2_nts = 7;
+
+
+/* ------------------------------------------------------------------------- */
+
+static const char
+json_str3[] = "[ \"name\", \"Suzy\", \"age\", 23" ", \"occupation\", "
+                 "\"mechanic\", [ 1, 2, 3 ]"
+              "]";
+static const size_t json_str3_len = array_size( json_str3 );
+static const size_t json_str3_nts = 11;
 
 
 /* ------------------------------------------------------------------------- */
@@ -141,7 +148,6 @@ test_jsmn_iterator_array( void )
 {
   jsmn_iterator_t iterator;
   jsmntok_t *     value = NULL;
-  unsigned int    hint = 0;
   int             rsl  = 0;
 
   parse_json_str( json_str2, tokens, r );
@@ -150,38 +156,69 @@ test_jsmn_iterator_array( void )
   if ( jsmn_iterator_init( &iterator, tokens, r, 0 ) < 0 )
       expect( false && "Iterator initialization failed" );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, 0 );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str2, value, "name" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str2, value, "Suzy" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str2, value, "age" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_int( json_str2, value, 23 ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str2, value, "occupation" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 < rsl );
-  hint = tokens[rsl].start;
   expect( jsoneq_str( json_str2, value, "mechanic" ) );
 
-  rsl = jsmn_iterator_next( &iterator, NULL, &value, hint );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
   expect( 0 == rsl );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Shows that <code>jsmn_iterator_t</code> does not dive recursively into
+ * child structures.
+ */
+  static bool
+test_jsmn_iterator_array_nested( void )
+{
+  jsmn_iterator_t iterator;
+  jsmntok_t *     value = NULL;
+  int             rsl  = 0;
+
+  parse_json_str( json_str3, tokens, r );
+  assert( r == 11 ); /* Use `assert' because we are not testing the parser */
+
+  if ( jsmn_iterator_init( &iterator, tokens, r, 0 ) < 0 )
+      expect( false && "Iterator initialization failed" );
+
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, 0 );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  expect( jsoneq_str( json_str3, value, "mechanic" ) );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  expect( 0 < rsl );
+  expect( jsoneq( json_str3, value, "[ 1, 2, 3 ]" ) );
+  rsl = jsmn_iterator_next( &iterator, NULL, &value, tokens[rsl].start );
+  /* Nothing left. The iterator DOES NOT dive recursively into the child list */
+  expect( rsl == 0 );
 
   return true;
 }
@@ -197,6 +234,8 @@ test_json( void )
   rsl &= do_test( jsoneq_typed );
   rsl &= do_test( jsmn_iterator_object );
   rsl &= do_test( jsmn_iterator_array );
+  rsl &= do_test( jsmn_iterator_array_nested );
+
   return rsl;
 }
 
