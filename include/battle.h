@@ -15,29 +15,29 @@ struct pvp_player_s;
 
 /* ------------------------------------------------------------------------- */
 
-extern const float   PVP_FAST_BONUS_MOD;
-extern const float   PVP_CHARGE_BONUS_MOD;
+static const float   PVP_FAST_BONUS_MOD   = 1.3;
+static const float   PVP_CHARGE_BONUS_MOD = 1.3;
 
-extern const float   CHARGE_BASE_MOD;
-extern const float   CHARGE_NICE_MOD;
-extern const float   CHARGE_GREAT_MOD;
-extern const float   CHARGE_EXCELLENT_MOD;
+static const float   CHARGE_BASE_MOD      = 0.25;
+static const float   CHARGE_NICE_MOD      = 0.5;
+static const float   CHARGE_GREAT_MOD     = 0.75;
+static const float   CHARGE_EXCELLENT_MOD = 1.0;
 #ifndef CHARGE_DEFAULT_MOD
 #define CHARGE_DEFAULT_MOD  CHARGE_EXCELLENT_MOD
 #endif
 
-extern const float   STAB_BONUS;
+static const float   STAB_BONUS           = 1.25;
 
-extern const uint8_t MAX_CHARGE;
-extern const uint8_t CHARGE_RATE;
-extern const float   CHARGE_DECAY_RATE;
+static const uint8_t MAX_CHARGE           = 100;
+static const uint8_t CHARGE_RATE          = 20;
+static const float   CHARGE_DECAY_RATE    = 0.5;
 
-extern const uint16_t TURN_TIME;     /* ms */
-extern const uint16_t CHARGED_TIME;  /* ms */
-extern const uint16_t SWITCH_TIME;   /* ms */
+static const uint16_t TURN_TIME           = 500;    /* ms */
+static const uint16_t CHARGED_TIME        = 4000;   /* ms */
+static const uint16_t SWITCH_TIME         = 13000;  /* ms */
 
-extern const uint8_t CHARGED_TURNS;
-extern const uint8_t SWITCH_TURNS;
+static const uint8_t CHARGED_TURNS        = 8;
+static const uint8_t SWITCH_TURNS         = 26;
 
 
 /* ------------------------------------------------------------------------- */

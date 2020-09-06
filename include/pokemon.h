@@ -5,6 +5,7 @@
 
 /* ========================================================================= */
 
+#include "defs/cpms.h"
 #include "moves.h"
 #include "pokedex.h"
 #include "ptypes.h"
@@ -15,7 +16,6 @@
 
 /* ------------------------------------------------------------------------- */
 
-extern const double CPMS[];
 
 #define get_cpm_for_level( lvl )  CPMS[( (int) ( ( ( lvl ) - 1 ) * 2 ) )]
 

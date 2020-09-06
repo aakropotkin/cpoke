@@ -15,14 +15,12 @@ CFLAGS      += -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions -DJSMN_STATIC
 LINKERFLAGS = -lm $(shell curl-config --libs)
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
-DEFS    := $(wildcard ${DEFSPATH}/*.def)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm fetch_gm test
 
-UTIL_OBJECTS := files.o json_util.o bits.o
+UTIL_OBJECTS := files.o json_util.o
 
-CORE_OBJECTS := pokemon.o player.o ptypes.o battle.o damage_modifiers.o moves.o
-CORE_OBJECTS += ptype_traits.o cpms.o
+CORE_OBJECTS := pokemon.o player.o ptypes.o
 CORE_OBJECTS += ${UTIL_OBJECTS}
 
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o
@@ -60,25 +58,10 @@ fetch_gm: fetch_gm.o
 pokemon.o: ${SRCPATH}/pokemon.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-cpms.o: ${SRCPATH}/cpms.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
 player.o: ${SRCPATH}/player.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-ptype_traits.o: ${SRCPATH}/ptype_traits.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-damage_modifiers.o: ${SRCPATH}/damage_modifiers.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-battle.o: ${SRCPATH}/battle.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-moves.o: ${SRCPATH}/moves.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 
@@ -88,10 +71,6 @@ files.o: ${SRCPATH}/util/files.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 json_util.o: ${SRCPATH}/util/json_util.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
-
-
-bits.o: ${SRCPATH}/util/bits.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 

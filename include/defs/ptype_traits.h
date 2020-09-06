@@ -1,11 +1,14 @@
 /* -*- mode: c; -*- */
+
+#ifndef _PTYPE_TRAITS_H
+#define _PTYPE_TRAITS_H
+
 /* ========================================================================= */
 
-#include "ptypes.h"
 
 /* ------------------------------------------------------------------------- */
 
-const ptype_traits_t ptype_traits[19] = {
+static const ptype_traits_t ptype_traits[19] = {
   /* PT_NONE */ {
     .resistances = PT_NONE_M,
     .weaknesses  = PT_NONE_M,
@@ -89,25 +92,25 @@ const ptype_traits_t ptype_traits[19] = {
 
 /* ------------------------------------------------------------------------- */
 
-const ptype_traits_t * PT_NONE_TRAITS  = & ptype_traits[PT_NONE];
-const ptype_traits_t * BUG_TRAITS      = & ptype_traits[BUG];
-const ptype_traits_t * DARK_TRAITS     = & ptype_traits[DARK];
-const ptype_traits_t * DRAGON_TRAITS   = & ptype_traits[DRAGON];
-const ptype_traits_t * ELECTRIC_TRAITS = & ptype_traits[ELECTRIC];
-const ptype_traits_t * FAIRY_TRAITS    = & ptype_traits[FAIRY];
-const ptype_traits_t * FIGHTING_TRAITS = & ptype_traits[FIGHTING];
-const ptype_traits_t * FIRE_TRAITS     = & ptype_traits[FIRE];
-const ptype_traits_t * FLYING_TRAITS   = & ptype_traits[FLYING];
-const ptype_traits_t * GHOST_TRAITS    = & ptype_traits[GHOST];
-const ptype_traits_t * GRASS_TRAITS    = & ptype_traits[GRASS];
-const ptype_traits_t * GROUND_TRAITS   = & ptype_traits[GROUND];
-const ptype_traits_t * ICE_TRAITS      = & ptype_traits[ICE];
-const ptype_traits_t * NORMAL_TRAITS   = & ptype_traits[NORMAL];
-const ptype_traits_t * POISON_TRAITS   = & ptype_traits[POISON];
-const ptype_traits_t * PSYCHIC_TRAITS  = & ptype_traits[PSYCHIC];
-const ptype_traits_t * ROCK_TRAITS     = & ptype_traits[ROCK];
-const ptype_traits_t * STEEL_TRAITS    = & ptype_traits[STEEL];
-const ptype_traits_t * WATER_TRAITS    = & ptype_traits[WATER];
+static const ptype_traits_t * PT_NONE_TRAITS  = & ptype_traits[PT_NONE];
+static const ptype_traits_t * BUG_TRAITS      = & ptype_traits[BUG];
+static const ptype_traits_t * DARK_TRAITS     = & ptype_traits[DARK];
+static const ptype_traits_t * DRAGON_TRAITS   = & ptype_traits[DRAGON];
+static const ptype_traits_t * ELECTRIC_TRAITS = & ptype_traits[ELECTRIC];
+static const ptype_traits_t * FAIRY_TRAITS    = & ptype_traits[FAIRY];
+static const ptype_traits_t * FIGHTING_TRAITS = & ptype_traits[FIGHTING];
+static const ptype_traits_t * FIRE_TRAITS     = & ptype_traits[FIRE];
+static const ptype_traits_t * FLYING_TRAITS   = & ptype_traits[FLYING];
+static const ptype_traits_t * GHOST_TRAITS    = & ptype_traits[GHOST];
+static const ptype_traits_t * GRASS_TRAITS    = & ptype_traits[GRASS];
+static const ptype_traits_t * GROUND_TRAITS   = & ptype_traits[GROUND];
+static const ptype_traits_t * ICE_TRAITS      = & ptype_traits[ICE];
+static const ptype_traits_t * NORMAL_TRAITS   = & ptype_traits[NORMAL];
+static const ptype_traits_t * POISON_TRAITS   = & ptype_traits[POISON];
+static const ptype_traits_t * PSYCHIC_TRAITS  = & ptype_traits[PSYCHIC];
+static const ptype_traits_t * ROCK_TRAITS     = & ptype_traits[ROCK];
+static const ptype_traits_t * STEEL_TRAITS    = & ptype_traits[STEEL];
+static const ptype_traits_t * WATER_TRAITS    = & ptype_traits[WATER];
 
 
 /* ------------------------------------------------------------------------- */
@@ -115,4 +118,7 @@ const ptype_traits_t * WATER_TRAITS    = & ptype_traits[WATER];
 
 
 /* ========================================================================= */
+
+#endif /* ptype_traitss.h */
+
 /* vim: set filetype=c : */

@@ -9,24 +9,6 @@
 
 /* ------------------------------------------------------------------------- */
 
-const float WEAK_DMG_MOD   = 1.6;
-const float RESIST_DMG_MOD = 0.625;
-const float IMMUNE_DMG_MOD = RESIST_DMG_MOD * RESIST_DMG_MOD;
-const float STAB_DMG_MOD   = 1.2;
-
-const uint8_t NUM_PTYPES   = WATER + 1; /* 18 types, 19 including `PT_NONE' */
-
-/* ------------------------------------------------------------------------- */
-
-const char * ptype_names[] = {
-  "null", "bug", "dark", "dragon", "electric", "fairy", "fighting", "fire",
-  "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",
-  "rock", "steel", "water"
-};
-
-
-/* ------------------------------------------------------------------------- */
-
 const_fn float
 get_damage_modifier_mono_MATRIX( ptype_t def_type, ptype_t atk_type ) {
   return DAMAGE_MODIFIERS[def_type - 1][PT_NONE][atk_type - 1];
