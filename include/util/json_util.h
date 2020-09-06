@@ -167,7 +167,7 @@ jsonmatch_str_p( const char * json, const jsmntok_t * token, void * r )
  * Useful as value predicate when finding keys in objects.
  */
   static bool
-json_true_pred( const char * json, const jsmntok_t * token, void * p )
+json_true_p( const char * json, const jsmntok_t * token, void * p )
 {
   return true;
 }
@@ -220,7 +220,7 @@ jsmn_iterator_find_key( const char      *  json,
                                   identifier_pred,
                                   identifier_aux,
                                   jsmn_value,
-                                  json_true_pred,
+                                  json_true_p,
                                   NULL,
                                   next_value_index
                                 );
@@ -232,19 +232,19 @@ jsmn_iterator_find_key( const char      *  json,
   static bool
 json_iterator_has_key( const char      *  json,
                        jsmn_iterator_t *  iterator,
-                       jsmntok_t       ** jsmn_identifier,
                        jsmntok_pred_fn    identifier_pred,
                        void            *  identifier_aux,
-                       jsmntok_t       ** jsmn_value,
                        size_t             next_value_index
                      )
 {
+  jsmntok_t * jsmn_identifier;
+  jsmntok_t * jsmn_value;
   return 0 != jsmn_iterator_find_key( json,
                                       iterator,
-                                      jsmn_identifier,
+                                      &jsmn_identifier,
                                       identifier_pred,
                                       identifier_aux,
-                                      jsmn_value,
+                                      &jsmn_value,
                                       next_value_index
                                     );
 }
