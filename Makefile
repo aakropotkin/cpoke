@@ -18,10 +18,11 @@ HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 BINS    := cpoke parse_gm fetch_gm test
 
+EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
 
 CORE_OBJECTS := pokemon.o player.o ptypes.o
-CORE_OBJECTS += ${UTIL_OBJECTS}
+CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o
 
@@ -71,6 +72,12 @@ files.o: ${SRCPATH}/util/files.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 json_util.o: ${SRCPATH}/util/json_util.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+
+# -------------------------------------------------------------------------- #
+
+jsmn_iterator.o: ${SRCPATH}/ext/jsmn_iterator.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 

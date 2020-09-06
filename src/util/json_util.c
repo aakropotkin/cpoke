@@ -14,45 +14,53 @@
 
 /* ------------------------------------------------------------------------- */
 
-jsmnerr_t
+  jsmnerr_t
 jsmn_parse_realloc( jsmn_parser_t *  parser,
                     const char    *  js,
                     size_t           len,
                     jsmntok_t     ** tokens,
                     size_t        *  num_tokens
-                  ) {
+                  )
+{
   size_t tmp_numtok = 128;
   jsmnerr_t r;
 
-  if ( ( * tokens ) == NULL ) {
-    num_tokens = &tmp_numtok;
-    ( * tokens ) = malloc( ( * num_tokens ) * sizeof( ( * tokens )[0] ) );
-    if ( ( * tokens ) == NULL ) return JSMN_ERROR_NOMEM;
-  }
-
-  while( true ) {  /* break inside */
-    jsmn_init( parser );
-    r = jsmn_parse(parser, js, len, *tokens, *num_tokens);
-    if ( r == JSMN_ERROR_NOMEM ) {
-      unsigned int want_num_tokens = 2 * ( * num_tokens );
-      jsmntok_t *  newtok = realloc( ( * tokens ),
-                                     want_num_tokens * sizeof( ( * tokens )[0] )
-                                   );
-      if ( newtok == NULL ) break;
-      ( * num_tokens ) = want_num_tokens;
-      ( * tokens )     = newtok;
-    } else {
-      break;
+  if ( ( * tokens ) == NULL )
+    {
+      num_tokens = &tmp_numtok;
+      ( * tokens ) = malloc( ( * num_tokens ) * sizeof( ( * tokens )[0] ) );
+      if ( ( * tokens ) == NULL ) return JSMN_ERROR_NOMEM;
     }
-  }
+
+  while( true ) /* breaks inside */
+    {
+      jsmn_init( parser );
+      r = jsmn_parse(parser, js, len, *tokens, *num_tokens);
+      if ( r == JSMN_ERROR_NOMEM )
+        {
+          unsigned int want_num_tokens = 2 * ( * num_tokens );
+          jsmntok_t *  newtok =
+            realloc( ( * tokens ),
+                     want_num_tokens * sizeof( ( * tokens )[0] )
+                   );
+          if ( newtok == NULL ) break;
+          ( * num_tokens ) = want_num_tokens;
+          ( * tokens )     = newtok;
+        }
+      else
+        {
+          break;
+        }
+    }
   return r;
 }
 
 
 /* ------------------------------------------------------------------------- */
 
-void
-free_jsmn_file_parser( jsmn_file_parser_t * parser ) {
+  void
+free_jsmn_file_parser( jsmn_file_parser_t * parser )
+{
   if ( parser == NULL ) return;
 
   free( parser->buffer );
@@ -73,8 +81,9 @@ free_jsmn_file_parser( jsmn_file_parser_t * parser ) {
 
 /* ------------------------------------------------------------------------- */
 
-size_t
-jsmn_file_parser_init( const char * fpath, jsmn_file_parser_t * f_parser ) {
+  size_t
+jsmn_file_parser_init( const char * fpath, jsmn_file_parser_t * f_parser )
+{
   assert( fpath != NULL );
   assert( strlen( fpath ) != 0 );
   assert( f_parser != NULL );
@@ -92,12 +101,13 @@ jsmn_file_parser_init( const char * fpath, jsmn_file_parser_t * f_parser ) {
   if ( f_parser->buffer_len == 0 ) return 0;
   /* Copy fpath */
   f_parser->fpath = strdup( fpath );
-  if ( f_parser->fpath == NULL ) {
-    perror( __func__ );
-    free( f_parser->buffer );
-    f_parser->buffer_len = 0;
-    return 0;
-  }
+  if ( f_parser->fpath == NULL )
+    {
+      perror( __func__ );
+      free( f_parser->buffer );
+      f_parser->buffer_len = 0;
+      return 0;
+    }
 
   return f_parser->buffer_len;
 }
@@ -105,8 +115,9 @@ jsmn_file_parser_init( const char * fpath, jsmn_file_parser_t * f_parser ) {
 
 /* ------------------------------------------------------------------------- */
 
-size_t
-toklen( const jsmntok_t * token ) {
+  size_t
+toklen( const jsmntok_t * token )
+{
   assert( token != NULL );
   assert( token->start <= token->end );
   assert( ( token->end - token->start ) <= UINT_MAX );
@@ -116,8 +127,9 @@ toklen( const jsmntok_t * token ) {
 
 /* ------------------------------------------------------------------------- */
 
-int
-fprint_tok( FILE * stream, const char * json, const jsmntok_t * token ) {
+  int
+fprint_tok( FILE * stream, const char * json, const jsmntok_t * token )
+{
   assert( json != NULL );
   assert( token != NULL );
   char r = '\0';
@@ -130,16 +142,18 @@ fprint_tok( FILE * stream, const char * json, const jsmntok_t * token ) {
 }
 
 
-int
-print_tok( const char * json, const jsmntok_t * token ) {
+  int
+print_tok( const char * json, const jsmntok_t * token )
+{
   return fprint_tok( stdout, json, token );
 }
 
 
 /* ------------------------------------------------------------------------- */
 
-bool
-jsoneq( const char * json, const jsmntok_t * token, const char * str ) {
+  bool
+jsoneq( const char * json, const jsmntok_t * token, const char * str )
+{
   assert( json != NULL );
   assert( token != NULL );
   assert( str != NULL );
@@ -150,15 +164,17 @@ jsoneq( const char * json, const jsmntok_t * token, const char * str ) {
 }
 
 
-bool
-jsoneq_str( const char * json, const jsmntok_t * token, const char * str ) {
+  bool
+jsoneq_str( const char * json, const jsmntok_t * token, const char * str )
+{
   assert( token != NULL );
   return ( ( token->type == JSMN_STRING ) && jsoneq( json, token, str ) );
 }
 
 
-bool
-jsoneq_int( const char * json, const jsmntok_t * token, const int i ) {
+  bool
+jsoneq_int( const char * json, const jsmntok_t * token, const int i )
+{
   size_t tok_len;
   char * buffer;
   int    val;
@@ -181,8 +197,9 @@ jsoneq_int( const char * json, const jsmntok_t * token, const int i ) {
 
 /* ------------------------------------------------------------------------- */
 
-bool
-jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex ) {
+  bool
+jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
+{
   assert( json != NULL );
   assert( token != NULL );
   assert( regex != NULL );

@@ -3,6 +3,7 @@
 /* ========================================================================= */
 
 #include "ext/jsmn.h"
+#include "ext/jsmn_iterator.h"
 #include "util/json_util.h"
 #include "util/macros.h"
 #include <stdbool.h>
@@ -80,12 +81,55 @@ test_jsoneq_typed( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_jsmn_iterator( void )
+{
+  jsmn_iterator_t iterator;
+  jsmntok_t *     id = NULL;
+  jsmntok_t *     value = NULL;
+  unsigned int    hint = 0;
+  int             rsl  = 0;
+
+  parse_json_str( json_str1, tokens, r );
+  assert( r == 7 ); /* Use `assert' because we are not testing the parser */
+
+  if ( jsmn_iterator_init( &iterator, tokens, r, 0 ) < 0 )
+      expect( false && "Iterator initialization failed" );
+
+  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  expect( 0 < rsl );
+  hint = tokens[rsl].start;
+  expect( jsoneq_str( json_str1, id, "name" ) );
+  expect( jsoneq_str( json_str1, value, "Suzy" ) );
+
+  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  expect( 0 < rsl );
+  hint = tokens[rsl].start;
+  expect( jsoneq_str( json_str1, id, "age" ) );
+  expect( jsoneq_int( json_str1, value, 23 ) );
+
+  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  expect( 0 < rsl );
+  hint = tokens[rsl].start;
+  expect( jsoneq_str( json_str1, id, "occupation" ) );
+  expect( jsoneq_str( json_str1, value, "mechanic" ) );
+
+  rsl = jsmn_iterator_next( &iterator, &id, &value, hint );
+  expect( 0 == rsl );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_json( void )
 {
   bool rsl = true;
   rsl &= do_test( jsoneq );
   rsl &= do_test( jsoneq_typed );
+  rsl &= do_test( jsmn_iterator );
   return rsl;
 }
 
