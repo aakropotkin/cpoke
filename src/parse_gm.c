@@ -10,7 +10,8 @@
 /* ------------------------------------------------------------------------- */
 
   int
-main( int argc, char * argv[], char ** envp ) {
+main( int argc, char * argv[], char ** envp )
+{
 
   /* Parse file */
   gm_parser_t gparser;

@@ -19,6 +19,66 @@ typedef struct stats_s  stats_t;
 
 /* ------------------------------------------------------------------------- */
 
+/* FIXME make masked enum. 118 kinds... */
+#if 0
+typedef enum {
+  NORMAL, SHADOW, PURIFIED,
+  FALL_2019,    /* Seems to pop up on a lot of Kanto */
+  COPY,         /* Clone form. "COPY_2019" */
+  ALOLA,
+  VS_2019,      /* Pikachu, I'm assuming Luchador */
+  COSTUME_2020, /* Pikachu, 4th anniversary */
+  GALARIAN,
+  A, /* Armored Mewtwo I think. Also Unown */
+  /* Unowns... */
+  F, B, C, D, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+  EXCLAMATION_POINT, QUESTION_MARK,
+  /* Spinda */
+  _00, _01, _02, _03, _04, _05, _06, _07, _08, _09, _10, _11, _12, _13, _14,
+  _15, _16, _17, _18, _19,
+  /* Castform */
+  SUNNY, RAINY, SNOWY,
+  /* Deoxys */
+  ATTACK, DEFENSE, SPEED,
+  /* Burmy/Worm */
+  PLANT, SANDY, TRASH,
+  /* Cherrim */
+  OVERCAST,
+  /* Shellos/Gastrodon */
+  EAST_SEA, WEST_SEA,
+  /* Rotom */
+  HEAT, WASH, FROST, FAN, MOW,
+  /* Tina */
+  ALTERED, ORIGIN,
+  /* Shaymin */
+  LAND, SKY,
+  /* Arceus */
+  FIGHTING, FLYING, POISON, GROUND, ROCK, BUG, GHOST, STEEL, FIRE, WATER, GRASS,
+  ELECTRIC, PSYCHIC, ICE, DRAGON, DARK, FAIRY,
+  /* Basculin */
+  RED_STRIPED, BLUE_STRIPED,
+  /* Darmanitan */
+  STANDARD, ZEN, GALARIAN_STANDARD, GALARIAN_ZEN,
+  /* Deerling/Sawsbuck */
+  SPRING, SUMMER, AUTUMN, WINTER,
+  /* Frillish/Jellicent */
+  FEMALE,
+  /* Tornadus/Thundurus/Landorus */
+  INCARNATE, THERIAN,
+  /* Kyurem */
+  WHITE, BLACK,
+  /* Keldeo */
+  ORDINARY, RESOLUTE,
+  /* Meloetta */
+  ARIA, PIROUETTE,
+  /* Genesect */
+  DOUSE, SHOCK, BURN, CHILL
+} form_t;
+#endif
+
+
+/* ------------------------------------------------------------------------- */
+
 struct pdex_mon_s {
   uint16_t     dex_number; /* Highest is Melmetal with 809 */
   char *       name;
