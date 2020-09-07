@@ -18,41 +18,81 @@ main( int argc, char * argv[], char ** envp )
   size_t rsl = init_gm_parser( "./data/GAME_MASTER.json", &gparser );
   assert( rsl != 0 );
 
+  int item_template_list_idx = json_find( gparser.buffer,
+                                          gparser.tokens,
+                                          jsoneq_str_p,
+                                          (void *) "itemTemplate",
+                                          gparser.tokens_cnt,
+                                          0
+                                        );
+  assert( 0 < item_template_list_idx );
+  item_template_list_idx++; /* currently it is the key, we want the value */
+
+  jsmn_iterator_t items_list_iter;
+  jsmn_iterator_t item_iter;
+  jsmn_iterator_init( &items_list_iter,
+                      gparser.tokens,
+                      gparser.tokens_cnt,
+                      item_template_list_idx
+                    );
+
   /* Compile Regex */
   regex_t pkmn_tmp_regex;
   int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
   assert( rc_rsl == 0 );
 
-  int i = json_find( gparser.buffer,
-                     gparser.tokens,
-                     jsonmatch_str_p,
-                     (void *) &pkmn_tmp_regex,
-                     rsl,
-                     0
-                   );
-  int first_pokemon_tok_idx = i - 2;
+  //int i = json_find( gparser.buffer,
+  //                   gparser.tokens,
+  //                   jsonmatch_str_p,
+  //                   (void *) &pkmn_tmp_regex,
+  //                   rsl,
+  //                   0
+  //                 );
 
-  //printf( "First Pokemon templateId at token # %d\n", i );
-  //printf( "templateId = \"" );
-  //print_tok( gparser.buffer, &( gparser.tokens[i] ) );
-  //printf( "\"\n" );
-  //printf( "Full Token: \n" );
-  //print_tok( gparser.buffer, &( gparser.tokens[first_pokemon_tok_idx] ) );
-  //putchar( '\n' );
+  jsmntok_t * item              = NULL;
+  jsmntok_t * key               = NULL;
+  jsmntok_t * val               = NULL;
+  uint32_t    hint              = 0;
+  int         first_pokemon_idx = 0;
+  int         hits              = 0;
 
-  //for ( size_t j = i; gparser.tokens[j].end < gparser.tokens[i - 2].end; j++ )
-  //  {
-  //    //printf( "token %d: ", j - i );
-  //    printf( "token %d: ", j );
-  //    print_tok( gparser.buffer, &( gparser.tokens[j] ) );
-  //    printf( "\n" );
-  //  }
+  while( 0 < jsmn_iterator_next( &items_list_iter, NULL, &item, hint ) )
+    {
+      jsmn_iterator_init( &item_iter,
+                          gparser.tokens,
+                          gparser.tokens_cnt,
+                          items_list_iter.parser_pos
+                        );
 
-  pdex_mon_t mon;
+      int i = jsmn_iterator_find_next( gparser.buffer,
+                                       &item_iter,
+                                       &key,
+                                       jsoneq_str_p,
+                                       (void *) "templateId",
+                                       &val,
+                                       jsonmatch_str_p,
+                                       (void *) &pkmn_tmp_regex,
+                                       0
+                                     );
+      if ( i <= 0 )
+        {
+          hint = item_iter.parser_pos;
+          continue;
+        }
 
-  parse_pdex_mon( gparser.buffer, gparser.tokens, i - 2, rsl, &mon );
-  print_pdex_mon( &mon );
+      if ( hits == 0 ) first_pokemon_idx = items_list_iter.parser_pos;
+      hits++;
+      if ( 5 < hits ) break;
 
+      pdex_mon_t mon;
+      parse_pdex_mon( gparser.buffer,
+                      gparser.tokens,
+                      items_list_iter.parser_pos,
+                      gparser.tokens_cnt,
+                      &mon
+                    );
+      print_pdex_mon( &mon );
+    }
 
   /* Cleanup */
   regfree( &pkmn_tmp_regex );
