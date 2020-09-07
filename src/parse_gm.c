@@ -73,7 +73,10 @@ main( int argc, char * argv[], char ** envp )
           continue;
         }
 
-      if ( hits == 0 ) first_pokemon_idx = items_list_iter.parser_pos;
+      if ( first_pokemon_idx == 0 )
+        {
+          first_pokemon_idx = items_list_iter.parser_pos;
+        }
 
       pdex_mon_t mon;
       parse_pdex_mon( gparser.buffer,
