@@ -24,6 +24,12 @@ static const char pokemon_template_pat[] = "^V[[:digit:]]\\{4\\}_POKEMON_";
 
 typedef jsmn_file_parser_t gm_parser_t;
 
+struct gm_parser_s {
+  jsmn_file_parser_t;
+  uint32_t            first_mon_idx;
+  uint32_t            first_move_idx;
+};
+
 
 /* ------------------------------------------------------------------------- */
 
