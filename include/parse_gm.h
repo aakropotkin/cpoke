@@ -116,26 +116,26 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 
 /* FIXME */
   static stats_t
-parse_gm_stats( const char * json, jsmntok_t * token )
+parse_gm_stats( const char * json, jsmntok_t * tokens, int tidx )
 {
   stats_t stats = { 0, 0, 0 };
   char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
-  for ( int i = 1; i <= token->size; i += 2 )
+  for ( int i = 1; i <= 6; i += 2 )
     {
       memset( buffer, '\0', 5 );
       strncpy( buffer,
-               json + ( token + i + 1 )->start,
-               toklen( token + i + 1 )
+               json + tokens[tidx  + i + 1].start,
+               toklen( tokens + tidx + i + 1 )
              );
-      if ( jsoneq_str( json, token + i, "baseStamina" ) )
+      if ( jsoneq_str( json, tokens + tidx + i, "baseStamina" ) )
         {
           stats.stamina = atoi( buffer );
         }
-      else if ( jsoneq_str( json, token + i, "baseAttack" ) )
+      else if ( jsoneq_str( json, tokens + tidx + i, "baseAttack" ) )
         {
           stats.attack = atoi( buffer );
         }
-      else if ( jsoneq_str( json, token + i, "baseDefense" ) )
+      else if ( jsoneq_str( json, tokens + tidx + i, "baseDefense" ) )
         {
           stats.defense = atoi( buffer );
         }
@@ -215,7 +215,7 @@ parse_pdex_mon( const char * json,
       }
     else if ( jsoneq_str( json, key, "stats" ) )
       {
-        mon->base_stats = parse_gm_stats( json, val );
+        mon->base_stats = parse_gm_stats( json, tokens, iter.parser_pos );
       }
     else if ( jsoneq_str( json, key, "quickMoves" ) )
       {
@@ -233,7 +233,6 @@ parse_pdex_mon( const char * json,
       {
         /* FIXME */
       }
-
     hint = val->start;
   } while( 0 < rsl );
 

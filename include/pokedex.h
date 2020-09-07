@@ -5,9 +5,10 @@
 
 /* ========================================================================= */
 
-#include <stdint.h>
-#include "ptypes.h"
 #include "moves.h"
+#include "ptypes.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -34,6 +35,30 @@ typedef struct pdex_mon_s  pdex_mon_t;
 
 void pdex_mon_init( pdex_mon_t * mon );
 void pdex_mon_free( pdex_mon_t * mon );
+
+  static int
+fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
+{
+  fprintf( stream, "(pdex_mon_t) {\n" );
+  fprintf( stream, "  dex_number: %d,\n", mon->dex_number );
+  fprintf( stream, "  name: \"%s\",\n", mon->name );
+  fprintf( stream, "  types: " );
+  fprint_ptype_mask( stream, " & ", mon->types );
+  fprintf( stream, ",\n" );
+  fprintf( stream,
+           "  stats: { stamina: %d, attack: %d, defense: %d },\n",
+           mon->base_stats.stamina,
+           mon->base_stats.attack,
+           mon->base_stats.defense
+         );
+  fprintf( stream, "}\n" );
+}
+
+  static int
+print_pdex_mon( const pdex_mon_t * mon )
+{
+  return fprint_pdex_mon( stdout, mon );
+}
 
 
 /* ------------------------------------------------------------------------- */

@@ -174,12 +174,36 @@ test_parse_gm_dex_num( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_parse_gm_stats( void )
+{
+  const char stats_str[] = R"RAW_JSON(
+      { "baseStamina": 128 "baseAttack": 118 "baseDefense": 111 }
+    )RAW_JSON";
+  size_t stats_str_len = array_size( stats_str );
+  jsmntok_t tokens[7];
+  jsmn_parser_t jparser;
+  jsmn_init( &jparser );
+  int tokens_cnt = jsmn_parse( &jparser, stats_str, stats_str_len, tokens, 7 );
+
+  stats_t stats = parse_gm_stats( stats_str, tokens, 0 );
+  expect( stats.stamina == 128 );
+  expect( stats.attack == 118 );
+  expect( stats.defense == 111 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_parse_gm( void )
 {
   bool rsl = true;
   rsl &= do_test( parse_gm_type );
   rsl &= do_test( parse_gm_dex_num );
+  rsl &= do_test( parse_gm_stats );
   return rsl;
 }
 

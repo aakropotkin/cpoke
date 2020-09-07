@@ -185,12 +185,11 @@ jsoneq_int( const char * json, const jsmntok_t * token, const int i )
   /* Compare length */
   if ( tok_len != ceil( log10( i ) ) ) return false;
   /* Copy and call `atoi' */
-  buffer  = (char *) malloc( tok_len * sizeof( char ) );
+  buffer  = (char *) alloca( tok_len * sizeof( char ) );
   strncpy( buffer, json + token->start, tok_len );
   val = atoi( buffer );
   /* Because 0 is the fallback for `atoi', explicitly check for it. */
   if ( ( val == 0 ) && ( tok_len == 1 ) && ( buffer[0] == '0' ) ) return true;
-  free( buffer );
   return val == i;
 }
 
