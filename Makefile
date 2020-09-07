@@ -24,7 +24,7 @@ UTIL_OBJECTS := files.o json_util.o
 CORE_OBJECTS := pokemon.o player.o ptypes.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
-TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o
+TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o test_parse_gm.o
 
 
 # -------------------------------------------------------------------------- #
@@ -90,6 +90,9 @@ test_pokemon.o: ${SRCPATH}/test/test_pokemon.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 test_ptypes.o: ${SRCPATH}/test/test_ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+test_parse_gm.o: ${SRCPATH}/test/test_parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 test.o: ${SRCPATH}/test/test.c ${HEADERS}

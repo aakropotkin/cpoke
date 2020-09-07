@@ -77,7 +77,7 @@ init_gm_parser( const char * gm_fpath, gm_parser_t * gm_parser )
 parse_gm_type( const char * json, jsmntok_t * token )
 {
   if ( ( json == NULL ) || ( token == NULL ) ) return PT_NONE;
-  if ( token->size < 16 ) return PT_NONE; /* Ice is shortest at 16 */
+  if ( toklen( token ) < 16 ) return PT_NONE; /* Ice is shortest at 16 */
   if ( strncmp( json + token->start, "POKEMON_TYPE_", 13 ) != 0 )
     {
       return PT_NONE;
@@ -87,7 +87,7 @@ parse_gm_type( const char * json, jsmntok_t * token )
     {
       if ( strncasecmp( json + token->start  + 13,
                         ptype_names[i],
-                        token->size - 13
+                        toklen( token ) - 13
                       ) == 0
          ) return (ptype_t) i;
     }
