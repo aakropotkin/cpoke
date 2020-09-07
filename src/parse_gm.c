@@ -46,6 +46,19 @@ main( int argc, char * argv[], char ** envp ) {
       printf( "\n" );
     }
 
+  pdex_mon_t mon;
+
+  parse_pdex_mon( gparser.buffer, gparser.tokens, i - 2, rsl, &mon );
+  printf( "\n\n" );
+  printf( "Pokemon: {\n" );
+  printf( "  dex_number: %d,\n", mon.dex_number );
+  printf( "  name: \"%s\",\n", mon.name );
+  printf( "  types: " );
+  print_ptype_mask( " & ", mon.types );
+  printf( ",\n" );
+  printf( "  stats: { stamina: %d, attack: %d, defense: %d },\n" );
+  printf( "}\n\n" );
+
   printf( "Looking for pokemon key\n" );
 
   jsmn_iterator_t iter;

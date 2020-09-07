@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 /* ------------------------------------------------------------------------- */
 
@@ -113,6 +114,17 @@ static const size_t JSON1_LEN = array_size( JSON1 );
   static bool
 test_parse_gm_type( void )
 {
+  /* Try parsing on a simple, one token JSON string */
+  const char fairy_str[] = "POKEMON_TYPE_FAIRY";
+  jsmntok_t  tok = {
+    .type  = JSMN_STRING,
+    .start = 0,
+    .end   = array_size( fairy_str ),
+    .size  = 0
+  };
+  expect( parse_gm_type( fairy_str, &tok ) == FAIRY );
+
+  /* Try parsing on a full pokemon's GM entry */
   parse_gm_json_str( JSON1, tokens, tokens_cnt );
   assert( 0 < JSON1_PARSER_RSL );
   size_t buffer_len = JSON1_LEN;
@@ -143,11 +155,31 @@ test_parse_gm_type( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_parse_gm_dex_num( void )
+{
+  const char tid_str[] = "V0001_POKEMON_BULBASAUR_NORMAL";
+  jsmntok_t tid_tok = {
+    .type  = JSMN_STRING,
+    .start = 0,
+    .end   = array_size( tid_str ),
+    .size  = 0
+  };
+
+  uint16_t dex_num = parse_gm_dex_num( tid_str, &tid_tok );
+  expect( dex_num == 1 );
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_parse_gm( void )
 {
   bool rsl = true;
   rsl &= do_test( parse_gm_type );
+  rsl &= do_test( parse_gm_dex_num );
   return rsl;
 }
 

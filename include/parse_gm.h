@@ -98,46 +98,145 @@ parse_gm_type( const char * json, jsmntok_t * token )
 
 /* ------------------------------------------------------------------------- */
 
-static const char * TARGET_KEYS[] = {
-  "templateId",                    /* Holds Dex # */
-  "pokemon . uniqueId",
-  "pokemon . type1",
-  "pokemon . type2",               /* Optional */
-  "pokemon . stats .baseStamina",
-  "pokemon . stats .baseAttack",
-  "pokemon . stats .baseDefense",
-  "pokemon . quickMoves",
-  "pokemon . cinematicMoves",
-  "pokemon . form"                 /* Optional */
-  "pokemon . familyId"
-};
+/**
+ * 0 Return indicates failure
+ */
+  static uint16_t
+parse_gm_dex_num( const char * json, jsmntok_t * token )
+{
+  if ( ( json == NULL ) || ( token == NULL ) ) return 0;
+  if ( json[token->start] != 'V' ) return 0;
+  char buffer[4] = { '\0', '\0', '\0', '\0' };
+  strncpy( buffer, json + token->start + 1, 4 );
+  return atoi( buffer );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/* FIXME */
+  static stats_t
+parse_gm_stats( const char * json, jsmntok_t * token )
+{
+  stats_t stats = { 0, 0, 0 };
+  char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
+  for ( int i = 1; i <= token->size; i += 2 )
+    {
+      memset( buffer, '\0', 5 );
+      strncpy( buffer,
+               json + ( token + i + 1 )->start,
+               toklen( token + i + 1 )
+             );
+      if ( jsoneq_str( json, token + i, "baseStamina" ) )
+        {
+          stats.stamina = atoi( buffer );
+        }
+      else if ( jsoneq_str( json, token + i, "baseAttack" ) )
+        {
+          stats.attack = atoi( buffer );
+        }
+      else if ( jsoneq_str( json, token + i, "baseDefense" ) )
+        {
+          stats.defense = atoi( buffer );
+        }
+    }
+  return stats;
+}
+
+
+/* ------------------------------------------------------------------------- */
 
   static uint16_t
 parse_pdex_mon( const char * json,
-                jsmntok_t  * all_tokens,
+                jsmntok_t  * tokens,
                 int          tidx,
+                size_t       tokens_cnt,
                 pdex_mon_t * mon
               )
 {
   assert( json != NULL );
-  assert( all_tokens != NULL );
+  assert( tokens != NULL );
   assert( mon != NULL );
 
-  const jsmntok_t * tokens = &( all_tokens[tidx] );
-  //pdex_mon_init( mon );
+  jsmn_iterator_t   iter;
+  jsmntok_t       * key    = NULL;
+  jsmntok_t       * val    = NULL;
+  int               idx    = 0;
+  int               rsl    = 0;
+  size_t            hint   = 0;
 
-  /* Parse Dex Number */
-  const char dex_str[] = {
-    json[tokens[0].start + 1],
-    json[tokens[0].start + 2],
-    json[tokens[0].start + 3],
-    json[tokens[0].start + 4],
-    '\0'
-  };
-  mon->dex_number = atoi( dex_str );
+  /* Find `templateId' key */
+  idx = json_find( json,
+                   tokens,
+                   jsoneq_str_p,
+                   (void *) "templateId",
+                   tokens_cnt,
+                   tidx
+                   //tokens[tidx].start
+                 );
+  assert( 0 < idx );
+
+
+  /* Ininitialize `pdex_mon_t' struct */
+  /* FIXME */
+  mon->types = PT_NONE_M;
+
+  /* Parse Dex # from `templateId' value */
+  mon->dex_number = parse_gm_dex_num( json, tokens + idx + 1 );
   assert( mon->dex_number != 0 );
 
-  //mon->name = strndup( tokens[4], tokens[4].size );
+  /* Create iterator on `pokemon' value */
+  idx = json_find( json,
+                   tokens,
+                   jsoneq_str_p,
+                   (void *) "pokemon",
+                   tokens_cnt,
+                   tidx
+                   //tokens[tidx].start
+                 );
+  assert( 0 < idx );
+  idx++;
+
+  rsl = jsmn_iterator_init( &iter, tokens, tokens_cnt, idx );
+
+  hint = tokens[idx].start;
+  do {
+    rsl = jsmn_iterator_next( &iter, &key, &val, hint );
+    if ( jsoneq_str( json, key, "uniqueId" ) )
+      {
+        mon->name = strndup( json + val->start, toklen( val ) );
+        assert( mon->name != NULL );
+      }
+    else if ( jsoneq_str( json, key, "type1" ) ||
+              jsoneq_str( json, key, "type2" )
+            )
+      {
+        mon->types |= get_ptype_mask( parse_gm_type( json, val ) );
+      }
+    else if ( jsoneq_str( json, key, "stats" ) )
+      {
+        mon->base_stats = parse_gm_stats( json, val );
+      }
+    else if ( jsoneq_str( json, key, "quickMoves" ) )
+      {
+        /* FIXME */
+      }
+    else if ( jsoneq_str( json, key, "cinematicMoves" ) )
+      {
+        /* FIXME */
+      }
+    else if ( jsoneq_str( json, key, "form" ) )
+      {
+        /* FIXME */
+      }
+    else if ( jsoneq_str( json, key, "familyId" ) )
+      {
+        /* FIXME */
+      }
+
+    hint = val->start;
+  } while( 0 < rsl );
+
   assert( mon->name != NULL );
 
   return mon->dex_number;
