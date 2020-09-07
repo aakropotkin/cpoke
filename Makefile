@@ -50,7 +50,7 @@ parse_gm: parse_gm.o files.o ${CORE_OBJECTS}
 fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-fetch_gm: fetch_gm.o
+fetch_gm: fetch_gm.o ${CORE_OBJECTS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 

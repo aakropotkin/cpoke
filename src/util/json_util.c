@@ -268,7 +268,7 @@ jsmn_iterator_find_next( const char      *  json,
                                              jsmn_value,
                                              value_pred,
                                              value_aux,
-                                             (* jsmn_value )->start
+                                             next_value_index
                                            );
 }
 

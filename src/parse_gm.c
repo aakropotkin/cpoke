@@ -54,7 +54,7 @@ main( int argc, char * argv[], char ** envp )
       jsmn_iterator_init( &item_iter,
                           gparser.tokens,
                           gparser.tokens_cnt,
-                          items_list_iter.parser_pos
+                          jsmn_iterator_position( &items_list_iter )
                         );
 
       int i = jsmn_iterator_find_next( gparser.buffer,
@@ -69,19 +69,19 @@ main( int argc, char * argv[], char ** envp )
                                      );
       if ( i <= 0 )
         {
-          hint = item_iter.parser_pos;
+          hint = jsmn_iterator_position( &item_iter );
           continue;
         }
 
       if ( first_pokemon_idx == 0 )
         {
-          first_pokemon_idx = items_list_iter.parser_pos;
+          first_pokemon_idx = jsmn_iterator_position( &items_list_iter );
         }
 
       pdex_mon_t mon;
       parse_pdex_mon( gparser.buffer,
                       gparser.tokens,
-                      items_list_iter.parser_pos,
+                      jsmn_iterator_position( &items_list_iter ),
                       gparser.tokens_cnt,
                       &mon
                     );
