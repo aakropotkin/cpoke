@@ -50,10 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-parse_gm
-cpoke
-test_pokemon
-test_ptypes
-test_utils
-fetch_gm
-test
+/parse_gm
+/cpoke
+/test_pokemon
+/test_ptypes
+/test_utils
+/fetch_gm
+/test
