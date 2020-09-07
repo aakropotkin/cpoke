@@ -28,6 +28,7 @@ main( int argc, char * argv[], char ** envp )
   assert( 0 < item_template_list_idx );
   item_template_list_idx++; /* currently it is the key, we want the value */
 
+  /* We want to iterate over the item template list, then over key/vals  */
   jsmn_iterator_t items_list_iter;
   jsmn_iterator_t item_iter;
   jsmn_iterator_init( &items_list_iter,
@@ -36,19 +37,12 @@ main( int argc, char * argv[], char ** envp )
                       item_template_list_idx
                     );
 
-  /* Compile Regex */
+  /* Compile Regex to match Pokemon templateIds */
   regex_t pkmn_tmp_regex;
   int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
   assert( rc_rsl == 0 );
 
-  //int i = json_find( gparser.buffer,
-  //                   gparser.tokens,
-  //                   jsonmatch_str_p,
-  //                   (void *) &pkmn_tmp_regex,
-  //                   rsl,
-  //                   0
-  //                 );
-
+  /* Loop over all item templates looking for pokemon */
   jsmntok_t * item              = NULL;
   jsmntok_t * key               = NULL;
   jsmntok_t * val               = NULL;
