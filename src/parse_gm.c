@@ -54,7 +54,6 @@ main( int argc, char * argv[], char ** envp )
   jsmntok_t * val               = NULL;
   uint32_t    hint              = 0;
   int         first_pokemon_idx = 0;
-  int         hits              = 0;
 
   while( 0 < jsmn_iterator_next( &items_list_iter, NULL, &item, hint ) )
     {
@@ -81,8 +80,6 @@ main( int argc, char * argv[], char ** envp )
         }
 
       if ( hits == 0 ) first_pokemon_idx = items_list_iter.parser_pos;
-      hits++;
-      if ( 5 < hits ) break;
 
       pdex_mon_t mon;
       parse_pdex_mon( gparser.buffer,
