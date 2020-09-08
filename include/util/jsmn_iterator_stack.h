@@ -305,18 +305,105 @@ jsmn_iterator_stack_jump( jsmn_iterator_stack_t * iter_stack, unsigned short i )
 
 /* ------------------------------------------------------------------------- */
 
+  static jsmnitererr_t
+jsmn_iterator_stack_open( const char            *  buffer,
+                          jsmn_iterator_stack_t *  iter_stack,
+                          jsmntok_pred_fn          identifier_pred,
+                          void                  *  identifier_aux,
+                          jsmntok_pred_fn          value_pred,
+                          void                  *  value_aux,
+                          size_t                   next_value_index
+                        )
+{
+  jsmntok_t * identifier;
+  jsmntok_t * value;
+  int idx = jsmn_iterator_find_next( buffer,
+                                     current_iterator( iter_stack ),
+                                     &identifier,
+                                     identifier_pred,
+                                     identifier_aux,
+                                     &value,
+                                     value_pred,
+                                     value_aux,
+                                     next_value_index
+                                   );
+  if ( idx <= 0 )
+    {
+      /* Try again from the start */
+      idx = jsmn_iterator_find_next( buffer,
+                                     current_iterator( iter_stack ),
+                                     &identifier,
+                                     identifier_pred,
+                                     identifier_aux,
+                                     &value,
+                                     value_pred,
+                                     value_aux,
+                                     0
+                                   );
+      if ( idx <= 0 ) return JSMNITER_ERR_PARAMETER;
+    }
+  return jsmn_iterator_stack_push_curr( iter_stack );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static jsmnitererr_t
+jsmn_iterator_stack_open_key( const char * buffer,
+                              jsmn_iterator_stack_t *  iter_stack,
+                              jsmntok_pred_fn          identifier_pred,
+                              void                  *  identifier_aux,
+                              size_t                   next_value_index
+                            )
+{
+  return jsmn_iterator_stack_open( buffer,
+                                   iter_stack,
+                                   identifier_pred,
+                                   identifier_aux,
+                                   json_true_p,
+                                   NULL,
+                                   next_value_index
+                                 );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static jsmnitererr_t
+jsmn_iterator_stack_open_key_seq( const char * buffer,
+                                  jsmn_iterator_stack_t *  iter_stack,
+                                  char                  *  str,
+                                  size_t                   next_value_index
+                                )
+{
+  return jsmn_iterator_stack_open( buffer,
+                                   iter_stack,
+                                   jsoneq_str_p,
+                                   str,
+                                   json_true_p,
+                                   NULL,
+                                   next_value_index
+                                 );
+}
+
+/* ------------------------------------------------------------------------- */
+
 #ifndef JSMN_ITERATOR_NO_SHORTNAMES
 
-#define jsmnis_get_objp   get_is_object
-#define jsmnis_set_objp   set_is_object
-#define jsmnis_curr       current_iterator
-#define jsmnis_init       jsmn_iterator_stack_init
-#define jsmnis_free       jsmn_iterator_stack_free
-#define jsmnis_pos        jsmn_iterator_stack_position
-#define jsmnis_push       jsmn_iterator_stack_push
-#define jsmnis_push_curr  jsmn_iterator_stack_push_curr
-#define jsmnis_pop        jsmn_iterator_stack_pop
-#define jsmnis_jump       jsmn_iterator_stack_jump
+typedef jsmn_iterator_stack_t jsmnis_t;
+#define jsmnis_get_objp       get_is_object
+#define jsmnis_set_objp       set_is_object
+#define jsmnis_curr           current_iterator
+#define jsmnis_init           jsmn_iterator_stack_init
+#define jsmnis_free           jsmn_iterator_stack_free
+#define jsmnis_pos            jsmn_iterator_stack_position
+#define jsmnis_push           jsmn_iterator_stack_push
+#define jsmnis_push_curr      jsmn_iterator_stack_push_curr
+#define jsmnis_pop            jsmn_iterator_stack_pop
+#define jsmnis_jump           jsmn_iterator_stack_jump
+#define jsmnis_open           jsmn_iterator_stack_open
+#define jsmnis_open_key       jsmn_iterator_stack_open_key
+#define jsmnis_open_key_seq   jsmn_iterator_stack_open_key_seq
 
 #endif
 

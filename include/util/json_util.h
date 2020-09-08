@@ -300,7 +300,11 @@ jsmn_iterator_has_key_seq( const char      *  json,
 
 #ifndef JSMN_ITERATOR_NO_SHORTNAMES
 
+typedef jsmn_iterator_t     jsmni_t;
+#define jsmni_find_last     jsmn_iterator_find_last
+#define jsmni_init          jsmn_iterator_init
 #define jsmni_next          jsmn_iterator_next
+#define jsmni_pos           jsmn_iterator_position
 #define jsmni_find_next     jsmn_iterator_find_next
 #define jsmni_find_key      jsmn_iterator_find_key
 #define jsmni_has_key       jsmn_iterator_has_key
