@@ -80,9 +80,6 @@ jsmn_iterator_stack_init( jsmn_iterator_stack_t * iter_stack,
 
   if ( 0 < stack_size )
     {
-      /* This explicitly indicates that the stack is empty when pushing */
-      iter_stack->stack[0].jsmn_tokens = NULL;
-
       /* Allocate stack space */
       iter_stack->stack =
         (jsmn_stacked_iterator_t *) malloc( sizeof( jsmn_stacked_iterator_t ) *
@@ -101,6 +98,10 @@ jsmn_iterator_stack_init( jsmn_iterator_stack_t * iter_stack,
           free( iter_stack->stack );
           return JSMN_ERROR_NOMEM;
         }
+
+      /* This explicitly indicates that the stack is empty when pushing */
+      iter_stack->stack[0].jsmn_tokens = NULL;
+      iter_stack->stack[0].parser_pos  = 0;
     }
   else
     {
@@ -218,6 +219,17 @@ jsmn_iterator_stack_push( jsmn_iterator_stack_t * iter_stack,
 
 /* ------------------------------------------------------------------------- */
 
+  static jsmnitererr_t
+jsmn_iterator_stack_push_curr( jsmn_iterator_stack_t * iter_stack )
+{
+  return jsmn_iterator_stack_push(
+           iter_stack, jsmn_iterator_position( current_iterator( iter_stack ) )
+                                 );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   static int
 jsmn_iterator_stack_pop( jsmn_iterator_stack_t * iter_stack )
 {
@@ -259,7 +271,7 @@ jsmn_iterator_stack_jump( jsmn_iterator_stack_t * iter_stack, unsigned short i )
   if ( ( iter_stack == NULL ) || ( iter_stack->stack_index <= i )
      ) return JSMNITER_ERR_PARAMETER;
   int rsl = 0;
-  while ( i < iter_stack-stack_index )
+  while ( i < iter_stack->stack_index )
     {
       rsl = jsmn_iterator_stack_pop( iter_stack );
       if ( rsl < 0 ) break;
