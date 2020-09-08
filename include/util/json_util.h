@@ -298,18 +298,35 @@ jsmn_iterator_has_key_seq( const char      *  json,
 
 /* ------------------------------------------------------------------------- */
 
+#define jsmn_iterator_while_using( _nxt_fn_, _iter_, _key_, _val_, _hint_ )   \
+  while( 0 < _nxt_fn_( ( _iter_ ), ( _key_ ), ( _val_ ), ( _hint_ ) ) )
+
+#define jsmn_iterator_while( _iter_, _key_, _val_, _hint_ )                   \
+  jsmn_iterator_while_using( jsmn_iterator_next, ( _iter_ ), ( _key_ ),       \
+                             ( _val_ ), ( _hint_ ) )
+
+#define jsmn_iterator_array_while( _iter_, _val_, _hint_ )                    \
+  jsmn_iterator_while( ( _iter_ ), NULL, ( _val_ ), ( _hint_ ) )
+
+
+
+/* ------------------------------------------------------------------------- */
+
 #ifndef JSMN_ITERATOR_NO_SHORTNAMES
 
-typedef jsmn_iterator_t     jsmni_t;
-#define jsmni_find_last     jsmn_iterator_find_last
-#define jsmni_init          jsmn_iterator_init
-#define jsmni_next          jsmn_iterator_next
-#define jsmni_pos           jsmn_iterator_position
-#define jsmni_find_next     jsmn_iterator_find_next
-#define jsmni_find_key      jsmn_iterator_find_key
-#define jsmni_has_key       jsmn_iterator_has_key
-#define jsmni_find_key_seq  jsmn_iterator_find_key_seq
-#define jsmni_has_key_seq   jsmn_iterator_has_key_seq
+typedef jsmn_iterator_t      jsmni_t;
+#define jsmni_find_last      jsmn_iterator_find_last
+#define jsmni_init           jsmn_iterator_init
+#define jsmni_next           jsmn_iterator_next
+#define jsmni_pos            jsmn_iterator_position
+#define jsmni_find_next      jsmn_iterator_find_next
+#define jsmni_find_key       jsmn_iterator_find_key
+#define jsmni_has_key        jsmn_iterator_has_key
+#define jsmni_find_key_seq   jsmn_iterator_find_key_seq
+#define jsmni_has_key_seq    jsmn_iterator_has_key_seq
+#define jsmni_while_using    jsmn_iterator_while_using
+#define jsmni_while          jsmn_iterator_while
+#define jsmni_a_while        jsmn_iterator_array_while
 
 #endif
 

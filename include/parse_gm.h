@@ -123,7 +123,6 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 
 /* ------------------------------------------------------------------------- */
 
-/* FIXME */
   static stats_t
 parse_gm_stats( const char * json, jsmnis_t * iter_stack )
 {
@@ -158,6 +157,7 @@ parse_gm_stats( const char * json, jsmnis_t * iter_stack )
 parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
 {
   assert( json != NULL );
+  assert( iter_stack != NULL );
   assert( mon != NULL );
 
   const unsigned short stack_idx = iter_stack->stack_index;

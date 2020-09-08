@@ -46,52 +46,46 @@ main( int argc, char * argv[], char ** envp )
 
 
   /* Iterate over items */
-  jsmntok_t * item = NULL;
   jsmntok_t * key  = NULL;
   jsmntok_t * val  = NULL;
   int         idx  = 0;
+  jsmntok_t * item = NULL;
 
-  while( 0 < jsmni_next( jsmnis_curr( &iter_stack ),
-                         NULL,
-                         &item,
-                         iter_stack.hint
-                       )
-       ) {
-    /* Open the current item */
-    jsmnis_push_curr( &iter_stack );
+  jsmnis_a_while( &iter_stack, &item )
+    {
+      /* Open the current item */
+      jsmnis_push_curr( &iter_stack );
 
-    /* See if this item's templateId matches that of a Pokemon */
-    key = NULL;
-    val = NULL;
-    idx = jsmni_find_next( gparser.buffer,
-                           jsmnis_curr( &iter_stack ),
-                           &key,
-                           jsoneq_str_p,
-                           (void *) "templateId",
-                           &val,
-                           jsonmatch_str_p,
-                           (void *) &pkmn_tmp_regex,
-                           0
-                         );
-    if ( idx <= 0 )
-      {
-        jsmnis_pop( &iter_stack ); /* Close the item */
-        continue;
-      }
+      /* See if this item's templateId matches that of a Pokemon */
+      key = NULL;
+      val = NULL;
+      idx = jsmni_find_next( gparser.buffer,
+                            jsmnis_curr( &iter_stack ),
+                            &key,
+                            jsoneq_str_p,
+                            (void *) "templateId",
+                            &val,
+                            jsonmatch_str_p,
+                            (void *) &pkmn_tmp_regex,
+                            0
+                          );
+      if ( idx <= 0 )
+        {
+          jsmnis_pop( &iter_stack ); /* Close the item */
+          continue;
+        }
 
-    /* You have to pop/close before parsing because `iter_stack' is currently
-     * pointed inside the item template, not pointing at it's root. */
-    pdex_mon_t mon;
-    parse_pdex_mon( gparser.buffer,
-                    &iter_stack,
-                    &mon
-                  );
-    print_pdex_mon( &mon );
+      /* You have to pop/close before parsing because `iter_stack' is currently
+      * pointed inside the item template, not pointing at it's root. */
+      pdex_mon_t mon;
+      parse_pdex_mon( gparser.buffer,
+                      &iter_stack,
+                      &mon
+                    );
+      print_pdex_mon( &mon );
 
-    jsmnis_pop( &iter_stack );
-
-    item = NULL;
-  }
+      jsmnis_pop( &iter_stack );
+    }
 
 
   /* Cleanup */
