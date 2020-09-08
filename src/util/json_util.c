@@ -35,7 +35,7 @@ jsmn_parse_realloc( jsmn_parser_t *  parser,
   while( true ) /* breaks inside */
     {
       jsmn_init( parser );
-      r = jsmn_parse(parser, js, len, *tokens, *num_tokens);
+      r = jsmn_parse( parser, js, len, * tokens, * num_tokens );
       if ( r == JSMN_ERROR_NOMEM )
         {
           unsigned int want_num_tokens = 2 * ( * num_tokens );
@@ -52,6 +52,7 @@ jsmn_parse_realloc( jsmn_parser_t *  parser,
           break;
         }
     }
+
   return r;
 }
 

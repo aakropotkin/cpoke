@@ -11,8 +11,8 @@ INCLUDEPATH = include
 DEFSPATH    = data/defs
 
 # `-fms-extensions' enables struct inheritence
-CFLAGS      += -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions -DJSMN_STATIC
-LINKERFLAGS = -lm $(shell curl-config --libs)
+CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions -DJSMN_STATIC
+LINKERFLAGS = -g -lm $(shell curl-config --libs)
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)

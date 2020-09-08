@@ -23,7 +23,7 @@ main( int argc, char * argv[], char ** envp )
   size_t rsl = init_gm_parser( "./data/GAME_MASTER.json", &gparser );
   assert( rsl != 0 );
 
-#if 1
+#if 0
   int item_template_list_idx = json_find( gparser.buffer,
                                           gparser.tokens,
                                           jsoneq_str_p,
@@ -73,6 +73,13 @@ main( int argc, char * argv[], char ** envp )
                                        (void *) &pkmn_tmp_regex,
                                        0
                                      );
+
+      if ( jsoneq_str( gparser.buffer, val, "VS_SEEKER_CLIENT_SETTINGS" ) )
+        {
+          printf( "\nidx = %d\n", i );
+          return 0;
+        }
+
       if ( i <= 0 )
         {
           hint = jsmn_iterator_position( &item_iter );
@@ -93,7 +100,8 @@ main( int argc, char * argv[], char ** envp )
                     );
       print_pdex_mon( &mon );
     }
-#else
+
+#else /* ------------------------------------------------------------------- */
 
   /* Compile Regex to match Pokemon templateIds */
   regex_t pkmn_tmp_regex;
@@ -101,15 +109,18 @@ main( int argc, char * argv[], char ** envp )
   assert( rc_rsl == 0 );
 
   jsmn_iterator_stack_t iter_stack;
-  jsmn_iterator_stack_init( &iter_stack,
-                            gparser.tokens,
-                            gparser.tokens_cnt,
-                            8
-                          );
-  jsmn_iterator_stack_push( &iter_stack, 0 ); /* Top level */
+  int jsmn_rsl = jsmn_iterator_stack_init( &iter_stack,
+                                           gparser.tokens,
+                                           gparser.tokens_cnt,
+                                           8
+                                         );
+  assert( jsmn_rsl == 0 );
 
-  jsmntok_t * key;
-  jsmntok_t * val;
+  jsmn_rsl = jsmn_iterator_stack_push( &iter_stack, 0 ); /* Top level */
+  assert( jsmn_rsl == 0 );
+
+  jsmntok_t * key = NULL;
+  jsmntok_t * val = NULL;
   int idx = jsmn_iterator_find_key( gparser.buffer,
                                     current_iterator( &iter_stack ),
                                     &key,
@@ -118,9 +129,10 @@ main( int argc, char * argv[], char ** envp )
                                     &val,
                                     0
                                   );
+  assert( 0 < idx );
   jsmn_iterator_stack_push_curr( &iter_stack ); /* Items list */
 
-  jsmntok_t * item;
+  jsmntok_t * item = NULL;
   while( 0 < jsmn_iterator_next( current_iterator( &iter_stack ),
                                  NULL,
                                  &item,
@@ -128,6 +140,8 @@ main( int argc, char * argv[], char ** envp )
                                )
        ) {
     jsmn_iterator_stack_push_curr( &iter_stack );
+    key = NULL;
+    val = NULL;
     idx = jsmn_iterator_find_next( gparser.buffer,
                                    current_iterator( &iter_stack ),
                                    &key,
@@ -147,13 +161,14 @@ main( int argc, char * argv[], char ** envp )
     pdex_mon_t mon;
     parse_pdex_mon( gparser.buffer,
                     gparser.tokens,
-                    jsmn_iterator_position( current_iterator( &iter_stack ) ),
+                    jsmn_iterator_position( &iter_stack.stack[iter_stack.stack_index - 1] ),
                     gparser.tokens_cnt,
                     &mon
                   );
     print_pdex_mon( &mon );
 
     jsmn_iterator_stack_pop( &iter_stack );
+    item = NULL;
   }
 
   jsmn_iterator_stack_free( &iter_stack );

@@ -189,6 +189,12 @@ parse_pdex_mon( const char * json,
 
   /* Parse Dex # from `templateId' value */
   mon->dex_number = parse_gm_dex_num( json, tokens + idx + 1 );
+  if ( mon->dex_number == 0 )
+    {
+      printf( "\n" );
+      print_tok( json, tokens + idx + 1 );
+      printf( "\n\n" );
+    }
   assert( mon->dex_number != 0 );
 
   /* Create iterator on `pokemon' value */

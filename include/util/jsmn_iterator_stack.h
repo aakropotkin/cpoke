@@ -61,7 +61,9 @@ set_is_object( jsmn_iterator_stack_t * iter_stack, unsigned int idx, bool val )
   static jsmn_iterator_t *
 current_iterator( const jsmn_iterator_stack_t * iter_stack )
 {
-  if ( ( iter_stack == NULL ) || ( iter_stack->stack == NULL ) ) return NULL;
+  //if ( ( iter_stack == NULL ) || ( iter_stack->stack == NULL ) ) return NULL;
+  assert( iter_stack != NULL );
+  assert( iter_stack->stack != NULL );
   return iter_stack->stack + iter_stack->stack_index;
 }
 
@@ -101,7 +103,9 @@ jsmn_iterator_stack_init( jsmn_iterator_stack_t * iter_stack,
 
       /* This explicitly indicates that the stack is empty when pushing */
       iter_stack->stack[0].jsmn_tokens = NULL;
+      iter_stack->stack[0].jsmn_len    = 0;
       iter_stack->stack[0].parser_pos  = 0;
+      iter_stack->stack[0].parent_pos  = 0;
     }
   else
     {
@@ -112,6 +116,8 @@ jsmn_iterator_stack_init( jsmn_iterator_stack_t * iter_stack,
   iter_stack->jsmn_len   = jsmn_len;
   iter_stack->stack_size = stack_size;
   iter_stack->hint       = 0;
+
+  return 0;
 }
 
 
@@ -123,7 +129,9 @@ jsmn_iterator_stack_free( jsmn_iterator_stack_t * iter_stack )
   if ( iter_stack != NULL )
     {
       free( iter_stack->stack );
+      iter_stack->stack = NULL;
       free( iter_stack->is_object_flags );
+      iter_stack->is_object_flags = false;
     }
 }
 
@@ -219,11 +227,22 @@ jsmn_iterator_stack_push( jsmn_iterator_stack_t * iter_stack,
 
 /* ------------------------------------------------------------------------- */
 
+//#define jsmn_iterator_stack_position( _iterator_stack_ )        \
+//  jsmn_iterator_position( current_iterator( _iterator_stack_ ) )
+  static unsigned int
+jsmn_iterator_stack_position( jsmn_iterator_stack_t * iter_stack )
+{
+  return jsmn_iterator_position( current_iterator( iter_stack ) );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   static jsmnitererr_t
 jsmn_iterator_stack_push_curr( jsmn_iterator_stack_t * iter_stack )
 {
-  return jsmn_iterator_stack_push(
-           iter_stack, jsmn_iterator_position( current_iterator( iter_stack ) )
+  return jsmn_iterator_stack_push( iter_stack,
+                                   jsmn_iterator_stack_position( iter_stack )
                                  );
 }
 
@@ -233,15 +252,18 @@ jsmn_iterator_stack_push_curr( jsmn_iterator_stack_t * iter_stack )
   static int
 jsmn_iterator_stack_pop( jsmn_iterator_stack_t * iter_stack )
 {
-  if ( iter_stack == NULL ) return JSMNITER_ERR_PARAMETER;
+  //if ( iter_stack == NULL ) return JSMNITER_ERR_PARAMETER;
+  assert( iter_stack != NULL );
 
   /* Check for empty stack */
-  if ( ( iter_stack->stack_index == 0 ) &&
-       ( iter_stack->stack[0].jsmn_tokens == NULL )
-     ) return JSMNITER_ERR_PARAMETER;
+  //if ( ( iter_stack->stack_index == 0 ) &&
+  //     ( iter_stack->stack[0].jsmn_tokens == NULL )
+  //   ) return JSMNITER_ERR_PARAMETER;
+  assert( ( iter_stack->stack_index != 0 ) ||
+          ( iter_stack->stack[0].jsmn_tokens != NULL )
+        );
 
-  iter_stack->hint =
-    jsmn_iterator_position( &iter_stack->stack[iter_stack->stack_index] );
+  iter_stack->hint = jsmn_iterator_stack_position( iter_stack );
 
   /* Clear stacked iterator's contents.
    * The `jsmn_tokens' member MUST be set to null for pushing to work properly,
