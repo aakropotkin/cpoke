@@ -7,11 +7,9 @@
 
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
-#include <regex.h>
-#include <stdio.h>
+#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <assert.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -36,7 +34,7 @@ typedef struct jsmn_iterator_stack_s  jsmn_iterator_stack_t;
 
 static const size_t IS_OBJ_NUM_BITS = sizeof( unsigned long ) * 8;
 
-static bool
+  static bool
 get_is_object( const jsmn_iterator_stack_t * iter_stack, unsigned int idx )
 {
   assert( iter_stack != NULL );
@@ -46,15 +44,25 @@ get_is_object( const jsmn_iterator_stack_t * iter_stack, unsigned int idx )
            ) & 1;
 }
 
-static jsmnitererr_t
+  static jsmnitererr_t
 set_is_object( jsmn_iterator_stack_t * iter_stack, unsigned int idx, bool val )
 {
   if ( ( iter_stack == NULL ) || ( iter_stack->stack_index < idx )
-       ) return JSMNITER_ERR_PARAMETER;
+     ) return JSMNITER_ERR_PARAMETER;
   iter_stack->is_object_flags[idx / IS_OBJ_NUM_BITS] &=
     ~( 1 << ( idx % IS_OBJ_NUM_BITS ) );
   iter_stack->is_object_flags[idx / IS_OBJ_NUM_BITS] |=
     ( 1 << ( idx % IS_OBJ_NUM_BITS ) );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static jsmn_iterator_t *
+current_iterator( const jsmn_iterator_stack_t * iter_stack )
+{
+  if ( ( iter_stack == NULL ) || ( iter_stack->stack == NULL ) ) return NULL;
+  return iter_stack->stack + iter_stack->stack_index;
 }
 
 
@@ -162,6 +170,7 @@ jsmn_iterator_stack_push( jsmn_iterator_stack_t * iter_stack,
                                  sizeof( jsmn_stacked_iterator_t )
                              );
         }
+
       if ( new_stack == NULL ) return JSMN_ERROR_NOMEM;
 
       /* (Re)Allocate Flags */
@@ -175,6 +184,7 @@ jsmn_iterator_stack_push( jsmn_iterator_stack_t * iter_stack,
                                want_num_flags_bytes
                              );
         }
+
       if ( new_flags == NULL )
         {
           free( new_stack );
@@ -235,6 +245,26 @@ jsmn_iterator_stack_pop( jsmn_iterator_stack_t * iter_stack )
   if ( 0 < iter_stack->stack_index ) iter_stack->stack_index--;
 
   return iter_stack->hint;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Pops until index <code>i</code> is reached.
+ */
+  static int
+jsmn_iterator_stack_jump( jsmn_iterator_stack_t * iter_stack, unsigned short i )
+{
+  if ( ( iter_stack == NULL ) || ( iter_stack->stack_index <= i )
+     ) return JSMNITER_ERR_PARAMETER;
+  int rsl = 0;
+  while ( i < iter_stack-stack_index )
+    {
+      rsl = jsmn_iterator_stack_pop( iter_stack );
+      if ( rsl < 0 ) break;
+    }
+  return rsl;
 }
 
 

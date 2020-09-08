@@ -5,14 +5,14 @@
 
 /* ========================================================================= */
 
-#include <assert.h>
-#include "util/json_util.h"
-#include <regex.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <pokedex.h>
-#include <string.h>
 #include "ptypes.h"
+#include "util/json_util.h"
+#include <assert.h>
+#include <pokedex.h>
+#include <regex.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
