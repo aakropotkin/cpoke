@@ -81,15 +81,14 @@ main( int argc, char * argv[], char ** envp )
 
     /* You have to pop/close before parsing because `iter_stack' is currently
      * pointed inside the item template, not pointing at it's root. */
-    jsmnis_pop( &iter_stack );
     pdex_mon_t mon;
     parse_pdex_mon( gparser.buffer,
-                    gparser.tokens,
-                    jsmnis_pos( &iter_stack ),
-                    gparser.tokens_cnt,
+                    &iter_stack,
                     &mon
                   );
     print_pdex_mon( &mon );
+
+    jsmnis_pop( &iter_stack );
 
     item = NULL;
   }

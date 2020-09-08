@@ -7,6 +7,7 @@
 
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
+#include "util/json_util.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>

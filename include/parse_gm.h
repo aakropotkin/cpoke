@@ -5,7 +5,10 @@
 
 /* ========================================================================= */
 
+#include "ext/jsmn.h"
+#include "ext/jsmn_iterator.h"
 #include "ptypes.h"
+#include "util/jsmn_iterator_stack.h"
 #include "util/json_util.h"
 #include <assert.h>
 #include <pokedex.h>
@@ -122,26 +125,25 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 
 /* FIXME */
   static stats_t
-parse_gm_stats( const char * json, jsmntok_t * tokens, int tidx )
+parse_gm_stats( const char * json, jsmnis_t * iter_stack )
 {
-  stats_t stats = { 0, 0, 0 };
-  char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
-  for ( int i = 1; i <= 6; i += 2 )
+  stats_t     stats     = { 0, 0, 0 };
+  char        buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
+  jsmntok_t * key       = NULL;
+  jsmntok_t * val       = NULL;
+  while ( 0 < jsmni_next( jsmnis_curr( iter_stack ), &key, &val, 0 ) )
     {
       memset( buffer, '\0', 5 );
-      strncpy( buffer,
-               json + tokens[tidx  + i + 1].start,
-               toklen( tokens + tidx + i + 1 )
-             );
-      if ( jsoneq_str( json, tokens + tidx + i, "baseStamina" ) )
+      strncpy( buffer, json + val->start, toklen( val ) );
+      if ( jsoneq_str( json, key, "baseStamina" ) )
         {
           stats.stamina = atoi( buffer );
         }
-      else if ( jsoneq_str( json, tokens + tidx + i, "baseAttack" ) )
+      else if ( jsoneq_str( json, key, "baseAttack" ) )
         {
           stats.attack = atoi( buffer );
         }
-      else if ( jsoneq_str( json, tokens + tidx + i, "baseDefense" ) )
+      else if ( jsoneq_str( json, key, "baseDefense" ) )
         {
           stats.defense = atoi( buffer );
         }
@@ -153,67 +155,38 @@ parse_gm_stats( const char * json, jsmntok_t * tokens, int tidx )
 /* ------------------------------------------------------------------------- */
 
   static uint16_t
-parse_pdex_mon( const char * json,
-                jsmntok_t  * tokens,
-                int          tidx,
-                size_t       tokens_cnt,
-                pdex_mon_t * mon
-              )
+parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
 {
   assert( json != NULL );
-  assert( tokens != NULL );
   assert( mon != NULL );
 
-  jsmn_iterator_t   iter;
-  jsmntok_t       * key    = NULL;
-  jsmntok_t       * val    = NULL;
-  int               idx    = 0;
-  int               rsl    = 0;
-  size_t            hint   = 0;
+  const unsigned short stack_idx = iter_stack->stack_index;
+  jsmntok_t *          key       = NULL;
+  jsmntok_t *          val       = NULL;
+  int                  idx       = jsmnis_pos( iter_stack );
+  int                  rsl       = 0;
 
-  /* Find `templateId' key */
-  idx = json_find( json,
-                   tokens,
-                   jsoneq_str_p,
-                   (void *) "templateId",
-                   tokens_cnt,
-                   tidx
-                   //tokens[tidx].start
-                 );
+  /* `templateId' value should already be targeted by `iter_stack' */
   assert( 0 < idx );
-
 
   /* Ininitialize `pdex_mon_t' struct */
   /* FIXME */
   mon->types = PT_NONE_M;
 
   /* Parse Dex # from `templateId' value */
-  mon->dex_number = parse_gm_dex_num( json, tokens + idx + 1 );
-  if ( mon->dex_number == 0 )
-    {
-      printf( "\n" );
-      print_tok( json, tokens + idx + 1 );
-      printf( "\n\n" );
-    }
+  mon->dex_number = parse_gm_dex_num( json, iter_stack->tokens + idx );
   assert( mon->dex_number != 0 );
 
   /* Create iterator on `pokemon' value */
-  idx = json_find( json,
-                   tokens,
-                   jsoneq_str_p,
-                   (void *) "pokemon",
-                   tokens_cnt,
-                   tidx
-                   //tokens[tidx].start
-                 );
-  assert( 0 < idx );
-  idx++;
+  rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
+  assert( 0 == rsl );
 
-  rsl = jsmn_iterator_init( &iter, tokens, tokens_cnt, idx );
-
-  hint = tokens[idx].start;
-  do {
-    rsl = jsmn_iterator_next( &iter, &key, &val, hint );
+  while ( 0 < jsmni_next( jsmnis_curr( iter_stack ),
+                          &key,
+                          &val,
+                          iter_stack->hint
+                        )
+        ) {
     if ( jsoneq_str( json, key, "uniqueId" ) )
       {
         mon->name = strndup( json + val->start, toklen( val ) );
@@ -227,7 +200,9 @@ parse_pdex_mon( const char * json,
       }
     else if ( jsoneq_str( json, key, "stats" ) )
       {
-        mon->base_stats = parse_gm_stats( json, tokens, iter.parser_pos );
+        jsmnis_push_curr( iter_stack );
+        mon->base_stats = parse_gm_stats( json, iter_stack );
+        jsmnis_pop( iter_stack );
       }
     else if ( jsoneq_str( json, key, "quickMoves" ) )
       {
@@ -245,10 +220,16 @@ parse_pdex_mon( const char * json,
       {
         /* FIXME */
       }
-    hint = val->start;
-  } while( 0 < rsl );
+  }
+  jsmnis_pop( iter_stack );
 
+  assert( rsl == 0 );
+  assert( iter_stack->stack_index == stack_idx );
   assert( mon->name != NULL );
+  assert( mon->types != PT_NONE_M );
+  assert( mon->base_stats.stamina != 0 );
+  assert( mon->base_stats.attack != 0 );
+  assert( mon->base_stats.defense != 0 );
 
   return mon->dex_number;
 }
