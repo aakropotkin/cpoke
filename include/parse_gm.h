@@ -130,7 +130,7 @@ parse_gm_stats( const char * json, jsmnis_t * iter_stack )
   char        buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
   jsmntok_t * key       = NULL;
   jsmntok_t * val       = NULL;
-  while ( 0 < jsmni_next( jsmnis_curr( iter_stack ), &key, &val, 0 ) )
+  jsmnis_while( iter_stack, &key, &val )
     {
       memset( buffer, '\0', 5 );
       strncpy( buffer, json + val->start, toklen( val ) );
@@ -181,12 +181,7 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
   assert( 0 == rsl );
 
-  while ( 0 < jsmni_next( jsmnis_curr( iter_stack ),
-                          &key,
-                          &val,
-                          iter_stack->hint
-                        )
-        ) {
+  jsmnis_while( iter_stack, &key, &val ) {
     if ( jsoneq_str( json, key, "uniqueId" ) )
       {
         mon->name = strndup( json + val->start, toklen( val ) );
