@@ -229,8 +229,32 @@ jsmn_iterator_find_key( const char      *  json,
 
 /* ------------------------------------------------------------------------- */
 
+  static int
+jsmn_iterator_find_key_seq( const char      *  json,
+                            jsmn_iterator_t *  iterator,
+                            jsmntok_t       ** jsmn_identifier,
+                            const char      *  str,
+                            jsmntok_t       ** jsmn_value,
+                            size_t             next_value_index
+                            )
+{
+  return jsmn_iterator_find_next( json,
+                                  iterator,
+                                  jsmn_identifier,
+                                  jsoneq_str_p,
+                                  (void *) str,
+                                  jsmn_value,
+                                  json_true_p,
+                                  NULL,
+                                  next_value_index
+                                  );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   static bool
-json_iterator_has_key( const char      *  json,
+jsmn_iterator_has_key( const char      *  json,
                        jsmn_iterator_t *  iterator,
                        jsmntok_pred_fn    identifier_pred,
                        void            *  identifier_aux,
@@ -249,6 +273,40 @@ json_iterator_has_key( const char      *  json,
                                     );
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
+jsmn_iterator_has_key_seq( const char      *  json,
+                           jsmn_iterator_t *  iterator,
+                           char            *  str,
+                           size_t             next_value_index
+                         )
+{
+  jsmntok_t * jsmn_identifier;
+  jsmntok_t * jsmn_value;
+  return 0 != jsmn_iterator_find_key( json,
+                                      iterator,
+                                      &jsmn_identifier,
+                                      jsoneq_str_p,
+                                      (void *) str,
+                                      &jsmn_value,
+                                      next_value_index
+                                      );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+#ifndef JSMN_ITERATOR_NO_SHORTNAMES
+
+#define jsmni_find_next     jsmn_iterator_find_next
+#define jsmni_find_key      jsmn_iterator_find_key
+#define jsmni_has_key       jsmn_iterator_has_key
+#define jsmni_find_key_seq  jsmn_iterator_find_key_seq
+#define jsmni_has_key_seq   jsmn_iterator_has_key_seq
+
+#endif
 
 
 /* ------------------------------------------------------------------------- */

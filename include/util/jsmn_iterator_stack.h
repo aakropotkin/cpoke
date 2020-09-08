@@ -227,13 +227,14 @@ jsmn_iterator_stack_push( jsmn_iterator_stack_t * iter_stack,
 
 /* ------------------------------------------------------------------------- */
 
-//#define jsmn_iterator_stack_position( _iterator_stack_ )        \
-//  jsmn_iterator_position( current_iterator( _iterator_stack_ ) )
-  static unsigned int
-jsmn_iterator_stack_position( jsmn_iterator_stack_t * iter_stack )
-{
-  return jsmn_iterator_position( current_iterator( iter_stack ) );
-}
+#define jsmn_iterator_stack_position( _iterator_stack_ )        \
+  jsmn_iterator_position( current_iterator( _iterator_stack_ ) )
+
+//  static unsigned int
+//jsmn_iterator_stack_position( jsmn_iterator_stack_t * iter_stack )
+//{
+//  return jsmn_iterator_position( current_iterator( iter_stack ) );
+//}
 
 
 /* ------------------------------------------------------------------------- */
@@ -301,6 +302,23 @@ jsmn_iterator_stack_jump( jsmn_iterator_stack_t * iter_stack, unsigned short i )
   return rsl;
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+#ifndef JSMN_ITERATOR_NO_SHORTNAMES
+
+#define jsmnis_get_objp   get_is_object
+#define jsmnis_set_objp   set_is_object
+#define jsmnis_curr       current_iterator
+#define jsmnis_init       jsmn_iterator_stack_init
+#define jsmnis_free       jsmn_iterator_stack_free
+#define jsmnis_pos        jsmn_iterator_stack_position
+#define jsmnis_push       jsmn_iterator_stack_push
+#define jsmnis_push_curr  jsmn_iterator_stack_push_curr
+#define jsmnis_pop        jsmn_iterator_stack_pop
+#define jsmnis_jump       jsmn_iterator_stack_jump
+
+#endif
 
 /* ------------------------------------------------------------------------- */
 
