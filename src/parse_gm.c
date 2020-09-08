@@ -115,36 +115,36 @@ main( int argc, char * argv[], char ** envp )
 
   jsmntok_t * key = NULL;
   jsmntok_t * val = NULL;
-  int idx = jsmn_iterator_find_key_seq( gparser.buffer,
-                                        current_iterator( &iter_stack ),
-                                        &key,
-                                        "itemTemplate",
-                                        &val,
-                                        0
-                                      );
+  int idx = jsmni_find_key_seq( gparser.buffer,
+                                jsmnis_curr( &iter_stack ),
+                                &key,
+                                "itemTemplate",
+                                &val,
+                                0
+                              );
   assert( 0 < idx );
   jsmnis_push_curr( &iter_stack ); /* Items list */
 
   jsmntok_t * item = NULL;
-  while( 0 < jsmn_iterator_next( jsmnis_curr( &iter_stack ),
-                                 NULL,
-                                 &item,
-                                 iter_stack.hint
-                               )
+  while( 0 < jsmni_next( jsmnis_curr( &iter_stack ),
+                         NULL,
+                         &item,
+                         iter_stack.hint
+                       )
        ) {
     jsmnis_push_curr( &iter_stack );
     key = NULL;
     val = NULL;
-    idx = jsmn_iterator_find_next( gparser.buffer,
-                                   jsmnis_curr( &iter_stack ),
-                                   &key,
-                                   jsoneq_str_p,
-                                   (void *) "templateId",
-                                   &val,
-                                   jsonmatch_str_p,
-                                   (void *) &pkmn_tmp_regex,
-                                   0
-                                 );
+    idx = jsmni_find_next( gparser.buffer,
+                           jsmnis_curr( &iter_stack ),
+                           &key,
+                           jsoneq_str_p,
+                           (void *) "templateId",
+                           &val,
+                           jsonmatch_str_p,
+                           (void *) &pkmn_tmp_regex,
+                           0
+                         );
     if ( idx <= 0 )
       {
         jsmnis_pop( &iter_stack );
@@ -153,7 +153,7 @@ main( int argc, char * argv[], char ** envp )
 
     /* You have to pop before parsing because `iter_stack' is currently
      * pointed inside the item template, not pointing at it's root. */
-    jsmn_iterator_stack_pop( &iter_stack );
+    jsmnis_pop( &iter_stack );
     pdex_mon_t mon;
     parse_pdex_mon( gparser.buffer,
                     gparser.tokens,

@@ -300,6 +300,7 @@ jsmn_iterator_has_key_seq( const char      *  json,
 
 #ifndef JSMN_ITERATOR_NO_SHORTNAMES
 
+#define jsmni_next          jsmn_iterator_next
 #define jsmni_find_next     jsmn_iterator_find_next
 #define jsmni_find_key      jsmn_iterator_find_key
 #define jsmni_has_key       jsmn_iterator_has_key
