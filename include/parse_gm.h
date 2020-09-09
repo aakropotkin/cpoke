@@ -107,6 +107,56 @@ parse_gm_type( const char * json, jsmntok_t * token )
 
 /* ------------------------------------------------------------------------- */
 
+static const char pvp_move_template_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
+static const char pvp_fast_move_template_pat[] =
+  "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_[A-Z_]\\+_FAST$";
+/*
+ * {
+ *   "templateId": "COMBAT_V0013_MOVE_WRAP",
+ *   "combatMove": {
+ *     "uniqueId": "WRAP",
+ *     "type": "POKEMON_TYPE_NORMAL",
+ *     "power": 60.0,
+ *     "vfxName": "wrap",
+ *     "energyDelta": -45
+ *   }
+ * }, {
+ *   "templateId": "COMBAT_V0062_MOVE_ANCIENT_POWER",
+ *   "combatMove": {
+ *     "uniqueId": "ANCIENT_POWER",
+ *     "type": "POKEMON_TYPE_ROCK",
+ *     "power": 45.0,
+ *     "vfxName": "ancient_power",
+ *     "energyDelta": -45,
+ *     "buffs": {
+ *       "attackerAttackStatStageChange": 2,
+ *       "attackerDefenseStatStageChange": 2,
+ *       "buffActivationChance": 0.1
+ *     }
+ *   }
+ * }, {
+ *   "templateId": "COMBAT_V0200_MOVE_FURY_CUTTER_FAST",
+ *   "combatMove": {
+ *     "uniqueId": "FURY_CUTTER_FAST",
+ *     "type": "POKEMON_TYPE_BUG",
+ *     "power": 2.0,
+ *     "vfxName": "fury_cutter_fast",
+ *     "energyDelta": 4
+ *   }
+ * }
+ *
+ */
+
+  static uint16_t
+parse_pvp_move( const char * json, jsmnis_t * iter_stack )
+{
+  return 0;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
 /**
  * 0 Return indicates failure
  */

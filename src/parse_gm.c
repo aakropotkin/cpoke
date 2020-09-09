@@ -23,10 +23,18 @@ main( int argc, char * argv[], char ** envp )
   size_t rsl = init_gm_parser( "./data/GAME_MASTER.json", &gparser );
   assert( rsl != 0 );
 
-  /* Compile Regex to match Pokemon templateIds */
-  regex_t pkmn_tmp_regex;
+  /* Compile Regex patterns for templateIds */
+  regex_t pkmn_tmp_regex, pvp_move_tmp_regex, pvp_fast_move_tmp_regex;
   int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
   assert( rc_rsl == 0 );
+  rc_rsl = regcomp( &pvp_move_tmp_regex, pvp_move_template_pat, REG_NOSUB );
+  assert( rc_rsl == 0 );
+  rc_rsl = regcomp( &pvp_fast_move_tmp_regex,
+                    pvp_fast_move_template_pat,
+                    REG_NOSUB
+                  );
+  assert( rc_rsl == 0 );
+
 
   jsmn_iterator_stack_t iter_stack;
   int jsmn_rsl = jsmnis_init( &iter_stack,
@@ -65,8 +73,10 @@ main( int argc, char * argv[], char ** envp )
                             jsoneq_str_p,
                             (void *) "templateId",
                             &val,
-                            jsonmatch_str_p,
-                            (void *) &pkmn_tmp_regex,
+                             //jsonmatch_str_p,
+                             //(void *) &pkmn_tmp_regex,
+                            jsoneq_str_p,
+                            (void *) "FORMS_V0002_POKEMON_IVYSAUR",
                             0
                           );
       if ( idx <= 0 )
@@ -74,6 +84,14 @@ main( int argc, char * argv[], char ** envp )
           jsmnis_pop( &iter_stack ); /* Close the item */
           continue;
         }
+
+      /* Find number of forms for Ivysaur */
+      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
+      jsmnis_push_curr( &iter_stack );
+      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
+      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
+      printf( "SIZE: %d\n", val->size );
+      return 0;
 
       /* You have to pop/close before parsing because `iter_stack' is currently
       * pointed inside the item template, not pointing at it's root. */

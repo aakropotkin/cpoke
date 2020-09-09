@@ -112,6 +112,44 @@ static const size_t JSON1_LEN = array_size( JSON1 );
 /* ------------------------------------------------------------------------- */
 
   static bool
+test_regex_patterns( void )
+{
+  /* Compile Regex patterns for templateIds */
+  regex_t pkmn_tmp_regex, pvp_move_tmp_regex, pvp_fast_move_tmp_regex;
+  int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
+  assert( rc_rsl == 0 );
+  rc_rsl = regcomp( &pvp_move_tmp_regex, pvp_move_template_pat, REG_NOSUB );
+  assert( rc_rsl == 0 );
+  rc_rsl = regcomp( &pvp_fast_move_tmp_regex,
+                    pvp_fast_move_template_pat,
+                    REG_NOSUB
+                  );
+  assert( rc_rsl == 0 );
+
+  /* FIXME test pokemon */
+  char * test_str1 = "COMBAT_V0013_MOVE_WRAP";
+  char * test_str2 = "COMBAT_V0062_MOVE_ANCIENT_POWER";
+  char * test_str3 = "COMBAT_V0200_MOVE_FURY_CUTTER_FAST";
+
+  expect( regexec( &pvp_move_tmp_regex, test_str1, 0, NULL, 0 ) == 0 );
+  expect( regexec( &pvp_move_tmp_regex, test_str2, 0, NULL, 0 ) == 0 );
+  expect( regexec( &pvp_move_tmp_regex, test_str3, 0, NULL, 0 ) == 0 );
+
+  expect( regexec( &pvp_fast_move_tmp_regex, test_str1, 0, NULL, 0 ) != 0 );
+  expect( regexec( &pvp_fast_move_tmp_regex, test_str2, 0, NULL, 0 ) != 0 );
+  expect( regexec( &pvp_fast_move_tmp_regex, test_str3, 0, NULL, 0 ) == 0 );
+
+  expect( regexec( &pkmn_tmp_regex, test_str1, 0, NULL, 0 ) != 0 );
+  expect( regexec( &pkmn_tmp_regex, test_str2, 0, NULL, 0 ) != 0 );
+  expect( regexec( &pkmn_tmp_regex, test_str3, 0, NULL, 0 ) != 0 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
 test_parse_gm_type( void )
 {
   /* Try parsing on a simple, one token JSON string */
@@ -185,8 +223,11 @@ test_parse_gm_stats( void )
   jsmn_parser_t jparser;
   jsmn_init( &jparser );
   int tokens_cnt = jsmn_parse( &jparser, stats_str, stats_str_len, tokens, 7 );
+  jsmnis_t iter_stack;
+  jsmnis_init( &iter_stack, tokens, tokens_cnt, 3 );
+  jsmnis_push( &iter_stack, 0 );
 
-  stats_t stats = parse_gm_stats( stats_str, tokens, 0 );
+  stats_t stats = parse_gm_stats( stats_str, &iter_stack );
   expect( stats.stamina == 128 );
   expect( stats.attack == 118 );
   expect( stats.defense == 111 );
@@ -201,6 +242,7 @@ test_parse_gm_stats( void )
 test_parse_gm( void )
 {
   bool rsl = true;
+  rsl &= do_test( regex_patterns );
   rsl &= do_test( parse_gm_type );
   rsl &= do_test( parse_gm_dex_num );
   rsl &= do_test( parse_gm_stats );
