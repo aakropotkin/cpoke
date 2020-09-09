@@ -127,9 +127,9 @@ test_regex_patterns( void )
   assert( rc_rsl == 0 );
 
   /* FIXME test pokemon */
-  char * test_str1 = "COMBAT_V0013_MOVE_WRAP";
-  char * test_str2 = "COMBAT_V0062_MOVE_ANCIENT_POWER";
-  char * test_str3 = "COMBAT_V0200_MOVE_FURY_CUTTER_FAST";
+  char test_str1[] = "COMBAT_V0013_MOVE_WRAP";
+  char test_str2[] = "COMBAT_V0062_MOVE_ANCIENT_POWER";
+  char test_str3[] = "COMBAT_V0200_MOVE_FURY_CUTTER_FAST";
 
   expect( regexec( &pvp_move_tmp_regex, test_str1, 0, NULL, 0 ) == 0 );
   expect( regexec( &pvp_move_tmp_regex, test_str2, 0, NULL, 0 ) == 0 );
@@ -142,6 +142,10 @@ test_regex_patterns( void )
   expect( regexec( &pkmn_tmp_regex, test_str1, 0, NULL, 0 ) != 0 );
   expect( regexec( &pkmn_tmp_regex, test_str2, 0, NULL, 0 ) != 0 );
   expect( regexec( &pkmn_tmp_regex, test_str3, 0, NULL, 0 ) != 0 );
+
+  regfree( &pkmn_tmp_regex );
+  regfree( &pvp_move_tmp_regex );
+  regfree( &pvp_fast_move_tmp_regex );
 
   return true;
 }
@@ -203,7 +207,6 @@ test_parse_gm_dex_num( void )
     .end   = array_size( tid_str ),
     .size  = 0
   };
-
   uint16_t dex_num = parse_gm_dex_num( tid_str, &tid_tok );
   expect( dex_num == 1 );
   return true;

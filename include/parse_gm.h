@@ -20,7 +20,11 @@
 
 /* ------------------------------------------------------------------------- */
 
-static const char pokemon_template_pat[] = "^V[[:digit:]]\\{4\\}_POKEMON_";
+static const char pokemon_template_pat[]  = "^V[[:digit:]]\\{4\\}_POKEMON_";
+static const char pvp_move_template_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
+
+static const char pvp_fast_move_template_pat[] =
+  "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_[A-Z_]\\+_FAST$";
 
 
 /* ------------------------------------------------------------------------- */
@@ -107,9 +111,20 @@ parse_gm_type( const char * json, jsmntok_t * token )
 
 /* ------------------------------------------------------------------------- */
 
-static const char pvp_move_template_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
-static const char pvp_fast_move_template_pat[] =
-  "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_[A-Z_]\\+_FAST$";
+  static bool
+stris_pvp_charged_move( const char * str,
+                        regex_t    * fast,
+                        regex_t    * pvp_move
+                      )
+{
+  assert( fast != NULL );
+  assert( pvp_move != NULL );
+  if ( str == NULL ) return false;
+  return ( ! regexec( pvp_move, str, 0, NULL, 0 ) ) &&
+         ( !! regexec( fast, str, 0, NULL, 0 ) );
+}
+
+
 /*
  * {
  *   "templateId": "COMBAT_V0013_MOVE_WRAP",

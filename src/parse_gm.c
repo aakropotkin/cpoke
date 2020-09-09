@@ -109,6 +109,8 @@ main( int argc, char * argv[], char ** envp )
   /* Cleanup */
   jsmnis_free( &iter_stack );
   regfree( &pkmn_tmp_regex );
+  regfree( &pvp_move_tmp_regex );
+  regfree( &pvp_fast_move_tmp_regex );
   free_gm_parser( &gparser );
 
   return EXIT_SUCCESS;
