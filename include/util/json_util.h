@@ -307,7 +307,7 @@ jsmn_iterator_count( const char      *  json,
 
 /**
  * Count remaining keys in the iterator matching a regex expression.
- * Iterator is "exhausted" by this function.
+ * Iterator is unchanged by this function.
  */
   static size_t
 jsmn_iterator_count_keys_pat( const char      *  json,
