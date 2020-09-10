@@ -10,6 +10,7 @@
 #include <regex.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -120,47 +121,20 @@ typedef bool ( * jsmntok_pred_fn )( const char      *,
                                     const jsmntok_t *,
                                     void            *
                                   );
-/**
- * <code>jsmntok_predicate_fn</code> form of <code>jsoneq</code>.
- */
-  static bool
-jsoneq_p( const char      * json,
-          const jsmntok_t * token,
-          void            * str
-        )
-{
-  return jsoneq( json, token, (const char *) str );
-}
 
-/**
- * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_str</code>.
- */
-  static bool
-jsoneq_str_p( const char      * json,
-              const jsmntok_t * token,
-              void            * str
-            )
-{
-  return jsoneq_str( json, token, (const char *) str );
-}
+static bool jsoneq_p( const char * json, const jsmntok_t * token, void * str )
+{ return jsoneq( json, token, (const char *) str ); }
 
-/**
- * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_int</code>.
- */
-  static bool
-jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
-{
-  return jsoneq_int( json, token, (int) ( (long) i ) );
-}
+static bool jsoneq_str_p( const char * json, const jsmntok_t * token,
+                          void * str )
+{ return jsoneq_str( json, token, (const char *) str ); }
 
-/**
- * <code>jsmntok_predicate_fn</code> form of <code>jsoneq_int</code>.
- */
-  static bool
-jsonmatch_str_p( const char * json, const jsmntok_t * token, void * r )
-{
-  return jsonmatch_str( json, token, (regex_t *) r );
-}
+static bool jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
+{ return jsoneq_int( json, token, (int) ( (long) i ) ); }
+
+static bool jsonmatch_str_p( const char * json, const jsmntok_t * token,
+                             void * r )
+{ return jsonmatch_str( json, token, (regex_t *) r ); }
 
 /**
  * <code>jsmntok_predicate_fn</code> that unconditionally returns true.
@@ -168,13 +142,16 @@ jsonmatch_str_p( const char * json, const jsmntok_t * token, void * r )
  */
   static bool
 json_true_p( const char * json, const jsmntok_t * token, void * p )
-{
-  return true;
-}
+{ return true; }
 
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Return the index of the first token which satisfies the provided predicate.
+ * Searching will begin at <code>parser_pos</code>, allowing additional
+ * satisfactory tokens to be found.
+ */
 int json_find( const char      * json,
                const jsmntok_t * tokens,
                jsmntok_pred_fn   pred,
@@ -204,6 +181,9 @@ int jsmn_iterator_find_next( const char      *  json,
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Find the next matching key. Agnostic to values.
+ */
   static int
 jsmn_iterator_find_key( const char      *  json,
                         jsmn_iterator_t *  iterator,
@@ -214,21 +194,17 @@ jsmn_iterator_find_key( const char      *  json,
                         size_t             next_value_index
                       )
 {
-  return jsmn_iterator_find_next( json,
-                                  iterator,
-                                  jsmn_identifier,
-                                  identifier_pred,
-                                  identifier_aux,
-                                  jsmn_value,
-                                  json_true_p,
-                                  NULL,
-                                  next_value_index
-                                );
+  return jsmn_iterator_find_next( json, iterator, jsmn_identifier,
+           identifier_pred, identifier_aux, jsmn_value, json_true_p, NULL,
+           next_value_index );
 }
 
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Find the next matching key which exactly matches the provided string.
+ */
   static int
 jsmn_iterator_find_key_seq( const char      *  json,
                             jsmn_iterator_t *  iterator,
@@ -238,21 +214,18 @@ jsmn_iterator_find_key_seq( const char      *  json,
                             size_t             next_value_index
                             )
 {
-  return jsmn_iterator_find_next( json,
-                                  iterator,
-                                  jsmn_identifier,
-                                  jsoneq_str_p,
-                                  (void *) str,
-                                  jsmn_value,
-                                  json_true_p,
-                                  NULL,
-                                  next_value_index
-                                  );
+  return jsmn_iterator_find_next( json, iterator, jsmn_identifier, jsoneq_str_p,
+           (void *) str, jsmn_value, json_true_p, NULL, next_value_index );
 }
 
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Returns true/false if an iterator's remaining tokens contain a
+ * satisfactory key.
+ * The iterator is NOT changed and remains in it's original position.
+ */
   static bool
 jsmn_iterator_has_key( const char      *  json,
                        jsmn_iterator_t *  iterator,
@@ -261,53 +234,91 @@ jsmn_iterator_has_key( const char      *  json,
                        size_t             next_value_index
                      )
 {
-  jsmntok_t * jsmn_identifier;
-  jsmntok_t * jsmn_value;
-  return 0 != jsmn_iterator_find_key( json,
-                                      iterator,
-                                      &jsmn_identifier,
-                                      identifier_pred,
-                                      identifier_aux,
-                                      &jsmn_value,
-                                      next_value_index
-                                    );
+  jsmntok_t * jsmn_identifier, * jsmn_value;
+  jsmn_iterator_t cpy;
+  memcpy( &cpy, iterator, sizeof( jsmn_iterator_t ) );
+  return 0 != jsmn_iterator_find_key( json, &cpy, &jsmn_identifier,
+                identifier_pred, identifier_aux, &jsmn_value,
+                next_value_index );
 }
 
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * For exact string matches.
+ */
   static bool
-jsmn_iterator_has_key_seq( const char      *  json,
-                           jsmn_iterator_t *  iterator,
-                           char            *  str,
-                           size_t             next_value_index
+jsmn_iterator_has_key_seq( const char      * json,
+                           jsmn_iterator_t * iterator,
+                           char            * str,
+                           size_t            next_value_index
                          )
 {
-  jsmntok_t * jsmn_identifier;
-  jsmntok_t * jsmn_value;
-  return 0 != jsmn_iterator_find_key( json,
-                                      iterator,
-                                      &jsmn_identifier,
-                                      jsoneq_str_p,
-                                      (void *) str,
-                                      &jsmn_value,
-                                      next_value_index
-                                      );
+  jsmntok_t * jsmn_identifier, * jsmn_value;
+  jsmn_iterator_t cpy;
+  memcpy( &cpy, iterator, sizeof( jsmn_iterator_t ) );
+  return 0 != jsmn_iterator_find_key( json, &cpy, &jsmn_identifier,
+                jsoneq_str_p, (void *) str, &jsmn_value, next_value_index );
 }
 
 
 /* ------------------------------------------------------------------------- */
 
-#define jsmn_iterator_while_using( _nxt_fn_, _iter_, _key_, _val_, _hint_ )   \
+#define jsmn_iterator_while_using( _nxt_fn_, _iter_, _key_, _val_, _hint_ ) \
   while( 0 < _nxt_fn_( ( _iter_ ), ( _key_ ), ( _val_ ), ( _hint_ ) ) )
 
-#define jsmn_iterator_while( _iter_, _key_, _val_, _hint_ )                   \
-  jsmn_iterator_while_using( jsmn_iterator_next, ( _iter_ ), ( _key_ ),       \
+#define jsmn_iterator_while( _iter_, _key_, _val_, _hint_ )             \
+  jsmn_iterator_while_using( jsmn_iterator_next, ( _iter_ ), ( _key_ ), \
                              ( _val_ ), ( _hint_ ) )
 
-#define jsmn_iterator_array_while( _iter_, _val_, _hint_ )                    \
+#define jsmn_iterator_array_while( _iter_, _val_, _hint_ )        \
   jsmn_iterator_while( ( _iter_ ), NULL, ( _val_ ), ( _hint_ ) )
 
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Count remaining matches in the iterator.
+ * Iterator is unchanged by this function.
+ */
+  static size_t
+jsmn_iterator_count( const char      *  json,
+                     jsmn_iterator_t *  iterator,
+                     jsmntok_pred_fn    identifier_pred,
+                     void            *  identifier_aux,
+                     jsmntok_pred_fn    value_pred,
+                     void            *  value_aux,
+                     size_t             next_value_index
+                   )
+  {
+    jsmntok_t * jsmn_identifier, * jsmn_value;
+    jsmn_iterator_t cpy;
+    size_t matches = 0;
+    memcpy( &cpy, iterator, sizeof( jsmn_iterator_t ) );
+    while ( 0 < jsmn_iterator_find_next( json,  &cpy, &jsmn_identifier,
+            identifier_pred, identifier_aux, &jsmn_value, value_pred, value_aux,
+            next_value_index ) ) matches++;
+    return matches;
+  }
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Count remaining keys in the iterator matching a regex expression.
+ * Iterator is "exhausted" by this function.
+ */
+  static size_t
+jsmn_iterator_count_keys_pat( const char      *  json,
+                              jsmn_iterator_t *  iterator,
+                              regex_t         *  regexp,
+                              size_t             next_value_index
+                            )
+{
+  return jsmn_iterator_count( json, iterator, jsonmatch_str_p, (void *) regexp,
+                              json_true_p, NULL, next_value_index );
+}
 
 
 /* ------------------------------------------------------------------------- */

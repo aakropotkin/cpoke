@@ -291,6 +291,8 @@ parse_pvp_move( const char * json, jsmnis_t * iter_stack )
 /* ------------------------------------------------------------------------- */
 
 #ifdef MK_PARSE_GM_BINARY
+/* THIS IS CURRENTLY BROKEN.
+ * This code should be moved to a gm_parser function */
   int
 main( int argc, char * argv[], char ** envp )
 {

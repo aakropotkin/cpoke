@@ -290,6 +290,31 @@ test_jsmn_iterator_find_next( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_jsmn_iterator_count( void )
+{
+  parse_json_str( json_str2, tokens, r );
+  assert( r == 7 ); /* Use `assert' because we are not testing the parser */
+  jsmn_iterator_t iterator;
+  if ( jsmn_iterator_init( &iterator, tokens, r, 0 ) < 0 )
+    expect( false && "Iterator initialization failed" );
+
+  expect( jsmn_iterator_count( json_str2,
+                               &iterator,
+                               json_true_p,
+                               NULL,
+                               json_true_p,
+                               NULL,
+                               0
+                             ) == 6
+        );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_json( void )
 {
@@ -301,6 +326,7 @@ test_json( void )
   rsl &= do_test( jsmn_iterator_array_nested );
   rsl &= do_test( json_find );
   rsl &= do_test( jsmn_iterator_find_next );
+  rsl &= do_test( jsmn_iterator_count );
 
   return rsl;
 }
