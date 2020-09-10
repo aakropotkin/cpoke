@@ -338,6 +338,8 @@ typedef jsmn_iterator_t      jsmni_t;
 #define jsmni_while_using    jsmn_iterator_while_using
 #define jsmni_while          jsmn_iterator_while
 #define jsmni_a_while        jsmn_iterator_array_while
+#define jsmni_cnt            jsmn_iterator_count
+#define jsmni_cnt_keys_pat   jsmn_iterator_count_keys_pat
 
 #endif
 
