@@ -115,37 +115,28 @@ static const size_t JSON1_LEN = array_size( JSON1 );
 test_regex_patterns( void )
 {
   /* Compile Regex patterns for templateIds */
-  regex_t pkmn_tmp_regex, pvp_move_tmp_regex, pvp_fast_move_tmp_regex;
-  int     rc_rsl = regcomp( &pkmn_tmp_regex, pokemon_template_pat, REG_NOSUB );
-  assert( rc_rsl == 0 );
-  rc_rsl = regcomp( &pvp_move_tmp_regex, pvp_move_template_pat, REG_NOSUB );
-  assert( rc_rsl == 0 );
-  rc_rsl = regcomp( &pvp_fast_move_tmp_regex,
-                    pvp_fast_move_template_pat,
-                    REG_NOSUB
-                  );
-  assert( rc_rsl == 0 );
+  gm_regexes_t regs;
+  int          rsl = gm_regexes_init( &regs );
+  assert( rsl == 0 );
 
   /* FIXME test pokemon */
   char test_str1[] = "COMBAT_V0013_MOVE_WRAP";
   char test_str2[] = "COMBAT_V0062_MOVE_ANCIENT_POWER";
   char test_str3[] = "COMBAT_V0200_MOVE_FURY_CUTTER_FAST";
 
-  expect( regexec( &pvp_move_tmp_regex, test_str1, 0, NULL, 0 ) == 0 );
-  expect( regexec( &pvp_move_tmp_regex, test_str2, 0, NULL, 0 ) == 0 );
-  expect( regexec( &pvp_move_tmp_regex, test_str3, 0, NULL, 0 ) == 0 );
+  expect( regexec( &regs.tmpl_pvp_move, test_str1, 0, NULL, 0 ) == 0 );
+  expect( regexec( &regs.tmpl_pvp_move, test_str2, 0, NULL, 0 ) == 0 );
+  expect( regexec( &regs.tmpl_pvp_move, test_str3, 0, NULL, 0 ) == 0 );
 
-  expect( regexec( &pvp_fast_move_tmp_regex, test_str1, 0, NULL, 0 ) != 0 );
-  expect( regexec( &pvp_fast_move_tmp_regex, test_str2, 0, NULL, 0 ) != 0 );
-  expect( regexec( &pvp_fast_move_tmp_regex, test_str3, 0, NULL, 0 ) == 0 );
+  expect( regexec( &regs.tmpl_pvp_fast, test_str1, 0, NULL, 0 ) != 0 );
+  expect( regexec( &regs.tmpl_pvp_fast, test_str2, 0, NULL, 0 ) != 0 );
+  expect( regexec( &regs.tmpl_pvp_fast, test_str3, 0, NULL, 0 ) == 0 );
 
-  expect( regexec( &pkmn_tmp_regex, test_str1, 0, NULL, 0 ) != 0 );
-  expect( regexec( &pkmn_tmp_regex, test_str2, 0, NULL, 0 ) != 0 );
-  expect( regexec( &pkmn_tmp_regex, test_str3, 0, NULL, 0 ) != 0 );
+  expect( regexec( &regs.tmpl_mon, test_str1, 0, NULL, 0 ) != 0 );
+  expect( regexec( &regs.tmpl_mon, test_str2, 0, NULL, 0 ) != 0 );
+  expect( regexec( &regs.tmpl_mon, test_str3, 0, NULL, 0 ) != 0 );
 
-  regfree( &pkmn_tmp_regex );
-  regfree( &pvp_move_tmp_regex );
-  regfree( &pvp_fast_move_tmp_regex );
+  gm_regexes_free( &regs );
 
   return true;
 }

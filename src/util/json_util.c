@@ -60,7 +60,7 @@ jsmn_parse_realloc( jsmn_parser_t *  parser,
 /* ------------------------------------------------------------------------- */
 
   void
-free_jsmn_file_parser( jsmn_file_parser_t * parser )
+jsmn_file_parser_free( jsmn_file_parser_t * parser )
 {
   if ( parser == NULL ) return;
 
@@ -83,7 +83,7 @@ free_jsmn_file_parser( jsmn_file_parser_t * parser )
 /* ------------------------------------------------------------------------- */
 
   size_t
-jsmn_file_parser_init( const char * fpath, jsmn_file_parser_t * f_parser )
+jsmn_file_parser_init( jsmn_file_parser_t * f_parser, const char * fpath )
 {
   assert( fpath != NULL );
   assert( strlen( fpath ) != 0 );

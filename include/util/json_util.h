@@ -55,7 +55,7 @@ typedef struct {
   size_t          tokens_cnt;
 } jsmn_file_parser_t;
 
-void free_jsmn_file_parser( jsmn_file_parser_t * parser );
+void jsmn_file_parser_free( jsmn_file_parser_t * parser );
 
 /**
  * Initialize file parser, and read the target file into malloced memory; but
@@ -63,8 +63,8 @@ void free_jsmn_file_parser( jsmn_file_parser_t * parser );
  *
  * @return Size of `buffer' allocated by malloc.
  */
-size_t jsmn_file_parser_init( const char         * fpath,
-                              jsmn_file_parser_t * f_parser
+size_t jsmn_file_parser_init( jsmn_file_parser_t * f_parser,
+                              const char         * fpath
                             );
 
 
