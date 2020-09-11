@@ -139,6 +139,48 @@ log10_u32( unsigned int x )
 
 /* ------------------------------------------------------------------------- */
 
+  static inline int
+atoin( const char * str, unsigned char n )
+{
+  if ( n > 11 ) return 0;
+  unsigned char i = 0;
+  char buffer[12] = {
+      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'
+    };
+  while ( ( *str != '\0' ) && ( i < n ) ) buffer[i++] = *str++;
+  return atoi( buffer );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static inline char
+atocn( const char * str, unsigned char n )
+{
+  if ( n > 4 ) return 0;
+  char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
+  unsigned char i = 0;
+  while ( ( *str != '\0' ) && ( i < n ) ) buffer[i++] = *str++;
+  return (char) atoi( buffer );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static inline unsigned char
+atoucn( const char * str, unsigned char n )
+{
+  if ( n > 3 ) return 0;
+  char buffer[4] = { '\0', '\0', '\0', '\0' };
+  unsigned char i = 0;
+  while ( ( '0' <= *str ) && ( *str <= '9' ) && ( i < n ) )
+    buffer[i++] = *str++;
+  return (unsigned char) atoi( buffer );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 
 /* ========================================================================= */
 
