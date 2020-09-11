@@ -5,7 +5,7 @@
 
 /* ========================================================================= */
 
-#include "ext/uthash.h"
+#include "hash.h"
 #include "moves.h"
 #include "ptypes.h"
 #include "util/bits.h"
@@ -99,7 +99,7 @@ struct pdex_mon_s {
   uint8_t         charged_moves_cnt;
   /* For hash table */
   uint16_t        hkey;
-  UT_hash_handle  hh;
+  hasher_t        hh;
 } packed;
 
 typedef struct pdex_mon_s  pdex_mon_t;
@@ -110,20 +110,9 @@ void pdex_mon_init( pdex_mon_t * mon );
 void pdex_mon_free( pdex_mon_t * mon );
 
 /**
- * Simulator relevent data should all be included in the hash.
- * Most of these are simple, but the actual contents of the the move lists,
- * NOT the pointer, should be noted.
- * Notably we don't actually care about the forms, dex number, or names,
- * because as far as the simulator is concerned, if two differently named
- * Pokemon have the exact same stats, types, and moves; they're functionally
- * the same in all the ways we care about.
- *
- * Hashed Data:
- *  - Base Stats
- *  - Types
- *  - Move Ids
- *
- * FIXME: Temporarily just the form # and dex # are used.
+ * This is the "default" key, it may change in different contexts.
+ * For example the GM Parser and Sim are most likely going to use different
+ * keys.
  */
   static inline uint16_t
 pdex_mon_hkey( pdex_mon_t * mon )

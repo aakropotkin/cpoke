@@ -8,7 +8,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ptypes.h"
-#include "ext/uthash.h"
+#include "hash.h"
+
 
 
 /* ------------------------------------------------------------------------- */
@@ -112,6 +113,7 @@ apply_buff( buff_state_t * buff_state, buff_t buff )
 struct base_move_s {
   uint16_t move_id;
   ptype_t  type;
+  bool     is_fast : 1;
   uint8_t  power;   /* NOTE: These values are not always the same for PvP/PvE */
   uint8_t  energy;  /* NOTE: These values are not always the same for PvP/PvE */
 } packed;
@@ -121,6 +123,7 @@ typedef struct base_move_s  base_move_t;
 #define as_base_move( child_move )                                            \
   ( (base_move_t) { .move_id = ( child_move ).move_id,                        \
                     .type    = ( child_move ).type,                           \
+                    .is_fast = ( child_move ).is_fast,                        \
                     .power   = ( child_move ).power,                          \
                     .energy  = ( child_move ).energy,                         \
                   } )
@@ -173,7 +176,55 @@ struct store_move_s {
   uint8_t  pve_energy;
   uint8_t  pvp_energy;
   buff_t   buff;
-  UT_hash_handle hh;
+  hasher_t hh;
+} packed;
+
+typedef struct store_move_s  store_move_t;
+
+
+  static inline pve_move_t
+pve_move_from_store( store_move_t * stored )
+{
+  assert( stored != NULL );
+  pve_move_t move = {
+    .move_id  = stored->move_id,
+    .type     = stored->type,
+    .is_fast  = stored->is_fast,
+    .power    = stored->pve_power,
+    .energy   = stored->pve_energy,
+    .cooldown = stored->cooldown
+  };
+  return move;
+}
+
+  static inline pvp_charged_move_t
+pvp_charged_move_from_store( store_move_t * stored )
+{
+  assert( stored != NULL );
+  pvp_charged_move_t move = {
+    .move_id = stored->move_id,
+    .type    = stored->type,
+    .is_fast = stored->is_fast,
+    .power   = stored->pvp_power,
+    .energy  = stored->pvp_energy,
+    .buff    = stored->buff
+  };
+  return move;
+}
+
+  static inline pvp_fast_move_t
+pvp_fast_move_from_store( store_move_t * stored )
+{
+  assert( stored != NULL );
+  pvp_fast_move_t move = {
+    .move_id = stored->move_id,
+    .type    = stored->type,
+    .is_fast = stored->is_fast,
+    .power   = stored->pvp_power,
+    .energy  = stored->pvp_energy,
+    .turns   = stored->cooldown
+  };
+  return move;
 }
 
 
