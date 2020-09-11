@@ -350,7 +350,7 @@ parse_pvp_charged_move( const char         *  json,
   int                  rsl       = 0;
 
   /* `templateId' value should already be targeted by `iter_stack' */
-  assert( 0 < idx );
+
   /* Clear struct */
   memset( move, 0, sizeof( pvp_charged_move_t ) );
 
@@ -390,7 +390,7 @@ parse_pvp_charged_move( const char         *  json,
 
   assert( iter_stack->stack_index == stack_idx );
   assert( *name != NULL );
-  assert( move->is_fast == true );
+  assert( move->is_fast == false );
   assert( move->move_id != 0 );
   assert( move->type != PT_NONE );
   assert( 0 < move->power );
