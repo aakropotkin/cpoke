@@ -435,7 +435,7 @@ parse_pvp_fast_move( const char      *  json,
     {
       if ( jsoneq_str( json, key, "uniqueId" ) )
         {
-          *name = strndup( json + val->start, toklen( val ) );
+          *name = strndup( json + val->start, toklen( val ) - 5 );
         }
       else if ( jsoneq_str( json, key, "type" ) )
         {

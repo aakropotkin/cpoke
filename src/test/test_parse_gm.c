@@ -114,6 +114,23 @@ static const char JSON2[] = R"RAW_JSON(
 static const size_t JSON2_LEN = array_size( JSON2 );
 
 
+static const char JSON3[] = R"RAW_JSON(
+    {
+      "templateId": "COMBAT_V0320_MOVE_CHARM_FAST",
+      "combatMove": {
+        "uniqueId": "CHARM_FAST",
+        "type": "POKEMON_TYPE_FAIRY",
+        "power": 16.0,
+        "vfxName": "charm_fast",
+        "durationTurns": 2,
+        "energyDelta": 6
+      }
+    }
+  )RAW_JSON";
+
+static const size_t JSON3_LEN = array_size( JSON3 );
+
+
 /* ------------------------------------------------------------------------- */
 
 #define parse_gm_json_str( STR_NAME, TOKEN_LIST_NAME, COUNT_NAME )            \
@@ -136,7 +153,6 @@ static const size_t JSON2_LEN = array_size( JSON2 );
   static bool
 test_parse_pvp_charged_move( void )
 {
-  /* Try parsing on a full pokemon's GM entry */
   parse_gm_json_str( JSON2, tokens, tokens_cnt );
   assert( 0 < JSON2_PARSER_RSL );
   size_t buffer_len = JSON2_LEN;
@@ -147,7 +163,13 @@ test_parse_pvp_charged_move( void )
   jsmnis_push( &iter_stack, 0 );
   jsmntok_t * key = NULL;
   jsmntok_t * val = NULL;
-  jsmni_find_key_seq( JSON2, jsmnis_curr( &iter_stack ), &key, "templateId", &val, 0 );
+  jsmni_find_key_seq( JSON2,
+                      jsmnis_curr( &iter_stack ),
+                      &key,
+                      "templateId",
+                      &val,
+                      0
+                    );
 
   pvp_charged_move_t move;
   char *             name = NULL;
@@ -168,6 +190,50 @@ test_parse_pvp_charged_move( void )
   expect( move.buff.atk_buff.amount  == 1 );
   expect( move.buff.atk_buff.debuffp == 1 );
   expect( move.buff.chance           == bc_0300 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
+test_parse_pvp_fast_move( void )
+{
+  parse_gm_json_str( JSON3, tokens, tokens_cnt );
+  assert( 0 < JSON3_PARSER_RSL );
+  size_t buffer_len = JSON3_LEN;
+
+  jsmnis_t iter_stack;
+  memset( &iter_stack, 0, sizeof( jsmnis_t ) );
+  jsmnis_init( &iter_stack, tokens, tokens_cnt, 5 );
+  jsmnis_push( &iter_stack, 0 );
+  jsmntok_t * key = NULL;
+  jsmntok_t * val = NULL;
+  jsmni_find_key_seq( JSON3,
+                      jsmnis_curr( &iter_stack ),
+                      &key,
+                      "templateId",
+                      &val,
+                      0
+                    );
+
+  pvp_fast_move_t move;
+  char *             name = NULL;
+  memset( &move, 0, sizeof( pvp_fast_move_t ) );
+
+  uint16_t move_id = parse_pvp_fast_move( JSON3, &iter_stack, &name, &move );
+
+  jsmnis_free( &iter_stack );
+
+  expect( move_id == move.move_id );
+  expect( move_id == 320 );
+  expect( strcmp( name, "CHARM" ) == 0 );
+  expect( move.type    == FAIRY );
+  expect( move.power   == 16 );
+  expect( move.energy  == 6 );
+  expect( move.is_fast == true );
+  expect( move.turns   == 2 );
 
   return true;
 }
@@ -382,6 +448,7 @@ test_parse_gm( void )
   rsl &= do_test( parse_gm_stats );
   rsl &= do_test( parse_gm_buff );
   rsl &= do_test( parse_pvp_charged_move );
+  rsl &= do_test( parse_pvp_fast_move );
   return rsl;
 }
 
