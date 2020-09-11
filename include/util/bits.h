@@ -39,6 +39,8 @@ ishowbits ( unsigned int ui ) {
   } ) )
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * Convert a positive integer to a bitmask.
  * Doesn't check that input is positive so just don't fuck it up.
@@ -47,16 +49,23 @@ ishowbits ( unsigned int ui ) {
 #define to_mask( NUM )  ( ( ( !! ( NUM ) ) << ( NUM ) ) >> 1 )
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * Tests if the <code>NTH</code> bit in <code>MASK</code> a 1.
  */
 #define has_nth_bit( MASK, NTH )  ( !! ( ( MASK ) & ( 1 << ( NTH ) ) ) )
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * Count the number of 1 bits in a bitmask.
  */
 #define popcount( _mask )  __builtin_popcount( ( _mask ) )
+
+
+/* ------------------------------------------------------------------------- */
 
 /**
  * Count the "trailing" ( rightmost/least-significant ) zeroes in a bitmask.
@@ -68,6 +77,9 @@ ishowbits ( unsigned int ui ) {
  */
 #define lowest_bit( _mask )  ( ctz( ( _mask ) ) + 1 )
 
+
+/* ------------------------------------------------------------------------- */
+
 /**
  * Count the "leading" ( leftmost/most-significant ) zeroes in a bitmask.
  */
@@ -78,6 +90,8 @@ ishowbits ( unsigned int ui ) {
  */
 #define highest_bit( _mask )  ( ( sizeof( _mask ) * 8 ) - clz( ( _mask ) ) )
 
+
+/* ------------------------------------------------------------------------- */
 
 /**
  * Pop the least-significant ( rightmost ) bit off of a bitmask.
@@ -92,6 +106,8 @@ ishowbits ( unsigned int ui ) {
   } ) )
 
 
+/* ------------------------------------------------------------------------- */
+
 /**
  * Split a bitmask into an array of "single count" bitmasks.
  */
@@ -105,6 +121,23 @@ ishowbits ( unsigned int ui ) {
 
 /* ------------------------------------------------------------------------- */
 
+  static inline unsigned char
+log10_u32( unsigned int x )
+{
+  return ( x >= 1000000000 ) ? 10 :
+         ( x >= 100000000  ) ?  9 :
+         ( x >= 10000000   ) ?  8 :
+         ( x >= 1000000    ) ?  7 :
+         ( x >= 100000     ) ?  6 :
+         ( x >= 10000      ) ?  5 :
+         ( x >= 1000       ) ?  4 :
+         ( x >= 100        ) ?  3 :
+         ( x >= 10         ) ?  2 :
+                                1;
+}
+
+
+/* ------------------------------------------------------------------------- */
 
 
 /* ========================================================================= */

@@ -164,7 +164,7 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 {
   if ( ( json == NULL ) || ( token == NULL ) ) return 0;
   if ( json[token->start] != 'V' ) return 0;
-  char buffer[4] = { '\0', '\0', '\0', '\0' };
+  char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
   strncpy( buffer, json + token->start + 1, 4 );
   return atoi( buffer );
 }
@@ -217,10 +217,8 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
 
   /* `templateId' value should already be targeted by `iter_stack' */
   assert( 0 < idx );
-
-  /* Ininitialize `pdex_mon_t' struct */
-  /* FIXME */
-  mon->types = PT_NONE_M;
+  /* Clear struct */
+  memset( mon, 0, sizeof( pdex_mon_t ) );
 
   /* Parse Dex # from `templateId' value */
   mon->dex_number = parse_gm_dex_num( json, iter_stack->tokens + idx );
@@ -230,44 +228,46 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
   assert( 0 == rsl );
 
-  jsmnis_while( iter_stack, &key, &val ) {
-    if ( jsoneq_str( json, key, "uniqueId" ) )
-      {
-        mon->name = strndup( json + val->start, toklen( val ) );
-        assert( mon->name != NULL );
-      }
-    else if ( jsoneq_str( json, key, "type1" ) ||
-              jsoneq_str( json, key, "type2" )
-            )
-      {
-        mon->types |= get_ptype_mask( parse_gm_type( json, val ) );
-      }
-    else if ( jsoneq_str( json, key, "stats" ) )
-      {
-        jsmnis_push_curr( iter_stack );
-        mon->base_stats = parse_gm_stats( json, iter_stack );
-        jsmnis_pop( iter_stack );
-      }
-    else if ( jsoneq_str( json, key, "quickMoves" ) )
-      {
-        /* FIXME */
-      }
-    else if ( jsoneq_str( json, key, "cinematicMoves" ) )
-      {
-        /* FIXME */
-      }
-    else if ( jsoneq_str( json, key, "form" ) )
-      {
-        /* FIXME */
-      }
-    else if ( jsoneq_str( json, key, "familyId" ) )
-      {
-        /* FIXME */
-      }
-  }
+  jsmnis_while( iter_stack, &key, &val )
+    {
+      if ( jsoneq_str( json, key, "uniqueId" ) )
+        {
+          mon->name = strndup( json + val->start, toklen( val ) );
+          assert( mon->name != NULL );
+        }
+      else if ( jsoneq_str( json, key, "type1" ) ||
+                jsoneq_str( json, key, "type2" )
+              )
+        {
+          mon->types |= get_ptype_mask( parse_gm_type( json, val ) );
+        }
+      else if ( jsoneq_str( json, key, "stats" ) )
+        {
+          jsmnis_push_curr( iter_stack );
+          mon->base_stats = parse_gm_stats( json, iter_stack );
+          jsmnis_pop( iter_stack );
+        }
+      else if ( jsoneq_str( json, key, "quickMoves" ) )
+        {
+          /* FIXME */
+        }
+      else if ( jsoneq_str( json, key, "cinematicMoves" ) )
+        {
+          /* FIXME */
+        }
+      else if ( jsoneq_str( json, key, "form" ) )
+        {
+          /* FIXME */
+        }
+      else if ( jsoneq_str( json, key, "familyId" ) )
+        {
+          /* FIXME */
+        }
+    }
   jsmnis_pop( iter_stack );
 
-  assert( rsl == 0 );
+  mon->hkey = pdex_mon_hkey( mon );
+
   assert( iter_stack->stack_index == stack_idx );
   assert( mon->name != NULL );
   assert( mon->types != PT_NONE_M );
@@ -282,9 +282,73 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
 /* ------------------------------------------------------------------------- */
 
   uint16_t
-parse_pvp_move( const char * json, jsmnis_t * iter_stack )
+parse_pvp_fast_move( const char      *  json,
+                     jsmnis_t        *  iter_stack,
+                     char            ** name,
+                     pvp_fast_move_t *  move
+                   )
 {
-  return 0;
+  assert( json != NULL );
+  assert( iter_stack != NULL );
+  assert( name != NULL );
+  assert( move != NULL );
+
+  const unsigned short stack_idx = iter_stack->stack_index;
+  jsmntok_t *          key       = NULL;
+  jsmntok_t *          val       = NULL;
+  int                  idx       = jsmnis_pos( iter_stack );
+  int                  rsl       = 0;
+
+  /* `templateId' value should already be targeted by `iter_stack' */
+  assert( 0 < idx );
+  /* Clear struct */
+  memset( move, 0, sizeof( pvp_fast_move_t ) );
+
+  /* Parse Move ID */
+  char buffer[5] = { json[iter_stack->tokens[idx].start + 8],
+                     json[iter_stack->tokens[idx].start + 9],
+                     json[iter_stack->tokens[idx].start + 10],
+                     json[iter_stack->tokens[idx].start + 11],
+                     '\0'
+                   };
+  move->move_id = atoi( buffer );
+
+  rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
+  jsmnis_while( iter_stack, &key, &val )
+    {
+      if ( jsoneq_str( json, key, "uniqueId" ) )
+        {
+          *name = strndup( json + val->start, toklen( val ) );
+        }
+      else if ( jsoneq_str( json, key, "type" ) )
+        {
+          move->type = parse_gm_type( json, val );
+        }
+      else if ( jsoneq_str( json, key, "power" ) )
+        {
+          move->power = atoi( json + val->start );
+        }
+      else if ( jsoneq_str( json, key, "energyDelta" ) )
+        {
+          rsl = atoi( json + val->start );
+          move->energy = ( 0 < rsl ) rsl : -rsl;
+        }
+      else if ( jsoneq_str( json, key, "durationTurns" ) )
+        {
+          move->turns = atoi( json + val->start );
+        }
+    }
+  jsmnis_pop( iter_stack );
+
+  assert( iter_stack->stack_index == stack_idx );
+  assert( *name != NULL );
+  assert( move->move_id != 0 );
+  assert( move->type != PT_NONE );
+  assert( 0 < power );
+  assert( 0 < move->energy );
+  assert( 0 < move->turns );
+
+  return move->move_id;
 }
 
 

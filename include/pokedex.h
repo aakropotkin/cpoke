@@ -5,13 +5,18 @@
 
 /* ========================================================================= */
 
+#include "ext/uthash.h"
 #include "moves.h"
 #include "ptypes.h"
+#include "util/bits.h"
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 
 /* ------------------------------------------------------------------------- */
+
+static const uint16_t MAX_STAT = 999;
 
 struct stats_s { uint16_t attack, stamina, defense; } packed;
 typedef struct stats_s  stats_t;
@@ -31,7 +36,7 @@ typedef enum {
   GALARIAN,
   A, /* Armored Mewtwo I think. Also Unown */
   /* Unowns... */
-  F, B, C, D, E, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+  B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
   EXCLAMATION_POINT, QUESTION_MARK,
   /* Spinda */
   _00, _01, _02, _03, _04, _05, _06, _07, _08, _09, _10, _11, _12, _13, _14,
@@ -76,45 +81,85 @@ typedef enum {
 } form_t;
 #endif
 
+static const uint8_t MAX_FORM = UCHAR_MAX;
+
 
 /* ------------------------------------------------------------------------- */
 
 struct pdex_mon_s {
-  uint16_t     dex_number; /* Highest is Melmetal with 809 */
-  char *       name;
-  uint16_t     family;     /* Dex # of "base" monster ( lowest non-baby ) */
-  uint8_t      form;       /* Usually normal/shadow, but sometimes legacy */
-  ptype_mask_t types;
-  stats_t      base_stats;
-
-  /* FIXME add moves struct */
-
+  uint16_t        dex_number;
+  char          * name;
+  uint16_t        family;     /* Dex # of "base" monster ( lowest non-baby ) */
+  uint8_t         form;       /* Usually normal/shadow, but sometimes legacy */
+  ptype_mask_t    types;
+  stats_t         base_stats;
+  uint16_t      * fast_move_ids;
+  uint8_t         fast_moves_cnt;
+  uint16_t      * charged_move_ids;
+  uint8_t         charged_moves_cnt;
+  /* For hash table */
+  uint16_t        hkey;
+  UT_hash_handle  hh;
 } packed;
 
 typedef struct pdex_mon_s  pdex_mon_t;
 
+static const uint16_t MAX_DEX = 809;  /* Melmetal */
+
 void pdex_mon_init( pdex_mon_t * mon );
 void pdex_mon_free( pdex_mon_t * mon );
 
-  static int
-fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
+/**
+ * Simulator relevent data should all be included in the hash.
+ * Most of these are simple, but the actual contents of the the move lists,
+ * NOT the pointer, should be noted.
+ * Notably we don't actually care about the forms, dex number, or names,
+ * because as far as the simulator is concerned, if two differently named
+ * Pokemon have the exact same stats, types, and moves; they're functionally
+ * the same in all the ways we care about.
+ *
+ * Hashed Data:
+ *  - Base Stats
+ *  - Types
+ *  - Move Ids
+ *
+ * FIXME: Temporarily just the form # and dex # are used.
+ */
+  static inline uint16_t
+pdex_mon_hkey( pdex_mon_t * mon )
 {
-  fprintf( stream, "(pdex_mon_t) {\n" );
-  fprintf( stream, "  dex_number: %d,\n", mon->dex_number );
-  fprintf( stream, "  name: \"%s\",\n", mon->name );
-  fprintf( stream, "  types: " );
-  fprint_ptype_mask( stream, " & ", mon->types );
-  fprintf( stream, ",\n" );
-  fprintf( stream,
-           "  stats: { stamina: %d, attack: %d, defense: %d },\n",
-           mon->base_stats.stamina,
-           mon->base_stats.attack,
-           mon->base_stats.defense
-         );
-  fprintf( stream, "}\n" );
+  return ( mon->dex_number << ( 8 * sizeof( char ) ) ) | mon->form;
 }
 
-  static int
+
+/* ------------------------------------------------------------------------- */
+
+  static uint8_t
+get_form_number_from_str( const char * str )
+{
+  return 0;
+}
+
+  static uint8_t
+get_form_number_from_enum( int e )
+{
+  return 0;
+}
+
+
+#define get_form_number( FORM ) _Generic( ( FORM ),                           \
+    char *:       get_form_number_from_str,                                   \
+    const char *: get_form_number_from_str,                                   \
+    int:          get_form_number_from_enum                                   \
+  )( FORM )
+
+
+
+/* ------------------------------------------------------------------------- */
+
+int fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon );
+
+  static inline int
 print_pdex_mon( const pdex_mon_t * mon )
 {
   return fprint_pdex_mon( stdout, mon );

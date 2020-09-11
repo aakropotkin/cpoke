@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ptypes.h"
+#include "ext/uthash.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -153,6 +154,27 @@ struct pvp_fast_move_s {
 } packed;
 
 typedef struct pvp_fast_move_s  pvp_fast_move_t;
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Meant to be held in data storage for reference.
+ * Should be able to construct both pvp/pve moves from this data.
+ */
+struct store_move_s {
+  char *   name;
+  ptype_t  type;
+  bool     is_fast : 1;
+  uint16_t move_id;
+  uint16_t cooldown;     /* PvE seconds, PvP turns ( Fast Move ) */
+  uint8_t  pve_power;
+  uint8_t  pvp_power;
+  uint8_t  pve_energy;
+  uint8_t  pvp_energy;
+  buff_t   buff;
+  UT_hash_handle hh;
+}
 
 
 /* ------------------------------------------------------------------------- */
