@@ -99,6 +99,7 @@ static const size_t JSON1_LEN = array_size( JSON1 );
 #define parse_gm_json_str( STR_NAME, TOKEN_LIST_NAME, COUNT_NAME )            \
   jsmntok_t * TOKEN_LIST_NAME = NULL;                                         \
   jsmn_parser_t STR_NAME ## _PARSER;                                          \
+  memset( & STR_NAME ## _PARSER, 0, sizeof( jsmn_parser_t ) );                \
   size_t COUNT_NAME = 0;                                                      \
   long STR_NAME ## _PARSER_RSL = jsmn_parse_realloc( & STR_NAME ## _PARSER,   \
                                                      ( STR_NAME ),            \
@@ -210,14 +211,17 @@ test_parse_gm_dex_num( void )
 test_parse_gm_stats( void )
 {
   const char stats_str[] = R"RAW_JSON(
-      { "baseStamina": 128 "baseAttack": 118 "baseDefense": 111 }
+      { "baseStamina": 128, "baseAttack": 118, "baseDefense": 111 }
     )RAW_JSON";
   size_t stats_str_len = array_size( stats_str );
   jsmntok_t tokens[7];
+  memset( tokens, 0, sizeof( jsmntok_t ) * 7 );
   jsmn_parser_t jparser;
+  memset( &jparser, 0, sizeof( jparser ) );
   jsmn_init( &jparser );
   int tokens_cnt = jsmn_parse( &jparser, stats_str, stats_str_len, tokens, 7 );
   jsmnis_t iter_stack;
+  memset( &iter_stack, 0, sizeof( jsmnis_t ) );
   jsmnis_init( &iter_stack, tokens, tokens_cnt, 3 );
   jsmnis_push( &iter_stack, 0 );
 
@@ -225,6 +229,38 @@ test_parse_gm_stats( void )
   expect( stats.stamina == 128 );
   expect( stats.attack == 118 );
   expect( stats.defense == 111 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
+test_parse_gm_buff( void )
+{
+  const char buff_str[] = R"RAW_JSON(
+      { "targetAttackStatStageChange": -1, "buffActivationChance": 0.3 }
+    )RAW_JSON";
+  size_t buff_str_len = array_size( buff_str );
+  jsmntok_t tokens[5];
+  memset( tokens, 0, sizeof( jsmntok_t ) * 5 );
+  jsmn_parser_t jparser;
+  memset( &jparser, 0, sizeof( jparser ) );
+  jsmn_init( &jparser );
+  int tokens_cnt = jsmn_parse( &jparser, buff_str, buff_str_len, tokens, 5 );
+  jsmnis_t iter_stack;
+  memset( &iter_stack, 0, sizeof( jsmnis_t ) );
+  jsmnis_init( &iter_stack, tokens, tokens_cnt, 3 );
+  jsmnis_push( &iter_stack, 0 );
+
+  buff_t buff = parse_gm_buff( buff_str, &iter_stack );
+  expect( buff.atk_buff.target  == 1 );
+  expect( buff.atk_buff.amount  == 1 );
+  expect( buff.atk_buff.debuffp == 1 );
+  expect( buff.def_buff.target  == 0 );
+  expect( buff.def_buff.amount  == 0 );
+  expect( buff.def_buff.debuffp == 0 );
 
   return true;
 }
@@ -240,6 +276,7 @@ test_parse_gm( void )
   rsl &= do_test( parse_gm_type );
   rsl &= do_test( parse_gm_dex_num );
   rsl &= do_test( parse_gm_stats );
+  rsl &= do_test( parse_gm_buff );
   return rsl;
 }
 

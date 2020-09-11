@@ -15,7 +15,7 @@
 /* ------------------------------------------------------------------------- */
 
 typedef enum packed {
-  bc_1000, bc_0500, bc_0300, bc_0125, bc0100, bc0000
+  bc_1000, bc_0500, bc_0300, bc_0125, bc_0100, bc_0000
 } buff_chance_t; /* 3 bits used, 4 total */
 
 
@@ -48,7 +48,7 @@ struct buff_s {
 typedef struct buff_s  buff_t;
 
 
-static const buff_t NO_BUFF = { .chance = bc0000,
+static const buff_t NO_BUFF = { .chance = bc_0000,
   .atk_buff = { .target = 0, .debuffp = 0, .amount = 0 },
   .def_buff = { .target = 0, .debuffp = 0, .amount = 0 }
 };

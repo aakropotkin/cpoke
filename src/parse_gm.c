@@ -5,6 +5,7 @@
 #include "parse_gm.h"
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
+#include "util/bits.h"
 #include "util/json_util.h"
 #include "util/jsmn_iterator_stack.h"
 #include "pokedex.h"
@@ -164,9 +165,7 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 {
   if ( ( json == NULL ) || ( token == NULL ) ) return 0;
   if ( json[token->start] != 'V' ) return 0;
-  char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
-  strncpy( buffer, json + token->start + 1, 4 );
-  return atoi( buffer );
+  return atouin( json + token->start + 1, 4 );
 }
 
 
@@ -176,27 +175,78 @@ parse_gm_dex_num( const char * json, jsmntok_t * token )
 parse_gm_stats( const char * json, jsmnis_t * iter_stack )
 {
   stats_t     stats     = { 0, 0, 0 };
-  char        buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
   jsmntok_t * key       = NULL;
   jsmntok_t * val       = NULL;
   jsmnis_while( iter_stack, &key, &val )
     {
-      memset( buffer, '\0', 5 );
-      strncpy( buffer, json + val->start, toklen( val ) );
       if ( jsoneq_str( json, key, "baseStamina" ) )
         {
-          stats.stamina = atoi( buffer );
+          stats.stamina = atouin( json + val->start, 4 );
         }
       else if ( jsoneq_str( json, key, "baseAttack" ) )
         {
-          stats.attack = atoi( buffer );
+          stats.attack = atouin( json + val->start, 4 );
         }
       else if ( jsoneq_str( json, key, "baseDefense" ) )
         {
-          stats.defense = atoi( buffer );
+          stats.defense = atouin( json + val->start, 4 );
         }
     }
   return stats;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  buff_t
+parse_gm_buff( const char * json, jsmnis_t * iter_stack )
+{
+  buff_t      buff      = NO_BUFF;
+  jsmntok_t * key       = NULL;
+  jsmntok_t * val       = NULL;
+  char        amount    = 0;
+  jsmnis_while( iter_stack, &key, &val )
+    {
+      if ( jsoneq_str( json, key, "targetAttackStatStageChange" ) )
+        {
+          amount = atocn( json + val->start, 2 );
+          buff.atk_buff.target  = 1;
+          buff.atk_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
+          buff.atk_buff.debuffp = !!( amount < 0 );
+        }
+      else if ( jsoneq_str( json, key, "targetDefenseStatStageChange" ) )
+        {
+          amount = atocn( json + val->start, 2 );
+          buff.def_buff.target  = 1;
+          buff.def_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
+          buff.def_buff.debuffp = !!( amount < 0 );
+        }
+      else if ( jsoneq_str( json, key, "attackerAttackStatStageChange" ) )
+        {
+          amount = atocn( json + val->start, 2 );
+          buff.atk_buff.target  = 0;
+          buff.atk_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
+          buff.atk_buff.debuffp = !!( amount < 0 );
+        }
+      else if ( jsoneq_str( json, key, "attackerDefenseStatStageChange" ) )
+        {
+          amount = atocn( json + val->start, 2 );
+          buff.def_buff.target  = 0;
+          buff.def_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
+          buff.def_buff.debuffp = !!( amount < 0 );
+        }
+      else if ( jsoneq_str( json, key, "buffActivationChance" ) )
+        {
+          if      ( jsoneq_str( json, val, "1.0" ) )   buff.chance = bc_1000;
+          else if ( jsoneq_str( json, val, "0.5" ) )   buff.chance = bc_0500;
+          else if ( jsoneq_str( json, val, "0.3" ) )   buff.chance = bc_0300;
+          else if ( jsoneq_str( json, val, "0.125" ) ) buff.chance = bc_0125;
+          else if ( jsoneq_str( json, val, "0.1" ) )   buff.chance = bc_0100;
+          else                                         buff.chance = bc_0000;
+        }
+    }
+
+  return buff;
 }
 
 
@@ -282,6 +332,77 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
 /* ------------------------------------------------------------------------- */
 
   uint16_t
+parse_pvp_charged_move( const char         *  json,
+                        jsmnis_t           *  iter_stack,
+                        char               ** name,
+                        pvp_charged_move_t *  move
+                      )
+{
+  assert( json != NULL );
+  assert( iter_stack != NULL );
+  assert( name != NULL );
+  assert( move != NULL );
+
+  const unsigned short stack_idx = iter_stack->stack_index;
+  jsmntok_t *          key       = NULL;
+  jsmntok_t *          val       = NULL;
+  int                  idx       = jsmnis_pos( iter_stack );
+  int                  rsl       = 0;
+
+  /* `templateId' value should already be targeted by `iter_stack' */
+  assert( 0 < idx );
+  /* Clear struct */
+  memset( move, 0, sizeof( pvp_charged_move_t ) );
+
+  move->is_fast = false;
+
+  /* Parse Move ID */
+  move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
+
+  rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
+  jsmnis_while( iter_stack, &key, &val )
+    {
+      if ( jsoneq_str( json, key, "uniqueId" ) )
+        {
+          *name = strndup( json + val->start, toklen( val ) );
+        }
+      else if ( jsoneq_str( json, key, "type" ) )
+        {
+          move->type = parse_gm_type( json, val );
+        }
+      else if ( jsoneq_str( json, key, "power" ) )
+        {
+          move->power = atoi( json + val->start );
+        }
+      else if ( jsoneq_str( json, key, "energyDelta" ) )
+        {
+          rsl = atoi( json + val->start );
+          move->energy = ( 0 < rsl ) ? rsl : -rsl;
+        }
+      else if ( jsoneq_str( json, key, "buffs" ) )
+        {
+          jsmnis_push_curr( iter_stack );
+          move->buff = parse_gm_buff( json, iter_stack );
+          jsmnis_pop( iter_stack );
+        }
+    }
+  jsmnis_pop( iter_stack );
+
+  assert( iter_stack->stack_index == stack_idx );
+  assert( *name != NULL );
+  assert( move->is_fast == true );
+  assert( move->move_id != 0 );
+  assert( move->type != PT_NONE );
+  assert( 0 < move->power );
+  assert( 0 < move->energy );
+
+  return move->move_id;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  uint16_t
 parse_pvp_fast_move( const char      *  json,
                      jsmnis_t        *  iter_stack,
                      char            ** name,
@@ -304,14 +425,10 @@ parse_pvp_fast_move( const char      *  json,
   /* Clear struct */
   memset( move, 0, sizeof( pvp_fast_move_t ) );
 
+  move->is_fast = true;
+
   /* Parse Move ID */
-  char buffer[5] = { json[iter_stack->tokens[idx].start + 8],
-                     json[iter_stack->tokens[idx].start + 9],
-                     json[iter_stack->tokens[idx].start + 10],
-                     json[iter_stack->tokens[idx].start + 11],
-                     '\0'
-                   };
-  move->move_id = atoi( buffer );
+  move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
 
   rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
   jsmnis_while( iter_stack, &key, &val )
@@ -331,7 +448,7 @@ parse_pvp_fast_move( const char      *  json,
       else if ( jsoneq_str( json, key, "energyDelta" ) )
         {
           rsl = atoi( json + val->start );
-          move->energy = ( 0 < rsl ) rsl : -rsl;
+          move->energy = ( 0 < rsl ) ? rsl : -rsl;
         }
       else if ( jsoneq_str( json, key, "durationTurns" ) )
         {
@@ -342,9 +459,10 @@ parse_pvp_fast_move( const char      *  json,
 
   assert( iter_stack->stack_index == stack_idx );
   assert( *name != NULL );
+  assert( move->is_fast == true );
   assert( move->move_id != 0 );
   assert( move->type != PT_NONE );
-  assert( 0 < power );
+  assert( 0 < move->power );
   assert( 0 < move->energy );
   assert( 0 < move->turns );
 

@@ -57,8 +57,18 @@ size_t gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath  );
 
 bool     stris_pvp_charged_move( const char * str, gm_regexes_t * regs );
 ptype_t  parse_gm_type( const char * json, jsmntok_t * token );
-uint16_t parse_pvp_move( const char * json, jsmnis_t * iter_stack );
+uint16_t parse_pvp_fast_move( const char      *  json,
+                              jsmnis_t        *  iter_stack,
+                              char            ** name,
+                              pvp_fast_move_t *  move
+                            );
+uint16_t parse_pvp_charged_move( const char         *  json,
+                                 jsmnis_t           *  iter_stack,
+                                 char               ** name,
+                                 pvp_charged_move_t *  move
+                               );
 uint16_t parse_gm_dex_num( const char * json, jsmntok_t * token );
+buff_t   parse_gm_buff( const char * json, jsmnis_t * iter_stack );
 stats_t  parse_gm_stats( const char * json, jsmnis_t * iter_stack );
 uint16_t parse_pdex_mon( const char * json,
                          jsmnis_t   * iter_stack,

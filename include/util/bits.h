@@ -143,12 +143,30 @@ log10_u32( unsigned int x )
 atoin( const char * str, unsigned char n )
 {
   if ( n > 11 ) return 0;
-  unsigned char i = 0;
   char buffer[12] = {
       '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'
     };
-  while ( ( *str != '\0' ) && ( i < n ) ) buffer[i++] = *str++;
+  unsigned char i = 0;
+  while ( ( ( ( '0' <= *str ) && ( *str <= '9' ) ) || ( *str == '-' ) )
+          && ( i < n )
+        ) buffer[i++] = *str++;
   return atoi( buffer );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static inline unsigned int
+atouin( const char * str, unsigned char n )
+{
+  if ( n > 10 ) return 0;
+  char buffer[11] = {
+    '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'
+  };
+  unsigned char i = 0;
+  while ( ( '0' <= *str ) && ( *str <= '9' ) && ( i < n ) )
+    buffer[i++] = *str++;
+  return (unsigned int) atol( buffer );
 }
 
 
@@ -160,7 +178,9 @@ atocn( const char * str, unsigned char n )
   if ( n > 4 ) return 0;
   char buffer[5] = { '\0', '\0', '\0', '\0', '\0' };
   unsigned char i = 0;
-  while ( ( *str != '\0' ) && ( i < n ) ) buffer[i++] = *str++;
+  while ( ( ( ( '0' <= *str ) && ( *str <= '9' ) ) || ( *str == '-' ) )
+          && ( i < n )
+        ) buffer[i++] = *str++;
   return (char) atoi( buffer );
 }
 
@@ -182,6 +202,7 @@ atoucn( const char * str, unsigned char n )
 /* ------------------------------------------------------------------------- */
 
 
+
 /* ========================================================================= */
 
-#endif /* def BITS_H */
+#endif /* bits.h */
