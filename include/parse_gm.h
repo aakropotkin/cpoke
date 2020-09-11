@@ -68,7 +68,7 @@ uint16_t parse_pvp_charged_move( const char         *  json,
                                  pvp_charged_move_t *  move
                                );
 uint16_t parse_gm_dex_num( const char * json, jsmntok_t * token );
-buff_t   parse_gm_buff( const char * json, jsmnis_t * iter_stack );
+buff_t   parse_gm_buff( const char * json, jsmni_t * iter );
 stats_t  parse_gm_stats( const char * json, jsmnis_t * iter_stack );
 uint16_t parse_pdex_mon( const char * json,
                          jsmnis_t   * iter_stack,

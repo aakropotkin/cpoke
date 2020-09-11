@@ -199,13 +199,13 @@ parse_gm_stats( const char * json, jsmnis_t * iter_stack )
 /* ------------------------------------------------------------------------- */
 
   buff_t
-parse_gm_buff( const char * json, jsmnis_t * iter_stack )
+parse_gm_buff( const char * json, jsmni_t * iter )
 {
   buff_t      buff      = NO_BUFF;
   jsmntok_t * key       = NULL;
   jsmntok_t * val       = NULL;
   char        amount    = 0;
-  jsmnis_while( iter_stack, &key, &val )
+  jsmni_while( iter, &key, &val, 0 )
     {
       if ( jsoneq_str( json, key, "targetAttackStatStageChange" ) )
         {
@@ -382,7 +382,7 @@ parse_pvp_charged_move( const char         *  json,
       else if ( jsoneq_str( json, key, "buffs" ) )
         {
           jsmnis_push_curr( iter_stack );
-          move->buff = parse_gm_buff( json, iter_stack );
+          move->buff = parse_gm_buff( json, current_iterator( iter_stack ) );
           jsmnis_pop( iter_stack );
         }
     }

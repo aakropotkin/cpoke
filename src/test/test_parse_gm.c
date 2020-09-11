@@ -382,12 +382,11 @@ test_parse_gm_buff( void )
   jsmn_init( &jparser );
   int tokens_cnt = jsmn_parse( &jparser, buff_str, buff_str_len, tokens, 5 );
   assert( tokens_cnt == 5 );
-  jsmnis_t iter_stack;
-  memset( &iter_stack, 0, sizeof( jsmnis_t ) );
-  jsmnis_init( &iter_stack, tokens, tokens_cnt, 3 );
-  jsmnis_push( &iter_stack, 0 );
+  jsmni_t iter;
+  memset( &iter, 0, sizeof( jsmni_t ) );
+  jsmni_init( &iter, tokens, tokens_cnt, 0 );
 
-  buff_t buff = parse_gm_buff( buff_str, &iter_stack );
+  buff_t buff = parse_gm_buff( buff_str, &iter );
   expect( buff.atk_buff.target  == 1 );
   expect( buff.atk_buff.amount  == 1 );
   expect( buff.atk_buff.debuffp == 1 );
@@ -395,8 +394,6 @@ test_parse_gm_buff( void )
   expect( buff.def_buff.amount  == 0 );
   expect( buff.def_buff.debuffp == 0 );
   expect( buff.chance == bc_0300 );
-
-  jsmnis_free( &iter_stack );
 
 
   const char buff_str2[] = R"RAW_JSON(
@@ -416,12 +413,11 @@ test_parse_gm_buff( void )
   tokens_cnt = jsmn_parse( &jparser2, buff_str2, buff_str2_len, tokens2, 7 );
   assert( tokens_cnt == 7 );
 
-  jsmnis_t iter_stack2;
-  memset( &iter_stack2, 0, sizeof( jsmnis_t ) );
-  jsmnis_init( &iter_stack2, tokens2, tokens_cnt, 3 );
-  jsmnis_push( &iter_stack2, 0 );
+  jsmni_t iter2;
+  memset( &iter2, 0, sizeof( jsmni_t ) );
+  jsmni_init( &iter2, tokens2, tokens_cnt, 0 );
 
-  buff = parse_gm_buff( buff_str2, &iter_stack2 );
+  buff = parse_gm_buff( buff_str2, &iter2 );
   expect( buff.atk_buff.target  == 0 );
   expect( buff.atk_buff.amount  == 1 );
   expect( buff.atk_buff.debuffp == 1 );
@@ -429,8 +425,6 @@ test_parse_gm_buff( void )
   expect( buff.def_buff.amount  == 1 );
   expect( buff.def_buff.debuffp == 1 );
   expect( buff.chance == bc_1000 );
-
-  jsmnis_free( &iter_stack2 );
 
   return true;
 }
