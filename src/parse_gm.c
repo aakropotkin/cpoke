@@ -209,40 +209,40 @@ parse_gm_buff( const char * json, jsmnis_t * iter_stack )
     {
       if ( jsoneq_str( json, key, "targetAttackStatStageChange" ) )
         {
-          amount = atocn( json + val->start, 2 );
+          amount = atocn( json + val->start, toklen( val ) );
           buff.atk_buff.target  = 1;
           buff.atk_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
           buff.atk_buff.debuffp = !!( amount < 0 );
         }
       else if ( jsoneq_str( json, key, "targetDefenseStatStageChange" ) )
         {
-          amount = atocn( json + val->start, 2 );
+          amount = atocn( json + val->start, toklen( val ) );
           buff.def_buff.target  = 1;
           buff.def_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
           buff.def_buff.debuffp = !!( amount < 0 );
         }
       else if ( jsoneq_str( json, key, "attackerAttackStatStageChange" ) )
         {
-          amount = atocn( json + val->start, 2 );
+          amount = atocn( json + val->start, toklen( val ) );
           buff.atk_buff.target  = 0;
           buff.atk_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
           buff.atk_buff.debuffp = !!( amount < 0 );
         }
       else if ( jsoneq_str( json, key, "attackerDefenseStatStageChange" ) )
         {
-          amount = atocn( json + val->start, 2 );
+          amount = atocn( json + val->start, toklen( val ) );
           buff.def_buff.target  = 0;
           buff.def_buff.amount  = ( 0 < amount ) ? amount : ( - amount );
           buff.def_buff.debuffp = !!( amount < 0 );
         }
       else if ( jsoneq_str( json, key, "buffActivationChance" ) )
         {
-          if      ( jsoneq_str( json, val, "1.0" ) )   buff.chance = bc_1000;
-          else if ( jsoneq_str( json, val, "0.5" ) )   buff.chance = bc_0500;
-          else if ( jsoneq_str( json, val, "0.3" ) )   buff.chance = bc_0300;
-          else if ( jsoneq_str( json, val, "0.125" ) ) buff.chance = bc_0125;
-          else if ( jsoneq_str( json, val, "0.1" ) )   buff.chance = bc_0100;
-          else                                         buff.chance = bc_0000;
+          if      ( jsoneq( json, val, "1.0" ) )   buff.chance = bc_1000;
+          else if ( jsoneq( json, val, "0.5" ) )   buff.chance = bc_0500;
+          else if ( jsoneq( json, val, "0.3" ) )   buff.chance = bc_0300;
+          else if ( jsoneq( json, val, "0.125" ) ) buff.chance = bc_0125;
+          else if ( jsoneq( json, val, "0.1" ) )   buff.chance = bc_0100;
+          else                                     buff.chance = bc_0000;
         }
     }
 
