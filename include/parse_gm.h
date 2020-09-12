@@ -6,6 +6,9 @@
 /* ========================================================================= */
 
 #include "ext/jsmn.h"
+#include "ext/uthash.h"
+#include "hash.h"
+#include "moves.h"
 #include "ptypes.h"
 #include "util/jsmn_iterator_stack.h"
 #include "util/json_util.h"
@@ -19,9 +22,8 @@
 
 static const char tmpl_mon_pat[]      = "^V[[:digit:]]\\{4\\}_POKEMON_";
 static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
-
-static const char tmpl_pvp_fast_pat[] =
-  "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_[A-Z_]\\+_FAST$";
+static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_"
+                                        "[A-Z_]\\+_FAST$";
 
 struct gm_regexes_s {
   regex_t tmpl_mon;
@@ -46,6 +48,10 @@ struct gm_parser_s {
   gm_regexes_t         regs;
   jsmn_file_parser_t * fparser;
   jsmnis_t             iter_stack;
+  store_move_t       * moves_by_name;
+  store_move_t       * moves_by_id
+  pdex_mon_t         * mons_by_name;
+  pdex_mon_t         * mons_by_dex;
 };
 typedef struct gm_parser_s  gm_parser_t;
 
@@ -78,6 +84,36 @@ uint16_t parse_pdex_mon( const char * json,
 
 /* ------------------------------------------------------------------------- */
 
+void add_pvp_charged_move_data( gm_parser_t        * gm_parser,
+                                char               * name,
+                                pvp_charged_move_t * move
+                              );
+void add_pvp_fast_move_data( gm_parser_t     * gm_parser,
+                             char            * name,
+                             pvp_fast_move_t * move
+                           );
+uint16_t lookup_move_id( store_move_t * moves, const char * name );
+uint16_t lookup_move_idn( store_move_t * moves,
+                          const char   * name,
+                          size_t         n
+                        );
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Returns false when adding is "incomplete", indicating that the family
+ * needs to be resolved.
+ * This tells the parser to push this entry onto a stack, which will be
+ * resolved later.
+ */
+bool add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon );
+
+uint16_t lookup_dex( pdex_mon_t * mons, const char * name );
+uint16_t lookup_dexn( pdex_mon_t * mons, const char * name, size_t n );
+
+
+/* ------------------------------------------------------------------------- */
 
 
 /* ========================================================================= */

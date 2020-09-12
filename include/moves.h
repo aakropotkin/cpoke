@@ -176,7 +176,8 @@ struct store_move_s {
   uint8_t  pve_energy;
   uint8_t  pvp_energy;
   buff_t   buff;
-  hasher_t hh;
+  hasher_t hh_name;
+  hasher_t hh_move_id;
 } packed;
 
 typedef struct store_move_s  store_move_t;

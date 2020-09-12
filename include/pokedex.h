@@ -88,19 +88,24 @@ static const uint8_t MAX_FORM = UCHAR_MAX;
 /* ------------------------------------------------------------------------- */
 
 struct pdex_mon_s {
-  uint16_t        dex_number;
-  char          * name;
-  uint16_t        family;     /* Dex # of "base" monster ( lowest non-baby ) */
-  uint8_t         form;       /* Usually normal/shadow, but sometimes legacy */
-  ptype_mask_t    types;
-  stats_t         base_stats;
-  uint16_t      * fast_move_ids;
-  uint8_t         fast_moves_cnt;
-  uint16_t      * charged_move_ids;
-  uint8_t         charged_moves_cnt;
+  uint16_t            dex_number;
+  char              * name;
+  /* Usually normal/shadow, but sometimes legacy */
+  char              * form_name;
+  /* Dex # of "base" monster ( lowest non-baby ) */
+  uint16_t            family;
+  ptype_mask_t        types;
+  stats_t             base_stats;
+  uint16_t          * fast_move_ids;
+  uint8_t             fast_moves_cnt;
+  uint16_t          * charged_move_ids;
+  uint8_t             charged_moves_cnt;
+  uint8_t             form_idx;
+  struct pdex_mon_s * next_form;
   /* For hash table */
-  uint16_t        hkey;
-  hasher_t        hh;
+  uint16_t            hkey;
+  hasher_t            hh_name;
+  hasher_t            hh_dex_num;
 } packed;
 
 typedef struct pdex_mon_s  pdex_mon_t;

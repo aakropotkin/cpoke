@@ -48,9 +48,28 @@ gm_parser_free( gm_parser_t * gm_parser )
   jsmnis_free( &gm_parser->iter_stack );
   gm_parser->buffer     = NULL;
   gm_parser->buffer_len = 0;
-  gm_parser->tokens     = NULL;
+  gm_parser->tokens     = NULL; /* Tokens were already freed by fparser */
   gm_parser->tokens_cnt = 0;
   gm_parser->fparser    = NULL;
+  /* Free the moves table */
+  store_move_t * curr_move = NULL;
+  store_move_t * tmp_move  = NULL;
+  HASH_ITER( hh, gm_parser->moves_by_name, curr_move, tmp_move )
+    {
+      HASH_DEL( gm_parser->moves_by_name, curr_move );
+      HASH_DEL( gm_parser->moves_by_id, curr_move );
+      free( curr_move->name );
+      free( curr_move );
+    }
+  /* Free Pokedex */
+  pdex_mon_t * curr_mon = NULL;
+  pdex_mon_t * tmp_mon  = NULL;
+  HASH_ITER( hh, gm_parser->mons_by_name, curr_mon, tmp_mon )
+    {
+      HASH_DEL( gm_parser->mons_by_name, curr_mon );
+      HASH_DEL( gm_parser->mons_by_dex, curr_mon );
+      pdex_mon_free( curr_mon );
+    }
 }
 
   size_t
@@ -93,6 +112,12 @@ gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath )
       gm_parser_free( gm_parser );
       return 0;
     }
+
+  /* Initialize tables */
+  gm_parser->moves_by_name = NULL;
+  gm_parser->moves_by_id   = NULL;
+  gm_parser->mons_by_name  = NULL;
+  gm_parser->mons_by_dex   = NULL;
 
   gm_parser->buffer     = gm_parser->fparser->buffer;
   gm_parser->buffer_len = read_chars;
@@ -253,7 +278,12 @@ parse_gm_buff( const char * json, jsmni_t * iter )
 /* ------------------------------------------------------------------------- */
 
   uint16_t
-parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
+parse_pdex_mon( const char   * json,
+                jsmnis_t     * iter_stack,
+                store_move_t * moves_by_name,
+                pdex_mon_t   * mons_by_name,
+                pdex_mon_t   * mon
+              )
 {
   assert( json != NULL );
   assert( iter_stack != NULL );
@@ -269,6 +299,7 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
   assert( 0 < idx );
   /* Clear struct */
   memset( mon, 0, sizeof( pdex_mon_t ) );
+  mon->next_form = NULL;
 
   /* Parse Dex # from `templateId' value */
   mon->dex_number = parse_gm_dex_num( json, iter_stack->tokens + idx );
@@ -299,33 +330,97 @@ parse_pdex_mon( const char * json, jsmnis_t * iter_stack, pdex_mon_t * mon )
         }
       else if ( jsoneq_str( json, key, "quickMoves" ) )
         {
-          /* FIXME */
+          mon->fast_move_ids  = malloc( sizeof( uint16_t ) * key->size );
+          mon->fast_moves_cnt = key->size;
+          assert( mon->fast_move_ids != NULL );
+          jsmnis_push_curr( iter_stack );
+          idx = 0;
+          jsmnis_while( iter_stack, &key, &val )
+            {
+              mon->fast_move_ids[idx++] = lookup_move_idn( moves_by_name,
+                                                           json + val->start,
+                                                           toklen( val )
+                                                         );
+              assert( 0 < mon->fast_move_ids[idx - 1] );
+            }
+          jsmnis_pop( iter_stack );
+          assert( idx == mon->fast_moves_cnt );
         }
       else if ( jsoneq_str( json, key, "cinematicMoves" ) )
         {
-          /* FIXME */
+          mon->charged_move_ids  = malloc( sizeof( uint16_t ) * key->size );
+          mon->charged_moves_cnt = key->size;
+          assert( mon->charged_move_ids != NULL );
+          jsmnis_push_curr( iter_stack );
+          idx = 0;
+          jsmnis_while( iter_stack, &key, &val )
+            {
+              mon->charged_move_ids[idx++] = lookup_move_idn( moves_by_name,
+                                                              json + val->start,
+                                                              toklen( val )
+                                                            );
+              assert( 0 < mon->charged_move_ids[idx - 1] );
+            }
+          jsmnis_pop( iter_stack );
+          assert( idx == mon->charged_moves_cnt );
         }
       else if ( jsoneq_str( json, key, "form" ) )
         {
-          /* FIXME */
+          mon->form = strndup( json + val->start, toklen( val ) );
+          assert( mon->form != NULL );
         }
       else if ( jsoneq_str( json, key, "familyId" ) )
         {
-          /* FIXME */
+          mon->family = lookup_dexn( mons_by_name,
+                                     json + val->start + 7,
+                                     toklen( val ) - 7
+                                   );
         }
     }
   jsmnis_pop( iter_stack );
 
   mon->hkey = pdex_mon_hkey( mon );
 
-  assert( iter_stack->stack_index == stack_idx );
   assert( mon->name != NULL );
+  assert( iter_stack->stack_index == stack_idx );
   assert( mon->types != PT_NONE_M );
   assert( mon->base_stats.stamina != 0 );
   assert( mon->base_stats.attack != 0 );
   assert( mon->base_stats.defense != 0 );
+  assert( mon->form != NULL );
 
   return mon->dex_number;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Pokedex data is stored as a hash table indexed by Dex Numbers/Names,
+ * holding a linked list of "forms".
+ * <p>
+ * Unlike the data store, the parser's simpler table cannot directly jump to a
+ * specific form. This is fine, because the GM Parser is not meant to be used
+ * to store data; it is a temporary construct to extract data for later
+ * organization and reduction. Still we try to save space where we can by
+ * using move ids and dex numbers for families when we can. For this reason
+ * moves must be parsed before pokemon, and in a handful of cases families
+ * will need to be filled in after the fact ( baby forms ).
+ * <p>
+ * A lot of these forms are completely redundant. For example, shadow/purified
+ * are always identical to their normal forms, with the exception of the
+ * extra charged moves "FRUSTRATION", and "RETURN"; these skipped by the parser.
+ * Similarly Unown and Spinda have a ton of identical forms that are skipped.
+ * Other pokemon likely have redundant forms, but for the sake of simplicity we
+ * parse them anyways, and "merge" them later when building the data store.
+ */
+  bool
+add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
+{
+  assert( gm_parser != NULL );
+  assert( mon != NULL );
+
+  return 0 < mon->family;
 }
 
 
@@ -467,6 +562,139 @@ parse_pvp_fast_move( const char      *  json,
   assert( 0 < move->turns );
 
   return move->move_id;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+add_pvp_charged_move_data( gm_parser_t        *  gm_parser,
+                           char               *  name,
+                           pvp_charged_move_t *  move
+                         )
+{
+  assert( gm_parser != NULL );
+  assert( move != NULL );
+
+  store_move_t * stored = NULL;
+  HASH_FIND_STR( gm_parser->moves, move->name, stored );
+
+  /* Add new store_move if none exists yet */
+  if ( stored == NULL )
+    {
+      stored = (store_move_t *) malloc( sizeof( store_move_t ) );
+      memset( stored, 0, sizeof( store_move_t ) );
+      assert( stored != NULL );
+      HASH_ADD( hh_name,
+                gm_parser->moves_by_name,
+                stored->name,
+                strlen( name ),
+                stored
+              );
+      HASH_ADD( hh_move_id,
+                gm_parser->moves_by_id,
+                stored->move_id,
+                sizeof( uint16_t ),
+                stored
+              );
+    }
+
+  stored->type       = move->type;
+  stored->is_fast    = false;
+  stored->pvp_power  = move->power;
+  stored->pvp_energy = move->energy;
+  stored->buff       = move->buff;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+add_pvp_fast_move_data( gm_parser_t     *  gm_parser,
+                        char            *  name,
+                        pvp_fast_move_t *  move
+                      )
+{
+  assert( gm_parser != NULL );
+  assert( move != NULL );
+
+  store_move_t * stored = NULL;
+  HASH_FIND_STR( gm_parser->moves, move->name, stored );
+
+  /* Add new store_move if none exists yet */
+  if ( stored == NULL )
+    {
+      stored = (store_move_t *) malloc( sizeof( store_move_t ) );
+      memset( stored, 0, sizeof( store_move_t ) );
+      assert( stored != NULL );
+      HASH_ADD( hh_name,
+                gm_parser->moves_by_name,
+                stored->name,
+                strlen( name ),
+                stored
+              );
+      HASH_ADD( hh_move_id,
+                gm_parser->moves_by_id,
+                stored->move_id,
+                sizeof( uint16_t ),
+                stored
+              );
+    }
+
+  stored->type       = move->type;
+  stored->is_fast    = true;
+  stored->pvp_power  = move->power;
+  stored->pvp_energy = move->energy;
+  stored->cooldown   = move->turns;
+  stored->buff       = NO_BUFF;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  uint16_t
+lookup_move_id( store_move_t * moves, const char * name )
+{
+  assert( moves != NULL );
+  assert( name != NULL );
+  store_move_t * move = NULL;
+  HASH_FIND( hh_name, moves, name, strlen( name ), move );
+  return ( move == NULL ) ? 0 : move->move_id;
+}
+
+  uint16_t
+lookup_move_idn( store_move_t * moves, const char * name, size_t n )
+{
+  assert( moves != NULL );
+  assert( name != NULL );
+  assert( 0 < n );
+  store_move_t * move = NULL;
+  HASH_FIND( hh_name, moves, name, n, move );
+  return ( move == NULL ) ? 0 : move->move_id;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  uint16_t
+lookup_dex( pdex_mon_t * mons, const char * name )
+{
+  assert( mons != NULL );
+  assert( name != NULL );
+  pdex_mon_t * mon = NULL;
+  HASH_FIND( hh_name, mons, name, strlen( name ), mon );
+  return ( mon == NULL ) ? 0 : mon->dex_number;
+}
+
+  uint16_t
+lookup_dexn( pdex_mon_t * mons, const char * name, size_t n )
+{
+  assert( moves != NULL );
+  assert( name != NULL );
+  assert( 0 < n );
+  pdex_mon_t * mon = NULL;
+  HASH_FIND( hh_name, mons, name, n, mon );
+  return ( mon == NULL ) ? 0 : mon->dex_number;
 }
 
 
