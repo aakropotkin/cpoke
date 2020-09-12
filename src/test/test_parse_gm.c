@@ -462,6 +462,7 @@ test_lookup_move_id( void )
     .hh_name    = 0,
     .hh_move_id = 0
   };
+
   store_move_t charm = {
     .name       = "CHARM",
     .type       = FAIRY,
@@ -476,6 +477,7 @@ test_lookup_move_id( void )
     .hh_name    = 0,
     .hh_move_id = 0
   };
+
   store_move_t * moves_by_name = NULL;
   HASH_ADD_KEYPTR( hh_name,
                    moves_by_name,
@@ -493,9 +495,19 @@ test_lookup_move_id( void )
   expect( lookup_move_id( moves_by_name, mirror_shot.name )
           == mirror_shot.move_id
         );
+
+  /* Confirm that HASH_FIND checked the actual string, not the address */
+  char * mirror_shot_str = strdup( "MIRROR_SHOT" );
+  expect( lookup_move_id( moves_by_name, mirror_shot_str )
+          == mirror_shot.move_id
+          );
+  free( mirror_shot_str );
+  mirror_shot_str = NULL;
+
   expect( lookup_move_id( moves_by_name, charm.name )
           == charm.move_id
         );
+  /* Cleanup */
   HASH_CLEAR( hh_name, moves_by_name );
   return true;
 }
