@@ -5,11 +5,10 @@
 
 /* ========================================================================= */
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "ext/uthash.h"
 #include "ptypes.h"
-#include "hash.h"
-
+#include <stdbool.h>
+#include <stdint.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -120,6 +119,14 @@ struct base_move_s {
 
 typedef struct base_move_s  base_move_t;
 
+static const base_move_t NO_MOVE = {
+  .move_id = 0,
+  .type    = PT_NONE,
+  .is_fast = false,
+  .power   = 0,
+  .energy  = 0
+};
+
 #define as_base_move( child_move )                                            \
   ( (base_move_t) { .move_id = ( child_move ).move_id,                        \
                     .type    = ( child_move ).type,                           \
@@ -138,6 +145,11 @@ struct pve_move_s {
 
 typedef struct pve_move_s  pve_move_t;
 
+static const pve_move_t NO_MOVE_PVE = {
+  NO_MOVE,
+  .cooldown = 0
+};
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -147,6 +159,11 @@ struct pvp_charged_move_s {
 } packed;
 
 typedef struct pvp_charged_move_s  pvp_charged_move_t;
+
+static const pvp_charged_move_t NO_MOVE_PVP_CHARGED = {
+  NO_MOVE,
+  .buff    = NO_BUFF
+};
 
 
 /* ------------------------------------------------------------------------- */
@@ -158,6 +175,8 @@ struct pvp_fast_move_s {
 
 typedef struct pvp_fast_move_s  pvp_fast_move_t;
 
+static const pvp_fast_move_t NO_MOVE_PVP_FAST = { NO_MOVE, .turns = 0 };
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -166,19 +185,19 @@ typedef struct pvp_fast_move_s  pvp_fast_move_t;
  * Should be able to construct both pvp/pve moves from this data.
  */
 struct store_move_s {
-  char *   name;
-  ptype_t  type;
-  bool     is_fast : 1;
-  uint16_t move_id;
-  uint16_t cooldown;     /* PvE seconds, PvP turns ( Fast Move ) */
-  uint8_t  pve_power;
-  uint8_t  pvp_power;
-  uint8_t  pve_energy;
-  uint8_t  pvp_energy;
-  buff_t   buff;
-  hasher_t hh_name;
-  hasher_t hh_move_id;
-} packed;
+  char *         name;
+  ptype_t        type;
+  bool           is_fast : 1;
+  uint16_t       move_id;
+  uint16_t       cooldown;     /* PvE seconds, PvP turns ( Fast Move ) */
+  uint8_t        pve_power;
+  uint8_t        pvp_power;
+  uint8_t        pve_energy;
+  uint8_t        pvp_energy;
+  buff_t         buff;
+  UT_hash_handle hh_name;
+  UT_hash_handle hh_move_id;
+};
 
 typedef struct store_move_s  store_move_t;
 

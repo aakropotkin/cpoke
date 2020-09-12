@@ -28,7 +28,7 @@ get_cp_from_stats( stats_t base, stats_t ivs, float level )
 
 /* ------------------------------------------------------------------------- */
 
-const_fn stats_t
+  const_fn stats_t
 get_effective_stats( stats_t base, stats_t ivs, float level )
 {
   const float cpm = get_cpm_for_level( level );
@@ -63,6 +63,34 @@ get_pvp_damage( pmove_idx_t     attack_idx,
 
     return floor( 0.5 * power * atk / def * stab * teff * bonus ) + 1;
   }
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+pdex_mon_init( pdex_mon_t * mon )
+{
+  assert( mon != NULL );
+  mon->name             = NULL;
+  mon->dex_number       = 0;
+  mon->form_name        = NULL;
+  mon->fast_move_ids    = NULL;
+  mon->charged_move_ids = NULL;
+  mon->next_form        = NULL;
+  mon->hkey             = 0;
+}
+
+  void
+pdex_mon_free( pdex_mon_t * mon )
+{
+  if ( mon == NULL ) return;
+  if ( mon->next_form != NULL ) pdex_mon_free( mon->next_form );
+  free( mon->name );
+  free( mon->form_name );
+  free( mon->fast_move_ids );
+  free( mon->charged_move_ids );
+  free( mon );
+}
 
 
 /* ------------------------------------------------------------------------- */

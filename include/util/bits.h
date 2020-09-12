@@ -121,7 +121,8 @@ ishowbits ( unsigned int ui ) {
 
 /* ------------------------------------------------------------------------- */
 
-  static inline unsigned char
+//static inline unsigned char
+  static unsigned char
 log10_u32( unsigned int x )
 {
   return ( x >= 1000000000 ) ? 10 :
@@ -139,7 +140,8 @@ log10_u32( unsigned int x )
 
 /* ------------------------------------------------------------------------- */
 
-  static inline int
+//static inline int
+  static int
 atoin( const char * str, unsigned char n )
 {
   if ( n > 11 ) return 0;
@@ -156,7 +158,8 @@ atoin( const char * str, unsigned char n )
 
 /* ------------------------------------------------------------------------- */
 
-  static inline unsigned int
+//static inline unsigned int
+  static unsigned int
 atouin( const char * str, unsigned char n )
 {
   if ( n > 10 ) return 0;
@@ -172,7 +175,8 @@ atouin( const char * str, unsigned char n )
 
 /* ------------------------------------------------------------------------- */
 
-  static inline char
+//static inline char
+  static char
 atocn( const char * str, unsigned char n )
 {
   if ( n > 4 ) return 0;
@@ -187,7 +191,8 @@ atocn( const char * str, unsigned char n )
 
 /* ------------------------------------------------------------------------- */
 
-  static inline unsigned char
+//static inline unsigned char
+  static  unsigned char
 atoucn( const char * str, unsigned char n )
 {
   if ( n > 3 ) return 0;

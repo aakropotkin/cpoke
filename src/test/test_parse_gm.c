@@ -5,7 +5,6 @@
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
 #include "ext/uthash.h"
-#include "hash.h"
 #include "parse_gm.h"
 #include "ptypes.h"
 #include "util/json_util.h"
@@ -242,10 +241,10 @@ test_parse_pvp_fast_move( void )
 
 /* ------------------------------------------------------------------------- */
 
-static bool
+  static bool
 test_parse_pvp_moves( void )
 {
-
+  return true;
 }
 
 

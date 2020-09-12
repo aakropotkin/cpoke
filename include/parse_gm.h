@@ -7,7 +7,6 @@
 
 #include "ext/jsmn.h"
 #include "ext/uthash.h"
-#include "hash.h"
 #include "moves.h"
 #include "ptypes.h"
 #include "util/jsmn_iterator_stack.h"
@@ -49,9 +48,12 @@ struct gm_parser_s {
   jsmn_file_parser_t * fparser;
   jsmnis_t             iter_stack;
   store_move_t       * moves_by_name;
-  store_move_t       * moves_by_id
+  store_move_t       * moves_by_id;
   pdex_mon_t         * mons_by_name;
   pdex_mon_t         * mons_by_dex;
+  pdex_mon_t         * incomplete_mon;
+  jsmntok_t          * incomplete_fam;
+  uint8_t              incomplete_idx;
 };
 typedef struct gm_parser_s  gm_parser_t;
 
@@ -76,9 +78,11 @@ uint16_t parse_pvp_charged_move( const char         *  json,
 uint16_t parse_gm_dex_num( const char * json, jsmntok_t * token );
 buff_t   parse_gm_buff( const char * json, jsmni_t * iter );
 stats_t  parse_gm_stats( const char * json, jsmnis_t * iter_stack );
-uint16_t parse_pdex_mon( const char * json,
-                         jsmnis_t   * iter_stack,
-                         pdex_mon_t * mon
+uint16_t parse_pdex_mon( const char   * json,
+                         jsmnis_t     * iter_stack,
+                         store_move_t * moves_by_name,
+                         pdex_mon_t   * mons_by_name,
+                         pdex_mon_t   * mon
                        );
 
 
@@ -114,6 +118,7 @@ uint16_t lookup_dexn( pdex_mon_t * mons, const char * name, size_t n );
 
 
 /* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */
