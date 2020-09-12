@@ -433,12 +433,12 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
   if ( stored == NULL )
     {
       mon->form_idx = 0;
-      HASH_ADD( hh_name,
-                gm_parser->mons_by_name,
-                name,
-                strlen( mon->name ),
-                mon
-              );
+      HASH_ADD_KEYPTR( hh_name,
+                       gm_parser->mons_by_name,
+                       mon->name,
+                       strlen( mon->name ),
+                       mon
+                     );
       HASH_ADD( hh_dex_num,
                 gm_parser->mons_by_dex,
                 dex_number,
@@ -649,12 +649,12 @@ add_pvp_charged_move_data( gm_parser_t        *  gm_parser,
       stored->type    = move->type;
       stored->is_fast = false;
 
-      HASH_ADD( hh_name,
-                gm_parser->moves_by_name,
-                name,
-                strlen( move_name ),
-                stored
-              );
+      HASH_ADD_KEYPTR( hh_name,
+                       gm_parser->moves_by_name,
+                       move_name,
+                       strlen( move_name ),
+                       stored
+                     );
       HASH_ADD( hh_move_id,
                 gm_parser->moves_by_id,
                 move_id,
@@ -701,12 +701,12 @@ add_pvp_fast_move_data( gm_parser_t     *  gm_parser,
       stored->type    = move->type;
       stored->is_fast = true;
 
-      HASH_ADD( hh_name,
-                gm_parser->moves_by_name,
-                name,
-                strlen( move_name ),
-                stored
-              );
+      HASH_ADD_KEYPTR( hh_name,
+                       gm_parser->moves_by_name,
+                       move_name,
+                       strlen( move_name ),
+                       stored
+                     );
       HASH_ADD( hh_move_id,
                 gm_parser->moves_by_id,
                 move_id,

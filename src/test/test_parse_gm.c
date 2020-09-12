@@ -441,6 +441,68 @@ test_parse_gm_buff( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_lookup_move_id( void )
+{
+  store_move_t mirror_shot = {
+    .name       = "MIRROR_SHOT",
+    .type       = STEEL,
+    .is_fast    = false,
+    .move_id    = 309,
+    .cooldown   = 0,
+    .pve_power  = 0,
+    .pve_energy = 0,
+    .pvp_power  = 35,
+    .pvp_energy = 35,
+    .buff       = {
+      .atk_buff = { .target = 1, .debuffp = 1, .amount = 1 },
+      .def_buff = { 0, 0, 0 },
+      .chance   = bc_0300
+    },
+    .hh_name    = 0,
+    .hh_move_id = 0
+  };
+  store_move_t charm = {
+    .name       = "CHARM",
+    .type       = FAIRY,
+    .is_fast    = true,
+    .move_id    = 320,
+    .cooldown   = 2,
+    .pve_power  = 0,
+    .pve_energy = 0,
+    .pvp_power  = 16,
+    .pvp_energy = 6,
+    .buff       = NO_BUFF,
+    .hh_name    = 0,
+    .hh_move_id = 0
+  };
+  store_move_t * moves_by_name = NULL;
+  HASH_ADD_KEYPTR( hh_name,
+                   moves_by_name,
+                   mirror_shot.name,
+                   strlen( mirror_shot.name ),
+                   & mirror_shot
+                 );
+  HASH_ADD_KEYPTR( hh_name,
+                   moves_by_name,
+                   charm.name,
+                   strlen( charm.name ),
+                   & charm
+                 );
+
+  expect( lookup_move_id( moves_by_name, mirror_shot.name )
+          == mirror_shot.move_id
+        );
+  expect( lookup_move_id( moves_by_name, charm.name )
+          == charm.move_id
+        );
+  HASH_CLEAR( hh_name, moves_by_name );
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_parse_gm( void )
 {
@@ -452,6 +514,7 @@ test_parse_gm( void )
   rsl &= do_test( parse_gm_buff );
   rsl &= do_test( parse_pvp_charged_move );
   rsl &= do_test( parse_pvp_fast_move );
+  rsl &= do_test( lookup_move_id );
   return rsl;
 }
 
