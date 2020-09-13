@@ -40,20 +40,20 @@ void gm_regexes_free( gm_regexes_t * grs );
 /* ------------------------------------------------------------------------- */
 
 struct gm_parser_s {
-  char               * buffer;
-  size_t               buffer_len;
-  jsmntok_t          * tokens;
-  size_t               tokens_cnt;
-  gm_regexes_t         regs;
-  jsmn_file_parser_t * fparser;
-  jsmnis_t             iter_stack;
-  store_move_t       * moves_by_name;
-  store_move_t       * moves_by_id;
-  pdex_mon_t         * mons_by_name;
-  pdex_mon_t         * mons_by_dex;
-  pdex_mon_t         * incomplete_mon;
-  jsmntok_t          * incomplete_fam;
-  uint8_t              incomplete_idx;
+  char               *  buffer;
+  size_t                buffer_len;
+  jsmntok_t          *  tokens;
+  size_t                tokens_cnt;
+  gm_regexes_t          regs;
+  jsmn_file_parser_t *  fparser;
+  jsmnis_t              iter_stack;
+  store_move_t       *  moves_by_name;
+  store_move_t       *  moves_by_id;
+  pdex_mon_t         *  mons_by_name;
+  pdex_mon_t         *  mons_by_dex;
+  pdex_mon_t         ** incomplete_mon;
+  jsmntok_t          *  incomplete_fam;
+  uint8_t               incomplete_idx;
 };
 typedef struct gm_parser_s  gm_parser_t;
 

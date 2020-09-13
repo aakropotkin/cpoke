@@ -992,14 +992,22 @@ process_pokemon( gm_parser_t * gm_parser )
                                );
       assert( 0 < jsmn_rsl );
 
+      jsmn_rsl = add_mon_data( gm_parser, mon );
       /* Family not found. Push stack */
-      if ( jsmn_rsl == 0 )
+      if ( jsmn_rsl == 0 ) /* Make this return the token index of the missing family FIXME */
         {
-          printf( "FIXME\n" );
-        }
-      else
-        {
-          jsmn_rsl = add_mon_data( gm_parser, mon );
+          printf( "FIXME: %s\n", mon->name );
+          if ( gm_parser->incomplete_mon == NULL )
+            {
+              gm_parser->incomplete_mon =
+                (pdex_mon_t **) malloc( sizeof( pdex_mon_t * ) );
+              assert( gm_parser->incomplete_mon != NULL );
+              gm_parser->incomplete_fam =
+                (jsmntok_t *) malloc( sizeof( jsmntok_t * ) );
+              assert( gm_parser->incomplete_mon != NULL );
+              gm_parser->incomplete_mon[0] = mon;
+              gm_parser->incomplete_fam[0] =
+            }
         }
 
       jsmnis_pop( &( gm_parser->iter_stack ) );
