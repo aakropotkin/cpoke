@@ -71,6 +71,12 @@ gm_parser_free( gm_parser_t * gm_parser )
       HASH_DELETE( hh_dex_num, gm_parser->mons_by_dex, curr_mon );
       pdex_mon_free( curr_mon );
     }
+  free( gm_parser->incomplete_mon );
+  free( gm_parser->incomplete_fam );
+  gm_parser->incomplete_mon  = NULL;
+  gm_parser->incomplete_fam  = NULL;
+  gm_parser->incomplete_idx  = 0;
+  gm_parser->incomplete_size = 0;
 }
 
   static int
@@ -152,6 +158,15 @@ gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath )
   gm_parser->buffer_len = read_chars;
   gm_parser->tokens     = gm_parser->fparser->tokens;
   gm_parser->tokens_cnt = read_tokens;
+
+  gm_parser->incomplete_idx  = 0;
+  gm_parser->incomplete_size = 16;
+  gm_parser->incomplete_mon  =
+    (pdex_mon_t **) malloc( sizeof( pdex_mon_t * ) *
+                            gm_parser->incomplete_size
+                          );
+  gm_parser->incomplete_fam  =
+    (jsmntok_t **) malloc( sizeof( jsmntok_t * ) * gm_parser->incomplete_size );
 
   /* use `seek_templates_start' to setup `iter_stack' */
   gm_parser->iter_stack.tokens          = NULL;
@@ -308,11 +323,12 @@ parse_gm_buff( const char * json, jsmni_t * iter )
 /* ------------------------------------------------------------------------- */
 
   uint16_t
-parse_pdex_mon( const char   * json,
-                jsmnis_t     * iter_stack,
-                store_move_t * moves_by_name,
-                pdex_mon_t   * mons_by_name,
-                pdex_mon_t   * mon
+parse_pdex_mon( const char   *  json,
+                jsmnis_t     *  iter_stack,
+                store_move_t *  moves_by_name,
+                pdex_mon_t   *  mons_by_name,
+                jsmntok_t    ** incomplete_fam_tok,
+                pdex_mon_t   *  mon
               )
 {
   assert( json != NULL );
@@ -381,12 +397,6 @@ parse_pdex_mon( const char   * json,
                                                            json + val->start,
                                                            toklen( val ) - 5
                                                          );
-              if ( mon->fast_move_ids[idx - 1] == 0 )
-                {
-                  printf( "Missing Move: " );
-                  print_tok( json, val );
-                  printf( "\n" );
-                }
               assert( 0 < mon->fast_move_ids[idx - 1] );
               if ( iter_rsl2 == 0 ) break;
             }
@@ -435,6 +445,7 @@ parse_pdex_mon( const char   * json,
                                          json + val->start + 7,
                                          toklen( val ) - 7
                                        );
+              if ( mon->family == 0 ) *incomplete_fam_tok = val;
             }
         }
       if ( iter_rsl == 0 ) break;
@@ -988,31 +999,48 @@ process_pokemon( gm_parser_t * gm_parser )
                                  &( gm_parser->iter_stack ),
                                  gm_parser->moves_by_name,
                                  gm_parser->mons_by_name,
+                                 &item,
                                  mon
                                );
       assert( 0 < jsmn_rsl );
 
       jsmn_rsl = add_mon_data( gm_parser, mon );
       /* Family not found. Push stack */
-      if ( jsmn_rsl == 0 ) /* Make this return the token index of the missing family FIXME */
+      if ( jsmn_rsl == 0 )
         {
-          printf( "FIXME: %s\n", mon->name );
-          if ( gm_parser->incomplete_mon == NULL )
+          if ( gm_parser->incomplete_size <= gm_parser->incomplete_idx )
             {
+              gm_parser->incomplete_size <<= 1;
               gm_parser->incomplete_mon =
-                (pdex_mon_t **) malloc( sizeof( pdex_mon_t * ) );
-              assert( gm_parser->incomplete_mon != NULL );
+                (pdex_mon_t **) realloc( gm_parser->incomplete_mon,
+                                         gm_parser->incomplete_size *
+                                          sizeof( pdex_mon_t * )
+                                       );
               gm_parser->incomplete_fam =
-                (jsmntok_t *) malloc( sizeof( jsmntok_t * ) );
-              assert( gm_parser->incomplete_mon != NULL );
-              gm_parser->incomplete_mon[0] = mon;
-              gm_parser->incomplete_fam[0] =
+                (jsmntok_t **) realloc( gm_parser->incomplete_mon,
+                                        gm_parser->incomplete_size *
+                                          sizeof( jsmntok_t * )
+                                      );
             }
+          gm_parser->incomplete_mon[gm_parser->incomplete_idx]   = mon;
+          gm_parser->incomplete_fam[gm_parser->incomplete_idx++] = item;
         }
 
       jsmnis_pop( &( gm_parser->iter_stack ) );
       if ( iter_rsl == 0 ) break;
     }
+
+  for ( uint8_t i = 0; i < gm_parser->incomplete_idx; i++ )
+    {
+      gm_parser->incomplete_mon[i]->family =
+        lookup_dexn( gm_parser->mons_by_name,
+                     gm_parser->buffer +
+                       gm_parser->incomplete_fam[i]->start + 7,
+                     toklen( gm_parser->incomplete_fam[i] ) - 7
+                   );
+      assert( gm_parser->incomplete_mon[i]->family != 0 );
+    }
+
 }
 
 
