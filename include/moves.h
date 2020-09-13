@@ -250,6 +250,20 @@ pvp_fast_move_from_store( store_move_t * stored )
 
 /* ------------------------------------------------------------------------- */
 
+#if 0
+printf( "(pvp_charged_move_t) {\n" );
+printf( "  name: %s,\n", *name );
+printf( "  is_fast: %d,\n", move->is_fast );
+printf( "  move_id: %d,\n", move->move_id );
+printf( "  power: %d,\n", move->power );
+printf( "  energy: %d,\n", move->energy );
+printf( "  buff: { ... }\n}\n" );
+#endif
+
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */

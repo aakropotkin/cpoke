@@ -73,6 +73,34 @@ gm_parser_free( gm_parser_t * gm_parser )
     }
 }
 
+  static int
+seek_templates_start( gm_parser_t * gm_parser )
+{
+  assert( gm_parser != NULL );
+  if ( 0 < gm_parser->iter_stack.stack_size )
+    {
+      jsmnis_free( &gm_parser->iter_stack );
+    }
+  int jsmn_rsl = jsmnis_init( &( gm_parser->iter_stack ),
+                              gm_parser->tokens,
+                              gm_parser->tokens_cnt,
+                              8
+                              );
+  if ( jsmn_rsl != 0 ) return jsmn_rsl;
+
+  /* Open the top level object */
+  jsmn_rsl = jsmnis_push( &( gm_parser->iter_stack ), 0 );
+  if ( jsmn_rsl != 0 ) return jsmn_rsl;
+
+  /* Open the item template list */
+  jsmn_rsl = jsmnis_open_key_seq( gm_parser->buffer,
+                                  &( gm_parser->iter_stack ),
+                                  "itemTemplate",
+                                  0
+                                  );
+  return jsmn_rsl;
+}
+
   size_t
 gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath )
 {
@@ -124,24 +152,17 @@ gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath )
   gm_parser->buffer_len = read_chars;
   gm_parser->tokens     = gm_parser->fparser->tokens;
   gm_parser->tokens_cnt = read_tokens;
-  jsmn_rsl = jsmnis_init( &( gm_parser->iter_stack ),
-                          gm_parser->tokens,
-                          read_tokens,
-                          8
-                        );
-  assert( jsmn_rsl == 0 );
 
-  /* Open the top level object */
-  jsmn_rsl = jsmnis_push( &( gm_parser->iter_stack ), 0 );
-  assert( jsmn_rsl == 0 );
+  /* use `seek_templates_start' to setup `iter_stack' */
+  gm_parser->iter_stack.tokens          = NULL;
+  gm_parser->iter_stack.stack           = NULL;
+  gm_parser->iter_stack.is_object_flags = NULL;
+  gm_parser->iter_stack.stack_size      = 0;
+  gm_parser->iter_stack.stack_index     = 0;
+  gm_parser->iter_stack.jsmn_len        = 0;
+  gm_parser->iter_stack.hint            = 0;
 
-  /* Open the item template list */
-  jsmn_rsl = jsmnis_open_key_seq( gm_parser->buffer,
-                                  &( gm_parser->iter_stack ),
-                                  "itemTemplate",
-                                  0
-                                );
-  assert( jsmn_rsl == 0 );
+  gm_regexes_init( &( gm_parser->regs ) );
 
   return read_tokens;
 }
@@ -573,6 +594,7 @@ parse_pvp_fast_move( const char      *  json,
   memset( move, 0, sizeof( pvp_fast_move_t ) );
 
   move->is_fast = true;
+  move->turns   = 1;     /* Some moves' turns are not explicitly defined */
 
   /* Parse Move ID */
   move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
@@ -609,8 +631,8 @@ parse_pvp_fast_move( const char      *  json,
   assert( move->is_fast == true );
   assert( move->move_id != 0 );
   assert( move->type != PT_NONE );
-  assert( 0 < move->power );
-  assert( 0 < move->energy );
+  /* Splash has 0 power ... assert( 0 < move->power ); */
+  /* Transform has 0 energy ... assert( 0 < move->energy ); */
   assert( 0 < move->turns );
 
   return move->move_id;
@@ -772,76 +794,120 @@ lookup_dexn( pdex_mon_t * mons, const char * name, size_t n )
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef MK_PARSE_GM_BINARY
-/* THIS IS CURRENTLY BROKEN.
- * This code should be moved to a gm_parser function */
-  int
-main( int argc, char * argv[], char ** envp )
+  void
+process_moves( gm_parser_t * gm_parser )
 {
+  assert( gm_parser != NULL );
 
-  /* Parse file */
-  gm_parser_t gparser;
-  size_t rsl = gm_parser_init( "./data/GAME_MASTER.json", &gparser );
-  assert( rsl != 0 );
+  int jsmn_rsl     = seek_templates_start( gm_parser );
+  jsmntok_t          * key          = NULL;
+  jsmntok_t          * val          = NULL;
+  jsmntok_t          * item         = NULL;
+  pvp_fast_move_t    * fast_move    = NULL;
+  pvp_charged_move_t * charged_move = NULL;
+  char               * name         = NULL;
+
+  assert( jsmn_rsl == 0 );
 
   /* Iterate over items */
-  jsmntok_t * key  = NULL;
-  jsmntok_t * val  = NULL;
-  int         idx  = 0;
-  jsmntok_t * item = NULL;
-
-  jsmnis_a_while( &iter_stack, &item )
+  jsmnis_a_while( &( gm_parser->iter_stack ), &item )
     {
-      /* Open the current item */
-      jsmnis_push_curr( &iter_stack );
-
-      /* See if this item's templateId matches that of a Pokemon */
+      jsmnis_push_curr( &( gm_parser->iter_stack ) );
       key = NULL;
       val = NULL;
-      idx = jsmni_find_next( gparser.buffer,
-                            jsmnis_curr( &iter_stack ),
-                            &key,
-                            jsoneq_str_p,
-                            (void *) "templateId",
-                            &val,
-                             //jsonmatch_str_p,
-                             //(void *) &gmparser.regs.tmpl_mon,
-                            jsoneq_str_p,
-                            (void *) "FORMS_V0002_POKEMON_IVYSAUR",
-                            0
-                          );
-      if ( idx <= 0 )
+      jsmn_rsl = jsmni_find_next( gm_parser->buffer,
+                                  jsmnis_curr( &( gm_parser->iter_stack ) ),
+                                  &key,
+                                  jsoneq_str_p,
+                                  (void *) "templateId",
+                                  &val,
+                                  jsonmatch_str_p,
+                                  (void *) &( gm_parser->regs.tmpl_pvp_move ),
+                                  0
+                                );
+      if ( jsmn_rsl <= 0 )
         {
-          jsmnis_pop( &iter_stack ); /* Close the item */
+          jsmnis_pop( &( gm_parser->iter_stack ) );
           continue;
         }
 
-      /* Find number of forms for Ivysaur */
-      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
-      jsmnis_push_curr( &iter_stack );
-      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
-      jsmni_next( jsmnis_curr( &iter_stack ), &key, &val, 0 );
-      printf( "SIZE: %d\n", val->size );
-      return 0;
+      name = NULL;
 
-      /* You have to pop/close before parsing because `iter_stack' is currently
-      * pointed inside the item template, not pointing at it's root. */
-      pdex_mon_t mon;
-      parse_pdex_mon( gparser.buffer,
-                      &iter_stack,
-                      gparser.moves_by_name,
-                      gparser.mons_by_name,
-                      &mon
-                    );
-      print_pdex_mon( &mon );
 
-      jsmnis_pop( &iter_stack );
+      /* Fast Move */
+      if ( jsonmatch_str( gm_parser->buffer,
+                          gm_parser->tokens +
+                            jsmnis_pos( &( gm_parser->iter_stack ) ),
+                          &( gm_parser->regs.tmpl_pvp_fast )
+                        )
+         )
+        {
+          fast_move = (pvp_fast_move_t *) malloc( sizeof( pvp_fast_move_t ) );
+          assert( fast_move != NULL );
+          jsmn_rsl = parse_pvp_fast_move( gm_parser->buffer,
+                                          &( gm_parser->iter_stack ),
+                                          & name,
+                                          fast_move
+                                        );
+          assert( name != NULL );
+          assert( 0 < jsmn_rsl );
+          add_pvp_fast_move_data( gm_parser, name, fast_move );
+          free( fast_move );
+        }
+      else /* Charged Move */
+        {
+          charged_move =
+            (pvp_charged_move_t *) malloc( sizeof( pvp_charged_move_t ) );
+          assert( charged_move != NULL );
+          jsmn_rsl = parse_pvp_charged_move( gm_parser->buffer,
+                                             &( gm_parser->iter_stack ),
+                                             & name,
+                                             charged_move
+                                           );
+          assert( name != NULL );
+          assert( 0 < jsmn_rsl );
+          add_pvp_charged_move_data( gm_parser, name, charged_move );
+          free( charged_move );
+        }
+
+      jsmnis_pop( &( gm_parser->iter_stack ) );
+    }
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+process_pokemon( gm_parser_t * gm_parser )
+{
+  assert( gm_parser != NULL );
+  /* Moves MUST be processed first! */
+  assert( gm_parser->moves_by_name != NULL );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+#ifdef MK_PARSE_GM_BINARY
+  int
+main( int argc, char * argv[], char ** envp )
+{
+  /* Parse file */
+  gm_parser_t gm_parser;
+  size_t rsl = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
+  assert( rsl != 0 );
+
+  process_moves( & gm_parser );
+
+  store_move_t * curr_move = NULL;
+  store_move_t * tmp_move  = NULL;
+  HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
+    {
+      printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
     }
 
-
   /* Cleanup */
-  jsmnis_free( &iter_stack );
-  gm_parser_free( &gparser );
+  gm_parser_free( & gm_parser );
 
   return EXIT_SUCCESS;
 }

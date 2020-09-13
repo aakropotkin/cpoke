@@ -22,7 +22,7 @@
 static const char tmpl_mon_pat[]      = "^V[[:digit:]]\\{4\\}_POKEMON_";
 static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
 static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_"
-                                        "[A-Z_]\\+_FAST$";
+                                        "[A-Z_]\\+_FAST";
 
 struct gm_regexes_s {
   regex_t tmpl_mon;
@@ -115,6 +115,12 @@ bool add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon );
 
 uint16_t lookup_dex( pdex_mon_t * mons, const char * name );
 uint16_t lookup_dexn( pdex_mon_t * mons, const char * name, size_t n );
+
+
+/* ------------------------------------------------------------------------- */
+
+void process_moves( gm_parser_t * gm_parser );
+void process_pokemon( gm_parser_t * gm_parser );
 
 
 /* ------------------------------------------------------------------------- */

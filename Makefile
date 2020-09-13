@@ -41,7 +41,10 @@ cpoke: main.o ${CORE_OBJECTS}
 parse_gm.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-parse_gm: parse_gm.o files.o ${CORE_OBJECTS}
+parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
+	${CC} ${CFLAGS} -DMK_PARSE_GM_BINARY -c $< -o parse_gm_main.o
+
+parse_gm: parse_gm_main.o ${CORE_OBJECTS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 
