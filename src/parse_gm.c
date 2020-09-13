@@ -1069,10 +1069,15 @@ main( int argc, char * argv[], char ** envp )
   pdex_mon_t * tmp_mon  = NULL;
   HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
     {
-      printf( "Pokemon %u : %s\n", curr_mon->dex_number, curr_mon->name );
+      printf( "Pokemon %u : %s ( ", curr_mon->dex_number, curr_mon->name );
+      pdex_mon_t * f = curr_mon;
+      while( f->next_form != NULL ) f = f->next_form;
+      printf( "%d form", f->form_idx + 1 );
+      if ( f->form_idx <= 0 ) printf( " )\n" );
+      else                    printf( "s )\n" );
     }
 
-  printf( "GM Parsed Successfully!\n" );
+  printf( "\nGM Parsed Successfully!\n" );
 
   /* Cleanup */
   gm_parser_free( & gm_parser );
