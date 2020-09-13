@@ -175,13 +175,6 @@ print_pdex_mon( const pdex_mon_t * mon )
 /* ------------------------------------------------------------------------- */
 
 int  cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
-bool should_parse_mon( const char      * json,
-                       const jsmntok_t * token,
-                       gm_regexes_t    * regs
-                     );
-  static bool
-parse_mon_p( const char * json, const jsmntok_t * token, void * regs )
-{ return should_parser_mon( json, token, (gm_regexes_t *) regs ); }
 
 
 /* ------------------------------------------------------------------------- */

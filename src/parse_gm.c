@@ -985,7 +985,7 @@ should_parse_mon( const char      * json,
   assert( json != NULL );
   assert( token != NULL );
   assert( regs != NULL );
-  if ( ! jsonmatch_str( json, token, regs->tmpl_mon ) ) return false;
+  if ( ! jsonmatch_str( json, token, &( regs->tmpl_mon ) ) ) return false;
 }
 
 

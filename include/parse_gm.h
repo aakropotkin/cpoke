@@ -136,6 +136,17 @@ void process_pokemon( gm_parser_t * gm_parser );
 
 /* ------------------------------------------------------------------------- */
 
+bool should_parse_mon( const char      * json,
+                       const jsmntok_t * token,
+                       gm_regexes_t    * regs
+                     );
+  static bool
+parse_mon_p( const char * json, const jsmntok_t * token, void * regs )
+{ return should_parse_mon( json, token, (gm_regexes_t *) regs ); }
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */
