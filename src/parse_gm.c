@@ -22,6 +22,12 @@ gm_regexes_init( gm_regexes_t * grs )
   assert( grs != NULL );
   int rsl = regcomp( &grs->tmpl_mon, tmpl_mon_pat, REG_NOSUB );
   if ( rsl != 0 ) return rsl;
+  rsl = regcomp( &grs->tmpl_shadow, tmpl_shadow_pat, REG_NOSUB );
+  if ( rsl != 0 ) return rsl;
+  rsl = regcomp( &grs->tmpl_pure, tmpl_pure_pat, REG_NOSUB );
+  if ( rsl != 0 ) return rsl;
+  rsl = regcomp( &grs->tmpl_norm, tmpl_norm_pat, REG_NOSUB );
+  if ( rsl != 0 ) return rsl;
   rsl = regcomp( &grs->tmpl_pvp_move, tmpl_pvp_move_pat, REG_NOSUB );
   if ( rsl != 0 ) return rsl;
   rsl = regcomp( &grs->tmpl_pvp_fast, tmpl_pvp_fast_pat, REG_NOSUB );
@@ -33,6 +39,9 @@ gm_regexes_free( gm_regexes_t * grs )
 {
   assert( grs != NULL );
   regfree( &grs->tmpl_mon );
+  regfree( &grs->tmpl_shadow );
+  regfree( &grs->tmpl_pure );
+  regfree( &grs->tmpl_norm );
   regfree( &grs->tmpl_pvp_move );
   regfree( &grs->tmpl_pvp_fast );
 }
@@ -962,6 +971,21 @@ process_moves( gm_parser_t * gm_parser )
       jsmnis_pop( &( gm_parser->iter_stack ) );
       if ( iter_rsl == 0 ) break;
     }
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+should_parse_mon( const char      * json,
+                  const jsmntok_t * token,
+                  gm_regexes_t    * regs
+                )
+{
+  assert( json != NULL );
+  assert( token != NULL );
+  assert( regs != NULL );
+  if ( ! jsonmatch_str( json, token, regs->tmpl_mon ) ) return false;
 }
 
 

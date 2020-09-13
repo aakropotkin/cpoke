@@ -111,7 +111,7 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
            mon->base_stats.stamina,
            mon->base_stats.attack,
            mon->base_stats.defense
-           );
+         );
   fprintf( stream, "}\n" );
 }
 
