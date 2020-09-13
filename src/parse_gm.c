@@ -85,7 +85,7 @@ seek_templates_start( gm_parser_t * gm_parser )
                               gm_parser->tokens,
                               gm_parser->tokens_cnt,
                               8
-                              );
+                            );
   if ( jsmn_rsl != 0 ) return jsmn_rsl;
 
   /* Open the top level object */
@@ -97,7 +97,7 @@ seek_templates_start( gm_parser_t * gm_parser )
                                   &( gm_parser->iter_stack ),
                                   "itemTemplate",
                                   0
-                                  );
+                                );
   return jsmn_rsl;
 }
 
@@ -224,7 +224,12 @@ parse_gm_stats( const char * json, jsmnis_t * iter_stack )
   stats_t     stats     = { 0, 0, 0 };
   jsmntok_t * key       = NULL;
   jsmntok_t * val       = NULL;
-  jsmnis_while( iter_stack, &key, &val )
+  int         iter_rsl  = 0;
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( iter_stack ),
+                                   &key, &val, 0
+                                 )
+          ) > 0
+        )
     {
       if ( jsoneq_str( json, key, "baseStamina" ) )
         {
@@ -238,6 +243,7 @@ parse_gm_stats( const char * json, jsmnis_t * iter_stack )
         {
           stats.defense = atouin( json + val->start, 4 );
         }
+      if ( iter_rsl == 0 ) break;
     }
   return stats;
 }
@@ -252,7 +258,8 @@ parse_gm_buff( const char * json, jsmni_t * iter )
   jsmntok_t * key       = NULL;
   jsmntok_t * val       = NULL;
   char        amount    = 0;
-  jsmni_while( iter, &key, &val, 0 )
+  int         iter_rsl  = 0;
+  while ( ( iter_rsl = jsmni_next( iter, &key, &val, 0 ) ) > 0)
     {
       if ( jsoneq_str( json, key, "targetAttackStatStageChange" ) )
         {
@@ -291,6 +298,7 @@ parse_gm_buff( const char * json, jsmni_t * iter )
           else if ( jsoneq( json, val, "0.1" ) )   buff.chance = bc_0100;
           else                                     buff.chance = bc_0000;
         }
+      if ( iter_rsl == 0 ) break;
     }
 
   return buff;
@@ -316,6 +324,8 @@ parse_pdex_mon( const char   * json,
   jsmntok_t *          val       = NULL;
   int                  idx       = jsmnis_pos( iter_stack );
   int                  rsl       = 0;
+  int                  iter_rsl  = 0;
+  int                  iter_rsl2 = 0;
 
   /* `templateId' value should already be targeted by `iter_stack' */
   assert( 0 < idx );
@@ -331,7 +341,11 @@ parse_pdex_mon( const char   * json,
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
   assert( 0 == rsl );
 
-  jsmnis_while( iter_stack, &key, &val )
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( iter_stack ),
+                                   &key, &val, iter_stack->hint
+                                 )
+            ) > 0
+          )
     {
       if ( jsoneq_str( json, key, "uniqueId" ) )
         {
@@ -352,36 +366,52 @@ parse_pdex_mon( const char   * json,
         }
       else if ( jsoneq_str( json, key, "quickMoves" ) )
         {
-          mon->fast_move_ids  = malloc( sizeof( uint16_t ) * key->size );
-          mon->fast_moves_cnt = key->size;
+          mon->fast_move_ids  = malloc( sizeof( uint16_t ) * val->size );
+          mon->fast_moves_cnt = val->size;
           assert( mon->fast_move_ids != NULL );
           jsmnis_push_curr( iter_stack );
           idx = 0;
-          jsmnis_while( iter_stack, &key, &val )
+          while ( ( iter_rsl2 = jsmni_next( jsmnis_curr( iter_stack ),
+                                            NULL, &val, 0
+                                          )
+                  ) > 0
+                )
             {
               mon->fast_move_ids[idx++] = lookup_move_idn( moves_by_name,
                                                            json + val->start,
-                                                           toklen( val )
+                                                           toklen( val ) - 5
                                                          );
+              if ( mon->fast_move_ids[idx - 1] == 0 )
+                {
+                  printf( "Missing Move: " );
+                  print_tok( json, val );
+                  printf( "\n" );
+                }
               assert( 0 < mon->fast_move_ids[idx - 1] );
+              if ( iter_rsl2 == 0 ) break;
             }
           jsmnis_pop( iter_stack );
           assert( idx == mon->fast_moves_cnt );
         }
       else if ( jsoneq_str( json, key, "cinematicMoves" ) )
         {
-          mon->charged_move_ids  = malloc( sizeof( uint16_t ) * key->size );
-          mon->charged_moves_cnt = key->size;
+          mon->charged_move_ids  = malloc( sizeof( uint16_t ) * val->size );
+          mon->charged_moves_cnt = val->size;
           assert( mon->charged_move_ids != NULL );
           jsmnis_push_curr( iter_stack );
           idx = 0;
-          jsmnis_while( iter_stack, &key, &val )
+          while ( ( iter_rsl2 = jsmni_next( jsmnis_curr( iter_stack ),
+                                            NULL, &val, 0
+                                          )
+                  ) > 0
+                )
             {
               mon->charged_move_ids[idx++] = lookup_move_idn( moves_by_name,
                                                               json + val->start,
                                                               toklen( val )
                                                             );
               assert( 0 < mon->charged_move_ids[idx - 1] );
+              if ( iter_rsl2 == 0 ) break;
             }
           jsmnis_pop( iter_stack );
           assert( idx == mon->charged_moves_cnt );
@@ -393,14 +423,29 @@ parse_pdex_mon( const char   * json,
         }
       else if ( jsoneq_str( json, key, "familyId" ) )
         {
-          mon->family = lookup_dexn( mons_by_name,
-                                     json + val->start + 7,
-                                     toklen( val ) - 7
-                                   );
+          if ( strncmp( json + val->start + 7, mon->name, toklen( val ) - 7)
+               == 0
+             )
+            {
+              mon->family = mon->dex_number;
+            }
+          else
+            {
+              mon->family = lookup_dexn( mons_by_name,
+                                         json + val->start + 7,
+                                         toklen( val ) - 7
+                                       );
+            }
         }
+      if ( iter_rsl == 0 ) break;
     }
   jsmnis_pop( iter_stack );
 
+  if ( mon->form_name == NULL )
+    {
+      mon->form_name = strdup( "NORMAL" );
+      assert( mon->form_name != NULL );
+    }
   mon->hkey = pdex_mon_hkey( mon );
 
   assert( mon->name != NULL );
@@ -409,7 +454,6 @@ parse_pdex_mon( const char   * json,
   assert( mon->base_stats.stamina != 0 );
   assert( mon->base_stats.attack != 0 );
   assert( mon->base_stats.defense != 0 );
-  assert( mon->form_name != NULL );
 
   return mon->dex_number;
 }
@@ -516,6 +560,7 @@ parse_pvp_charged_move( const char         *  json,
   jsmntok_t *          val       = NULL;
   int                  idx       = jsmnis_pos( iter_stack );
   int                  rsl       = 0;
+  int                  iter_rsl  = 0;
 
   /* `templateId' value should already be targeted by `iter_stack' */
 
@@ -528,7 +573,11 @@ parse_pvp_charged_move( const char         *  json,
   move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
 
   rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
-  jsmnis_while( iter_stack, &key, &val )
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( iter_stack ),
+                                   &key, &val, iter_stack->hint
+                                 )
+          ) > 0
+        )
     {
       if ( jsoneq_str( json, key, "uniqueId" ) )
         {
@@ -553,6 +602,7 @@ parse_pvp_charged_move( const char         *  json,
           move->buff = parse_gm_buff( json, current_iterator( iter_stack ) );
           jsmnis_pop( iter_stack );
         }
+      if ( iter_rsl == 0 ) break;
     }
   jsmnis_pop( iter_stack );
 
@@ -587,6 +637,7 @@ parse_pvp_fast_move( const char      *  json,
   jsmntok_t *          val       = NULL;
   int                  idx       = jsmnis_pos( iter_stack );
   int                  rsl       = 0;
+  int                  iter_rsl  = 0;
 
   /* `templateId' value should already be targeted by `iter_stack' */
   assert( 0 < idx );
@@ -600,7 +651,12 @@ parse_pvp_fast_move( const char      *  json,
   move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
 
   rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
-  jsmnis_while( iter_stack, &key, &val )
+
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( iter_stack ),
+                                   &key, &val, iter_stack->hint
+                                 )
+          ) > 0
+        )
     {
       if ( jsoneq_str( json, key, "uniqueId" ) )
         {
@@ -623,6 +679,7 @@ parse_pvp_fast_move( const char      *  json,
         {
           move->turns = atoi( json + val->start );
         }
+      if ( iter_rsl == 0 ) break;
     }
   jsmnis_pop( iter_stack );
 
@@ -799,18 +856,23 @@ process_moves( gm_parser_t * gm_parser )
 {
   assert( gm_parser != NULL );
 
-  int jsmn_rsl     = seek_templates_start( gm_parser );
+  int                  jsmn_rsl     = seek_templates_start( gm_parser );
   jsmntok_t          * key          = NULL;
   jsmntok_t          * val          = NULL;
   jsmntok_t          * item         = NULL;
   pvp_fast_move_t    * fast_move    = NULL;
   pvp_charged_move_t * charged_move = NULL;
   char               * name         = NULL;
+  int                  iter_rsl     = 0;
 
   assert( jsmn_rsl == 0 );
 
   /* Iterate over items */
-  jsmnis_a_while( &( gm_parser->iter_stack ), &item )
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( &( gm_parser->iter_stack ) ),
+                                   NULL, &item, gm_parser->iter_stack.hint
+                                 )
+          ) > 0
+        )
     {
       jsmnis_push_curr( &( gm_parser->iter_stack ) );
       key = NULL;
@@ -832,7 +894,6 @@ process_moves( gm_parser_t * gm_parser )
         }
 
       name = NULL;
-
 
       /* Fast Move */
       if ( jsonmatch_str( gm_parser->buffer,
@@ -871,6 +932,7 @@ process_moves( gm_parser_t * gm_parser )
         }
 
       jsmnis_pop( &( gm_parser->iter_stack ) );
+      if ( iter_rsl == 0 ) break;
     }
 }
 
@@ -883,6 +945,66 @@ process_pokemon( gm_parser_t * gm_parser )
   assert( gm_parser != NULL );
   /* Moves MUST be processed first! */
   assert( gm_parser->moves_by_name != NULL );
+
+  size_t       first_idx = 0;
+  int          jsmn_rsl  = seek_templates_start( gm_parser );
+  int          iter_rsl  = 0;
+  jsmntok_t  * key       = NULL;
+  jsmntok_t  * val       = NULL;
+  jsmntok_t  * item      = NULL;
+  pdex_mon_t * mon       = NULL;
+
+  assert( jsmn_rsl == 0 );
+
+  /* Iterate over items */
+  while ( ( iter_rsl = jsmni_next( jsmnis_curr( &( gm_parser->iter_stack ) ),
+                                   NULL, &item, gm_parser->iter_stack.hint
+                                 )
+          ) > 0
+        )
+    {
+      jsmnis_push_curr( &( gm_parser->iter_stack ) );
+      key = NULL;
+      val = NULL;
+      jsmn_rsl = jsmni_find_next( gm_parser->buffer,
+                                  jsmnis_curr( &( gm_parser->iter_stack ) ),
+                                  &key,
+                                  jsoneq_str_p,
+                                  (void *) "templateId",
+                                  &val,
+                                  jsonmatch_str_p,
+                                  (void *) &( gm_parser->regs.tmpl_mon ),
+                                  0
+                                );
+      if ( jsmn_rsl <= 0 )
+        {
+          jsmnis_pop( &( gm_parser->iter_stack ) );
+          continue;
+        }
+
+      mon = (pdex_mon_t *) malloc( sizeof( pdex_mon_t ) );
+      assert( mon != NULL );
+      jsmn_rsl = parse_pdex_mon( gm_parser->buffer,
+                                 &( gm_parser->iter_stack ),
+                                 gm_parser->moves_by_name,
+                                 gm_parser->mons_by_name,
+                                 mon
+                               );
+      assert( 0 < jsmn_rsl );
+
+      /* Family not found. Push stack */
+      if ( jsmn_rsl == 0 )
+        {
+          printf( "FIXME\n" );
+        }
+      else
+        {
+          jsmn_rsl = add_mon_data( gm_parser, mon );
+        }
+
+      jsmnis_pop( &( gm_parser->iter_stack ) );
+      if ( iter_rsl == 0 ) break;
+    }
 }
 
 
@@ -904,6 +1026,15 @@ main( int argc, char * argv[], char ** envp )
   HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
     {
       printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
+    }
+
+  process_pokemon( & gm_parser );
+
+  pdex_mon_t * curr_mon = NULL;
+  pdex_mon_t * tmp_mon  = NULL;
+  HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
+    {
+      printf( "Pokemon %u : %s\n", curr_mon->dex_number, curr_mon->name );
     }
 
   /* Cleanup */

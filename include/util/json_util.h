@@ -265,19 +265,6 @@ jsmn_iterator_has_key_seq( const char      * json,
 
 /* ------------------------------------------------------------------------- */
 
-#define jsmn_iterator_while_using( _nxt_fn_, _iter_, _key_, _val_, _hint_ ) \
-  while( 0 < _nxt_fn_( ( _iter_ ), ( _key_ ), ( _val_ ), ( _hint_ ) ) )
-
-#define jsmn_iterator_while( _iter_, _key_, _val_, _hint_ )             \
-  jsmn_iterator_while_using( jsmn_iterator_next, ( _iter_ ), ( _key_ ), \
-                             ( _val_ ), ( _hint_ ) )
-
-#define jsmn_iterator_array_while( _iter_, _val_, _hint_ )        \
-  jsmn_iterator_while( ( _iter_ ), NULL, ( _val_ ), ( _hint_ ) )
-
-
-/* ------------------------------------------------------------------------- */
-
 /**
  * Count remaining matches in the iterator.
  * Iterator is unchanged by this function.
@@ -335,9 +322,6 @@ typedef jsmn_iterator_t      jsmni_t;
 #define jsmni_has_key        jsmn_iterator_has_key
 #define jsmni_find_key_seq   jsmn_iterator_find_key_seq
 #define jsmni_has_key_seq    jsmn_iterator_has_key_seq
-#define jsmni_while_using    jsmn_iterator_while_using
-#define jsmni_while          jsmn_iterator_while
-#define jsmni_a_while        jsmn_iterator_array_while
 #define jsmni_cnt            jsmn_iterator_count
 #define jsmni_cnt_keys_pat   jsmn_iterator_count_keys_pat
 

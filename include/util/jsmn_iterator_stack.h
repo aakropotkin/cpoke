@@ -387,21 +387,6 @@ jsmn_iterator_stack_open_key_seq( const char * buffer,
                                  );
 }
 
-/* ------------------------------------------------------------------------- */
-
-#define jsmn_iterator_stack_while_using( _nxt_fn_, _stack_iter_, _key_,       \
-                                         _val_ )                              \
-  while( 0 < _nxt_fn_( current_iterator( _stack_iter_ ), ( _key_ ),           \
-                       ( _val_ ), ( _stack_iter_ )->hint ) )
-
-#define jsmn_iterator_stack_while( _stack_iter_, _key_, _val_ )               \
-  while( 0 < jsmn_iterator_next( current_iterator( _stack_iter_ ),            \
-                                 ( _key_ ), ( _val_ ),                        \
-                                 ( _stack_iter_ )->hint ) )
-
-#define jsmn_iterator_stack_array_while( _stack_iter_, _val_ )                \
-  jsmn_iterator_stack_while( ( _stack_iter_ ), NULL, ( _val_ ) )
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -421,9 +406,6 @@ typedef jsmn_iterator_stack_t jsmnis_t;
 #define jsmnis_open           jsmn_iterator_stack_open
 #define jsmnis_open_key       jsmn_iterator_stack_open_key
 #define jsmnis_open_key_seq   jsmn_iterator_stack_open_key_seq
-#define jsmnis_while_using    jsmn_iterator_stack_while_using
-#define jsmnis_while          jsmn_iterator_stack_while
-#define jsmnis_a_while        jsmn_iterator_stack_array_while
 
 #endif
 

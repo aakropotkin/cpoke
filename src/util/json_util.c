@@ -186,8 +186,9 @@ jsoneq_int( const char * json, const jsmntok_t * token, const int i )
   /* Compare length */
   if ( tok_len != ceil( log10( i ) ) ) return false;
   /* Copy and call `atoi' */
-  buffer  = (char *) alloca( tok_len * sizeof( char ) );
-  strncpy( buffer, json + token->start, tok_len );
+  buffer  = (char *) alloca( tok_len + 1 );
+  memcpy( buffer, json + token->start, tok_len );
+  buffer[tok_len] = '\0';
   val = atoi( buffer );
   /* Because 0 is the fallback for `atoi', explicitly check for it. */
   if ( ( val == 0 ) && ( tok_len == 1 ) && ( buffer[0] == '0' ) ) return true;
@@ -204,7 +205,11 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
   assert( token != NULL );
   assert( regex != NULL );
   if ( token->type != JSMN_STRING ) return false;
-  return ( regexec( regex, json + token->start, 0, NULL, 0 ) == 0 );
+  size_t tok_len = toklen( token );
+  char * val = alloca( tok_len + 1 );
+  memcpy( val, json + token->start, tok_len );
+  val[tok_len] = '\0';
+  return ( regexec( regex, val, 0, NULL, 0 ) == 0 );
 }
 
 
