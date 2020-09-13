@@ -179,6 +179,9 @@ gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath )
 
   gm_regexes_init( &( gm_parser->regs ) );
 
+  process_moves( gm_parser );
+  process_pokemon( gm_parser );
+
   return read_tokens;
 }
 
@@ -1055,8 +1058,6 @@ main( int argc, char * argv[], char ** envp )
   size_t rsl = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
   assert( rsl != 0 );
 
-  process_moves( & gm_parser );
-
   store_move_t * curr_move = NULL;
   store_move_t * tmp_move  = NULL;
   HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
@@ -1064,14 +1065,14 @@ main( int argc, char * argv[], char ** envp )
       printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
     }
 
-  process_pokemon( & gm_parser );
-
   pdex_mon_t * curr_mon = NULL;
   pdex_mon_t * tmp_mon  = NULL;
   HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
     {
       printf( "Pokemon %u : %s\n", curr_mon->dex_number, curr_mon->name );
     }
+
+  printf( "GM Parsed Successfully!\n" );
 
   /* Cleanup */
   gm_parser_free( & gm_parser );
