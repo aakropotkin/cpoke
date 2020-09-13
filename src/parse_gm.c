@@ -431,7 +431,21 @@ parse_pdex_mon( const char   *  json,
         }
       else if ( jsoneq_str( json, key, "form" ) )
         {
-          mon->form_name = strndup( json + val->start, toklen( val ) );
+          if ( strncmp( mon->name, "NIDORAN_", 8 ) != 0 )
+            {
+              mon->form_name = strndup( json + val->start +
+                                          strlen( mon->name ) + 1,
+                                        toklen( val ) - strlen( mon->name ) - 1
+                                      );
+
+            }
+          else
+            {
+              mon->form_name = strndup( json + val->start + 8,
+                                        toklen( val ) - 8
+                                      );
+
+            }
           assert( mon->form_name != NULL );
         }
       else if ( jsoneq_str( json, key, "familyId" ) )
@@ -1075,6 +1089,16 @@ main( int argc, char * argv[], char ** envp )
       printf( "%d form", f->form_idx + 1 );
       if ( f->form_idx <= 0 ) printf( " )\n" );
       else                    printf( "s )\n" );
+      if ( 0 < f->form_idx )
+        {
+          f = curr_mon;
+          while( f->next_form != NULL )
+            {
+              printf( "                  %s\n", f->form_name );
+              f = f->next_form;
+            }
+          printf( "                  %s\n", f->form_name );
+        }
     }
 
   printf( "\nGM Parsed Successfully!\n" );
