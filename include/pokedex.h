@@ -87,13 +87,10 @@ static const uint8_t MAX_FORM = UCHAR_MAX;
 
 /* ------------------------------------------------------------------------- */
 
-typedef enum {
-  LEGENDARY,
-  MYTHIC,
-  HAS_SHADOW,
-  ALOLAN,
-  GALARIAN
-} pdex_tag_t;
+DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
+                        TAG_SHADOW_ELIGABLE, TAG_ALOLAN, TAG_GALARIAN,
+                        TAG_STARTER, TAG_SHADOW, TAG_PURE
+                      );
 
 
 /* ------------------------------------------------------------------------- */
@@ -107,6 +104,7 @@ struct pdex_mon_s {
   uint16_t            family;
   ptype_mask_t        types;
   stats_t             base_stats;
+  pdex_tag_mask_t     tags;
   uint16_t          * fast_move_ids;
   uint8_t             fast_moves_cnt;
   uint16_t          * charged_move_ids;
@@ -127,38 +125,14 @@ void pdex_mon_init( pdex_mon_t * mon );
 void pdex_mon_free( pdex_mon_t * mon );
 
 /**
- * This is the "default" key, it may change in different contexts.
- * For example the GM Parser and Sim are most likely going to use different
- * keys.
+ * This is the "store" key, it may change in different contexts.
+ * For example the parser uses `UT_hash_handle' keys directly.
  */
   static inline uint16_t
 pdex_mon_hkey( pdex_mon_t * mon )
 {
-  return ( mon->dex_number << ( 8 * sizeof( char ) ) ) | mon->form_idx;
+  return ( mon->dex_number << ( 8 * sizeof( uint8_t ) ) ) | mon->form_idx;
 }
-
-
-/* ------------------------------------------------------------------------- */
-
-  static uint8_t
-get_form_number_from_str( const char * str )
-{
-  return 0;
-}
-
-  static uint8_t
-get_form_number_from_enum( int e )
-{
-  return 0;
-}
-
-
-#define get_form_number( FORM ) _Generic( ( FORM ),                           \
-    char *:       get_form_number_from_str,                                   \
-    const char *: get_form_number_from_str,                                   \
-    int:          get_form_number_from_enum                                   \
-  )( FORM )
-
 
 
 /* ------------------------------------------------------------------------- */

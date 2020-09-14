@@ -353,10 +353,21 @@ parse_pdex_mon( const char   *  json,
   /* Clear struct */
   memset( mon, 0, sizeof( pdex_mon_t ) );
   mon->next_form = NULL;
+  mon->tags = TAG_NONE_M;
 
   /* Parse Dex # from `templateId' value */
   mon->dex_number = parse_gm_dex_num( json, iter_stack->tokens + idx );
   assert( mon->dex_number != 0 );
+
+  /* Mark starters */
+  if ( ( (   1 <= mon->dex_number ) && ( mon->dex_number <=   9 ) ) ||
+       ( ( 152 <= mon->dex_number ) && ( mon->dex_number <= 160 ) ) ||
+       ( ( 252 <= mon->dex_number ) && ( mon->dex_number <= 260 ) ) ||
+       ( ( 387 <= mon->dex_number ) && ( mon->dex_number <= 395 ) ) ||
+       ( ( 495 <= mon->dex_number ) && ( mon->dex_number <= 503 ) )
+     ) {
+    mon->tags |= TAG_STARTER_M;
+  }
 
   /* Create iterator on `pokemon' value */
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
@@ -437,6 +448,10 @@ parse_pdex_mon( const char   *  json,
 
             }
           assert( mon->form_name != NULL );
+          if ( ( strcmp( mon->form_name, "SHADOW" )   == 0 ) ||
+               ( strcmp( mon->form_name, "PURIFIED" ) == 0 ) ||
+               ( strcmp( mon->form_name, "NORMAL" )   == 0 )
+             ) mon->tags |= TAG_SHADOW_ELIGABLE_M;
         }
       else if ( jsoneq_str( json, key, "familyId" ) )
         {
@@ -455,12 +470,31 @@ parse_pdex_mon( const char   *  json,
               if ( mon->family == 0 ) *incomplete_fam_tok = val;
             }
         }
+      else if ( jsoneq_str( json, key, "pokemonClass" ) )
+        {
+          if ( strncmp( json + val->start,
+                        "POKEMON_CLASS_LEGENDARY",
+                        toklen( val )
+                      ) == 0
+             )
+            {
+              mon->tags |= TAG_LEGENDARY;
+            }
+          else if ( strncmp( json + val->start,
+                             "POKEMON_CLASS_MYTHIC",
+                             toklen( val )
+                           ) == 0
+                  )
+            {
+              mon->tags |= TAG_MYTHIC;
+            }
+        }
     }
   jsmnis_pop( iter_stack );
 
   if ( mon->form_name == NULL )
     {
-      mon->form_name = strdup( "NORMAL" );
+      mon->form_name = strdup( "BASE" );
       assert( mon->form_name != NULL );
     }
   mon->hkey = pdex_mon_hkey( mon );
@@ -530,13 +564,25 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
     }
   else
     {
+      /* For shadow/purified and the duplicate "normal" forms, mark shadow
+       * eligable on the base form, but don't add a new one. */
+      if ( ( strcmp( mon->form_name, "SHADOW" )   == 0 ) ||
+           ( strcmp( mon->form_name, "PURIFIED" ) == 0 ) ||
+           ( strcmp( mon->form_name, "NORMAL" )   == 0 )
+         )
+        {
+          stored->tags |= TAG_SHADOW_ELIGABLE_M;
+          pdex_mon_free( mon );
+          return ( 0 < stored->family );
+        }
+
       /* Check if this form already exists.
        * If it does, update the family name, but leave everything else alone. */
       if ( strcmp( stored->form_name, mon->form_name ) == 0 )
         {
           stored->family = mon->family;
           pdex_mon_free( mon );
-          return true;
+          return ( 0 < stored->family );
         }
 
       while ( stored->next_form != NULL )
@@ -547,7 +593,7 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
             {
               stored->family = mon->family;
               pdex_mon_free( mon );
-              return true;
+              return ( 0 < stored->family );
             }
         }
       stored->next_form = mon;

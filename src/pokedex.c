@@ -8,21 +8,22 @@
 /* ------------------------------------------------------------------------- */
 
   void
-pdex_mon_init( pdex_mon_t * mon,
-               uint16_t     dex_num,
-               const char * name,
-               size_t       name_len,
-               uint16_t     family,
-               uint8_t      form_num,
-               ptype_t      type1,
-               ptype_t      type2,
-               uint16_t     stamina,
-               uint16_t     attack,
-               uint16_t     defense,
-               uint16_t   * fast_move_ids,
-               uint8_t      fast_moves_cnt,
-               uint16_t   * charged_move_ids,
-               uint8_t      charged_moves_cnt
+pdex_mon_init( pdex_mon_t      * mon,
+               uint16_t          dex_num,
+               const char      * name,
+               size_t            name_len,
+               uint16_t          family,
+               uint8_t           form_num,
+               ptype_t           type1,
+               ptype_t           type2,
+               uint16_t          stamina,
+               uint16_t          attack,
+               uint16_t          defense,
+               pdex_tag_mask_t   tags,
+               uint16_t        * fast_move_ids,
+               uint8_t           fast_moves_cnt,
+               uint16_t        * charged_move_ids,
+               uint8_t           charged_moves_cnt
              )
 {
   assert( mon != NULL );
@@ -45,6 +46,18 @@ pdex_mon_init( pdex_mon_t * mon,
   mon->base_stats.stamina = stamina;
   mon->base_stats.attack  = attack;
   mon->base_stats.defense = defense;
+
+  mon->tags = tags;
+  /* Add missing `starter' tag */
+  if ( ( !( mon->tags & TAG_STARTER_M ) ) &&
+       ( (   1 <= mon->dex_number ) && ( mon->dex_number <=   9 ) ) ||
+       ( ( 152 <= mon->dex_number ) && ( mon->dex_number <= 160 ) ) ||
+       ( ( 252 <= mon->dex_number ) && ( mon->dex_number <= 260 ) ) ||
+       ( ( 387 <= mon->dex_number ) && ( mon->dex_number <= 395 ) ) ||
+       ( ( 495 <= mon->dex_number ) && ( mon->dex_number <= 503 ) )
+       ) {
+    mon->tags |= TAG_STARTER_M;
+  }
 
   if ( 0 < fast_moves_cnt )
     {
@@ -69,7 +82,6 @@ pdex_mon_init( pdex_mon_t * mon,
     }
 
   mon->hkey = pdex_mon_hkey( mon );
-
 }
 
 
@@ -89,6 +101,7 @@ pdex_mon_free( pdex_mon_t * mon )
   mon->form              = 0;
   mon->types             = PT_NONE_M;
   mon->base_stats        = { 0, 0, 0 };
+  mon->tags              = TAG_NONE_M;
   mon->fast_moves_cnt    = 0;
   mon->charged_moves_cnt = 0;
   /* FIXME handle hkey */
