@@ -3,6 +3,7 @@
 /* ========================================================================= */
 
 #include "parse_gm.h"
+#include "gm_store.h"
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
 #include "util/bits.h"
@@ -1150,7 +1151,6 @@ main( int argc, char * argv[], char ** envp )
 
   //gm_parser_free( & gm_parser );
 
-  gm_store_t gm_store;
   gm_store_init( & gm_store, (void *) & gm_parser );
   gm_parser_release( & gm_parser );
 

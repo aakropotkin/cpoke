@@ -5,7 +5,7 @@
 
 /* ========================================================================= */
 
-#include "gm_parser.h"
+#include "parse_gm.h"
 #include "moves.h"
 #include "pokedex.h"
 #include "store.h"
@@ -24,6 +24,8 @@ struct gm_store_aux_s {
   store_move_t * moves_by_dex;
 };
 typedef struct gm_store_aux_s  gm_store_aux_t;
+
+#define as_gmsa( STORE_PTR )  ( (gm_store_aux_t *) ( STORE_PTR )->aux )
 
 typedef store_t  gm_store_t;
 
@@ -65,7 +67,7 @@ move_id_to_gmskey( uint16_t move_id )
 gmskey_to_move_id( gm_store_key_t key )
 {
   assert( key.is_move == true );
-  return key.move_id;
+  return key.id;
 }
 
 #define as_gmsk( STORE_KEY )  ( (gm_store_key_t) ( STORE_KEY ) )
@@ -73,12 +75,27 @@ gmskey_to_move_id( gm_store_key_t key )
 
 /* ------------------------------------------------------------------------- */
 
-bool gm_store_has( gm_store_t * gm_store, store_key_t key );
-int  gm_store_get( gm_store_t * gm_store, store_key_t key, void ** val );
-int  gm_store_add( gm_store_t * gm_store, store_key_t key, void * val );
-int  gm_store_set( gm_store_t * gm_store, store_key_t key, void * val );
-int  gm_store_init( gm_store_t * gm_store, void * vgm_parser );
-void gm_store_free( gm_store_t * gm_store );
+bool gm_store_has( store_t * gm_store, store_key_t key );
+int  gm_store_get( store_t * gm_store, store_key_t key, void ** val );
+int  gm_store_add( store_t * gm_store, store_key_t key, void * val );
+int  gm_store_set( store_t * gm_store, store_key_t key, void * val );
+int  gm_store_init( store_t * gm_store, void * vgm_parser );
+void gm_store_free( store_t * gm_store );
+
+
+/* ------------------------------------------------------------------------- */
+
+static store_t gm_store = {
+  .name     = "Game Master",
+  .writable = false,
+  .has      = gm_store_has,
+  .get      = gm_store_get,
+  .add      = gm_store_add,
+  .set      = gm_store_set,
+  .init     = gm_store_init,
+  .free     = gm_store_free,
+  .aux      = NULL
+};
 
 
 /* ------------------------------------------------------------------------- */

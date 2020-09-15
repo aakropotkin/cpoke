@@ -38,13 +38,16 @@ cpoke: main.o ${CORE_OBJECTS}
 
 # -------------------------------------------------------------------------- #
 
+gm_store.o: ${SRCPATH}/gm_store.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
 parse_gm.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_PARSE_GM_BINARY -c $< -o parse_gm_main.o
 
-parse_gm: parse_gm_main.o ${CORE_OBJECTS}
+parse_gm: parse_gm_main.o gm_store.o ${CORE_OBJECTS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 
