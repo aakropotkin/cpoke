@@ -1163,8 +1163,7 @@ main( int argc, char * argv[], char ** envp )
     {
       store_move_t * curr_move2 = NULL;
       gm_store_key_t gmsk = move_id_to_gmskey( curr_move->move_id );
-      store_key_t key = *( (store_key_t *) (void *) & gmsk );
-      gm_store.get( & gm_store, key, (void **) & curr_move2 );
+      gm_store.get( & gm_store, gmsk.store_key, (void **) & curr_move2 );
       if ( curr_move2 == NULL ) printf( "shit\n" );
       else printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
     }
