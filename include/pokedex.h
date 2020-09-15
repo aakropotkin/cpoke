@@ -115,6 +115,22 @@ int  cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
 
 /* ------------------------------------------------------------------------- */
 
+  static inline const region_t *
+get_region( uint16_t dex_number )
+{
+  for ( uint8_t r = 0; r < NUM_REGIONS; r++ )
+    {
+      if ( in_eq( REGIONS[r].dex_start, dex_number, REGIONS[r].dex_end ) )
+        {
+          return REGIONS + r;
+        }
+    }
+  return REGIONS + NUM_REGIONS - 1;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   static inline bool
 is_starter( uint16_t dex_number )
 {
