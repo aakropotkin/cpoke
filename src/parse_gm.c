@@ -1154,6 +1154,24 @@ main( int argc, char * argv[], char ** envp )
   gm_store_init( & gm_store, (void *) & gm_parser );
   gm_parser_release( & gm_parser );
 
+
+  HASH_ITER( hh_name,
+             as_gmsa( & gm_store )->moves_by_name,
+             curr_move,
+             tmp_move
+           )
+    {
+      store_move_t * curr_move2 = NULL;
+      gm_store_key_t gmsk = move_id_to_gmskey( curr_move->move_id );
+      store_key_t key = *( (store_key_t *) (void *) & gmsk );
+      gm_store.get( & gm_store, key, (void **) & curr_move2 );
+      if ( curr_move2 == NULL ) printf( "shit\n" );
+      else printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
+    }
+
+
+  gm_store_free( & gm_store );
+
   return EXIT_SUCCESS;
 }
 #endif /* MK_PARSE_GM_BINARY */
