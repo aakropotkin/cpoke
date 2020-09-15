@@ -137,23 +137,25 @@ get_damage_modifier_flags( ptype_flags_t def_types, ptype_t atk_type ) {
 
 /* ------------------------------------------------------------------------- */
 
-int
-fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm ) {
-
+  int
+fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm )
+{
   bool fst           = true;
   int  printed_chars = 0;
 
   /* Masking aginst 0 will always fail, so `PT_NONE' is a special case. */
-  if ( pm == PT_NONE ) return fprintf( fd, "%s", get_ptype_name( PT_NONE ) );
+  if ( pm == PT_NONE_M ) return fprintf( fd, "%s", get_ptype_name( PT_NONE ) );
 
-  for ( int i = 1; i < NUM_PTYPES; i++ ) {
-    if ( pm & get_ptype_mask( i ) ) {
-      /* Don't print a seperator for the first match. */
-      if ( fst ) fst = false;
-      else       printed_chars += fprintf( fd, "%s", sep );
-      printed_chars += fprintf( fd, "%s", get_ptype_name( i ) );
+  for ( int i = 1; i < NUM_PTYPES; i++ )
+    {
+      if ( pm & get_ptype_mask( i ) )
+        {
+          /* Don't print a seperator for the first match. */
+          if ( fst ) fst = false;
+          else       printed_chars += fprintf( fd, "%s", sep );
+          printed_chars += fprintf( fd, "%s", get_ptype_name( i ) );
+        }
     }
-  }
 
   return printed_chars;
 }

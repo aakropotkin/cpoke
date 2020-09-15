@@ -104,6 +104,8 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
     }
   else /* Pokemon */
     {
+      printf( "pokemon\n" );
+
       pdex_mon_t * mon = NULL;
       HASH_FIND( hh_dex_num,
                  as_gmsa( gm_store )->mons_by_dex,
@@ -113,18 +115,22 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
                );
       if ( mon == NULL )
         {
+          printf( "no hash\n" );
           *val = NULL;
           return STORE_ERROR_NOT_FOUND;
         }
+
       for ( uint8_t f = 0; f < as_gmsk( key ).form_idx; f++ )
         {
           if ( mon->next_form == NULL )
             {
+              printf( "form %d/%d not found\n", f, as_gmsk( key ).form_idx );
               *val = NULL;
               return STORE_ERROR_NOT_FOUND;
             }
           mon = mon->next_form;
         }
+      printf( "form %d found\n", as_gmsk( key ).form_idx );
       *val = mon;
       return STORE_SUCCESS;
     }

@@ -102,13 +102,13 @@ pt_immunep( ptype_t def, ptype_t atk )
 
 /* ------------------------------------------------------------------------- */
 
-static const char * ptype_names[] = {
-  "null", "bug", "dark", "dragon", "electric", "fairy", "fighting", "fire",
-  "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic",
-  "rock", "steel", "water"
+static const char * PTYPE_NAMES[] = {
+  "NONE", "BUG", "DARK", "DRAGON", "ELECTRIC", "FAIRY", "FIGHTING", "FIRE",
+  "FLYING", "GHOST", "GRASS", "GROUND", "ICE", "NORMAL", "POISON", "PSYCHIC",
+  "ROCK", "STEEL", "WATER"
 };
 
-#define get_ptype_name( pt )  ptype_names[( pt )]
+#define get_ptype_name( pt )  PTYPE_NAMES[( pt )]
 
 
 /* ------------------------------------------------------------------------- */

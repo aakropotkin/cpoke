@@ -31,6 +31,22 @@ DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
                         TAG_STARTER, TAG_REGIONAL
                       );
 
+static const uint8_t NUM_PDEX_TAGS = TAG_REGIONAL + 1;
+
+static const char * PDEX_TAG_NAMES[] = {
+  "NONE", "LEGENDARY", "MYTHIC", "MEGA", "SHADOW_ELIGABLE", "SHADOW", "PURE",
+  "ALOLAN", "GALARIAN", "STARTER", "REGIONAL"
+};
+
+#define get_pdex_tag_name( TAG )  PDEX_TAG_NAMES[( TAG )]
+
+#define get_pdex_tag_mask( pt )  ( (pdex_tag_mask_t) to_mask( ( pt ) ) )
+
+int fprint_pdex_tag_mask( FILE * fd, const char * sep, pdex_tag_mask_t tm );
+
+#define print_pdex_tag_mask( SEP, TM )                                        \
+  fprintf_pdex_tag_mask( stdout, ( SEP ), ( TM ) )
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -83,7 +99,23 @@ typedef struct pdex_mon_s  pdex_mon_t;
 
 static const uint16_t MAX_DEX = 809;  /* Melmetal */
 
-void pdex_mon_init( pdex_mon_t * mon );
+void pdex_mon_init( pdex_mon_t      * mon,
+                    uint16_t          dex_num,
+                    const char      * name,
+                    size_t            name_len,
+                    uint16_t          family,
+                    uint8_t           form_num,
+                    ptype_t           type1,
+                    ptype_t           type2,
+                    uint16_t          stamina,
+                    uint16_t          attack,
+                    uint16_t          defense,
+                    pdex_tag_mask_t   tags,
+                    uint16_t        * fast_move_ids,
+                    uint8_t           fast_moves_cnt,
+                    uint16_t        * charged_move_ids,
+                    uint8_t           charged_moves_cnt
+                  );
 void pdex_mon_free( pdex_mon_t * mon );
 
 /**
@@ -101,11 +133,7 @@ pdex_mon_hkey( pdex_mon_t * mon )
 
 int fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon );
 
-  static inline int
-print_pdex_mon( const pdex_mon_t * mon )
-{
-  return fprint_pdex_mon( stdout, mon );
-}
+#define print_pdex_mon( MON )  fprint_pdex_mon( stdout, ( MON ) );
 
 
 /* ------------------------------------------------------------------------- */

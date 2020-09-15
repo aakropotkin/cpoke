@@ -2,6 +2,8 @@
 
 /* ========================================================================= */
 
+#define GM_GLOBAL_STORE
+
 #include "parse_gm.h"
 #include "gm_store.h"
 #include "ext/jsmn.h"
@@ -218,7 +220,7 @@ parse_gm_type( const char * json, jsmntok_t * token )
   for ( int i = 1; i < NUM_PTYPES; i++ )
     {
       if ( strncasecmp( json + token->start  + 13,
-                        ptype_names[i],
+                        PTYPE_NAMES[i],
                         toklen( token ) - 13
                       ) == 0
          ) return (ptype_t) i;
@@ -1117,55 +1119,60 @@ main( int argc, char * argv[], char ** envp )
 
   store_move_t * curr_move = NULL;
   store_move_t * tmp_move  = NULL;
-  HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
-    {
-      printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
-    }
+  //HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
+  //  {
+  //    printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
+  //  }
 
   pdex_mon_t * curr_mon = NULL;
   pdex_mon_t * tmp_mon  = NULL;
-  HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
-    {
-      printf( "Pokemon %u : %s ( ", curr_mon->dex_number, curr_mon->name );
-      pdex_mon_t * f = curr_mon;
-      while( f->next_form != NULL ) f = f->next_form;
-      printf( "%d form", f->form_idx + 1 );
-      if ( f->form_idx <= 0 ) printf( " )\n" );
-      else                    printf( "s )\n" );
-      if ( 0 < f->form_idx )
-        {
-          f = curr_mon;
-          while( f->next_form != NULL )
-            {
-              printf( "                  %s\n", f->form_name );
-              f = f->next_form;
-            }
-          printf( "                  %s\n", f->form_name );
-        }
-    }
+  //HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
+  //  {
+  //    printf( "Pokemon %u : %s ( ", curr_mon->dex_number, curr_mon->name );
+  //    pdex_mon_t * f = curr_mon;
+  //    while( f->next_form != NULL ) f = f->next_form;
+  //    printf( "%d form", f->form_idx + 1 );
+  //    if ( f->form_idx <= 0 ) printf( " )\n" );
+  //    else                    printf( "s )\n" );
+  //    if ( 0 < f->form_idx )
+  //      {
+  //        f = curr_mon;
+  //        while( f->next_form != NULL )
+  //          {
+  //            printf( "                  %s\n", f->form_name );
+  //            f = f->next_form;
+  //          }
+  //        printf( "                  %s\n", f->form_name );
+  //      }
+  //  }
 
   printf( "\nGM Parsed Successfully!\n" );
 
 
   /* Cleanup */
 
-  //gm_parser_free( & gm_parser );
-
-  GM_STORE.init( & GM_STORE, (void *) & gm_parser );
+  GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
 
-  HASH_ITER( hh_name,
-             as_gmsa( & GM_STORE )->moves_by_name,
-             curr_move,
-             tmp_move
+  HASH_ITER( hh_dex_num,
+             as_gmsa( & GM_STORE )->mons_by_dex,
+             curr_mon,
+             tmp_mon
            )
     {
-      store_move_t * curr_move2 = NULL;
-      gm_store_key_t gmsk = move_id_to_gmskey( curr_move->move_id );
-      GM_STORE.get( & GM_STORE, gmsk.store_key, (void **) & curr_move2 );
-      if ( curr_move2 == NULL ) printf( "shit\n" );
-      else printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
+      //store_move_t * curr_move2 = NULL;
+      //gm_store_key_t gmsk = move_id_to_gmskey( curr_move->move_id );
+      //GM_STORE.get( & GM_STORE, gmsk.store_key, (void **) & curr_move2 );
+      //gm_store_get_move( & GM_STORE, curr_move->move_id, & curr_move2 );
+      //GM_get_move( curr_move->move_id, & curr_move2 );
+      //if ( curr_move2 == NULL ) printf( "shit\n" );
+      //else printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
+
+      //pdex_mon_t * curr_mon2 = NULL;
+      //GM_get_pokemon( curr_mon->dex_number, 0, & curr_mon2 );
+      //print_pdex_mon( curr_mon2 );
+      print_pdex_mon( curr_mon );
     }
 
 
