@@ -2,8 +2,9 @@
 
 /* ========================================================================= */
 
-#include "parse_gm.h"
+#include "gm_store.h"
 #include "moves.h"
+#include "parse_gm.h"
 #include "pokedex.h"
 #include "store.h"
 #include <assert.h>
@@ -25,20 +26,20 @@ gm_store_init( store_t * gm_store, void * vgm_parser )
   gm_store->aux = (gm_store_aux_t *) malloc( sizeof( gm_store_aux_t ) );
   assert( gm_store->aux != NULL );
 
-  as_gmsa( gm_store )->mons_by_name = vgm_parser->mons_by_name;
-  as_gmsa( gm_store )->mons_by_dex  = vgm_parser->mons_by_dex;
+  as_gmsa( gm_store )->mons_by_name = gm_parser->mons_by_name;
+  as_gmsa( gm_store )->mons_by_dex  = gm_parser->mons_by_dex;
   as_gmsa( gm_store )->mons_cnt =
-    HASH_COUNT( as_gmsa( gm_store )->mons_by_name );
-  assert( HASH_COUNT( as_gmsa( gm_store )->mons_by_dex ) ==
-                      as_gmsa( gm_store )->mons_cnt
+    HASH_CNT( hh_name, as_gmsa( gm_store )->mons_by_name );
+  assert( HASH_CNT( hh_dex_num, as_gmsa( gm_store )->mons_by_dex ) ==
+                                as_gmsa( gm_store )->mons_cnt
         );
 
-  as_gmsa( gm_store )->moves_by_name = vgm_parser->moves_by_name;
-  as_gmsa( gm_store )->moves_by_id   = vgm_parser->moves_by_id;
+  as_gmsa( gm_store )->moves_by_name = gm_parser->moves_by_name;
+  as_gmsa( gm_store )->moves_by_id   = gm_parser->moves_by_id;
   as_gmsa( gm_store )->moves_cnt =
-    HASH_COUNT( as_gmsa( gm_store )->moves_by_name );
-  assert( HASH_COUNT( as_gmsa( gm_store )->moves_by_id ) ==
-          as_gmsa( gm_store )->moves_cnt
+    HASH_CNT( hh_name, as_gmsa( gm_store )->moves_by_name );
+  assert( HASH_CNT( hh_move_id, as_gmsa( gm_store )->moves_by_id ) ==
+                                as_gmsa( gm_store )->moves_cnt
         );
 
   return STORE_SUCCESS;
@@ -94,7 +95,7 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
       store_move_t * move = NULL;
       HASH_FIND( hh_move_id,
                  as_gmsa( gm_store )->moves_by_id,
-                 as_gmsk( key ).id,
+                 & as_gmsk( key ).id,
                  sizeof( uint16_t ),
                  move
                );
@@ -105,8 +106,8 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
     {
       pdex_mon_t * mon = NULL;
       HASH_FIND( hh_dex_num,
-                 as_gmsa( gm_store )->mons_by_id,
-                 as_gmsk( key ).id,
+                 as_gmsa( gm_store )->mons_by_dex,
+                 & as_gmsk( key ).id,
                  sizeof( uint16_t ),
                  mon
                );

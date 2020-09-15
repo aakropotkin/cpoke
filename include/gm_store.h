@@ -21,7 +21,7 @@ struct gm_store_aux_s {
   pdex_mon_t   * mons_by_name;
   pdex_mon_t   * mons_by_dex;
   store_move_t * moves_by_name;
-  store_move_t * moves_by_dex;
+  store_move_t * moves_by_id;
 };
 typedef struct gm_store_aux_s  gm_store_aux_t;
 
@@ -70,7 +70,7 @@ gmskey_to_move_id( gm_store_key_t key )
   return key.id;
 }
 
-#define as_gmsk( STORE_KEY )  ( (gm_store_key_t) ( STORE_KEY ) )
+#define as_gmsk( STORE_KEY )  ( *( (gm_store_key_t *) & ( STORE_KEY ) ) )
 
 
 /* ------------------------------------------------------------------------- */
