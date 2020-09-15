@@ -35,7 +35,7 @@ typedef store_t  gm_store_t;
 union gm_store_key_u {
   store_key_t store_key;
   struct gm_store_key_fields_s {
-    uint8_t  is_move;
+    uint64_t is_move  : 1;
     uint16_t id;
     uint8_t  form_idx;
   } fields;
@@ -47,9 +47,9 @@ hkey_to_gmskey( uint32_t hkey )
 {
   return (gm_store_key_t) {
     .fields = {
-      false,
-      hkey >> ( 8 * sizeof( uint8_t ) ),
-      hkey & 0b11111111
+      .is_move  = false,
+      .id       = hkey >> ( 8 * sizeof( uint8_t ) ),
+      .form_idx = hkey & 0b11111111
     }
   };
 }
@@ -64,20 +64,32 @@ gmskey_to_hkey( gm_store_key_t key )
   static inline gm_store_key_t
 dex_form_to_gmskey( uint16_t dex_num, uint8_t form_idx )
 {
-  return (gm_store_key_t) { .fields = { false, dex_num, form_idx } };
+  return (gm_store_key_t) {
+    .fields = {
+      .is_move  = false,
+      .id       = dex_num,
+      .form_idx = form_idx
+    }
+  };
 }
 
   static inline store_key_t
 dex_form_to_skey( uint16_t dex_num, uint8_t form_idx )
 {
-  return ( dex_num << ( 8 * sizeof( uint8_t ) ) ) | form_idx;
+  return dex_form_to_gmskey( dex_num, form_idx ).store_key;
 }
 
 
   static inline gm_store_key_t
 move_id_to_gmskey( uint16_t move_id )
 {
-  return (gm_store_key_t) { .fields = { true, move_id, 0 } };
+  return (gm_store_key_t) {
+    .fields = {
+      .is_move  = true,
+      .id       = move_id,
+      .form_idx = 0
+    }
+  };
 }
 
   static inline uint16_t
