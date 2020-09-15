@@ -1151,25 +1151,25 @@ main( int argc, char * argv[], char ** envp )
 
   //gm_parser_free( & gm_parser );
 
-  gm_store_init( & gm_store, (void *) & gm_parser );
+  GM_STORE.init( & GM_STORE, (void *) & gm_parser );
   gm_parser_release( & gm_parser );
 
 
   HASH_ITER( hh_name,
-             as_gmsa( & gm_store )->moves_by_name,
+             as_gmsa( & GM_STORE )->moves_by_name,
              curr_move,
              tmp_move
            )
     {
       store_move_t * curr_move2 = NULL;
       gm_store_key_t gmsk = move_id_to_gmskey( curr_move->move_id );
-      gm_store.get( & gm_store, gmsk.store_key, (void **) & curr_move2 );
+      GM_STORE.get( & GM_STORE, gmsk.store_key, (void **) & curr_move2 );
       if ( curr_move2 == NULL ) printf( "shit\n" );
       else printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
     }
 
 
-  gm_store_free( & gm_store );
+  GM_STORE.free( & GM_STORE );
 
   return EXIT_SUCCESS;
 }

@@ -91,7 +91,7 @@ void gm_store_free( store_t * gm_store );
 
 /* ------------------------------------------------------------------------- */
 
-static store_t gm_store = {
+static store_t GM_STORE = {
   .name     = "Game Master",
   .writable = false,
   .has      = gm_store_has,
