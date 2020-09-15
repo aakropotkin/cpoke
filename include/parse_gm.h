@@ -67,6 +67,7 @@ struct gm_parser_s {
 };
 typedef struct gm_parser_s  gm_parser_t;
 
+void   gm_parser_release( gm_parser_t * gm_parser );
 void   gm_parser_free( gm_parser_t * gm_parser );
 size_t gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath  );
 

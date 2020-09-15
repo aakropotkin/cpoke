@@ -39,7 +39,8 @@ typedef enum {
   STORE_ERROR_FAIL,
   STORE_ERROR_BAD_VALUE,
   STORE_ERROR_NOMEM,
-  STORE_ERROR_NOT_FOUND
+  STORE_ERROR_NOT_FOUND,
+  STORE_ERROR_NOT_WRITABLE
 } store_status_t;
 
 typedef uint64_t  store_key_t;
@@ -48,6 +49,7 @@ typedef bool ( * store_has_fn )( struct store_s *, store_key_t );
 typedef int  ( * store_get_fn )( struct store_s *, store_key_t, void ** );
 typedef int  ( * store_add_fn )( struct store_s *, store_key_t, void * );
 typedef int  ( * store_set_fn )( struct store_s *, store_key_t, void * );
+typedef int  ( * store_init_fn )( struct store_s *, void * );
 typedef void ( * store_free_fn )( struct store_s * );
 
 struct store_s {
@@ -57,6 +59,7 @@ struct store_s {
   store_get_fn   get;
   store_add_fn   add;
   store_set_fn   set;
+  store_init_fn  init;
   store_free_fn  free;
   void *         aux;
 };

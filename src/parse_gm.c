@@ -50,7 +50,7 @@ gm_regexes_free( gm_regexes_t * grs )
 /* ------------------------------------------------------------------------- */
 
   void
-gm_parser_free( gm_parser_t * gm_parser )
+gm_parser_release( gm_parser_t * gm_parser )
 {
   jsmn_file_parser_free( gm_parser->fparser );
   free( gm_parser->fparser ); /* The file parser itself was malloced */
@@ -61,6 +61,18 @@ gm_parser_free( gm_parser_t * gm_parser )
   gm_parser->tokens     = NULL; /* Tokens were already freed by fparser */
   gm_parser->tokens_cnt = 0;
   gm_parser->fparser    = NULL;
+  free( gm_parser->incomplete_mon );
+  free( gm_parser->incomplete_fam );
+  gm_parser->incomplete_mon  = NULL;
+  gm_parser->incomplete_fam  = NULL;
+  gm_parser->incomplete_idx  = 0;
+  gm_parser->incomplete_size = 0;
+}
+
+  void
+gm_parser_free( gm_parser_t * gm_parser )
+{
+  gm_parser_release( gm_parser );
   /* Free the moves table */
   store_move_t * curr_move = NULL;
   store_move_t * tmp_move  = NULL;
@@ -80,12 +92,6 @@ gm_parser_free( gm_parser_t * gm_parser )
       HASH_DELETE( hh_dex_num, gm_parser->mons_by_dex, curr_mon );
       pdex_mon_free( curr_mon );
     }
-  free( gm_parser->incomplete_mon );
-  free( gm_parser->incomplete_fam );
-  gm_parser->incomplete_mon  = NULL;
-  gm_parser->incomplete_fam  = NULL;
-  gm_parser->incomplete_idx  = 0;
-  gm_parser->incomplete_size = 0;
 }
 
   static int
@@ -1139,8 +1145,14 @@ main( int argc, char * argv[], char ** envp )
 
   printf( "\nGM Parsed Successfully!\n" );
 
+
   /* Cleanup */
-  gm_parser_free( & gm_parser );
+
+  //gm_parser_free( & gm_parser );
+
+  gm_store_t gm_store;
+  gm_store_init( & gm_store, (void *) & gm_parser );
+  gm_parser_release( & gm_parser );
 
   return EXIT_SUCCESS;
 }

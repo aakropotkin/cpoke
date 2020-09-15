@@ -74,7 +74,7 @@ struct pdex_mon_s {
   uint8_t             form_idx;
   struct pdex_mon_s * next_form;
   /* For hash table */
-  uint16_t            hkey;
+  uint32_t            hkey;
   UT_hash_handle      hh_name;
   UT_hash_handle      hh_dex_num;
 };
@@ -90,7 +90,7 @@ void pdex_mon_free( pdex_mon_t * mon );
  * This is the "store" key, it may change in different contexts.
  * For example the parser uses `UT_hash_handle' keys directly.
  */
-  static inline uint16_t
+  static inline uint32_t
 pdex_mon_hkey( pdex_mon_t * mon )
 {
   return ( mon->dex_number << ( 8 * sizeof( uint8_t ) ) ) | mon->form_idx;
