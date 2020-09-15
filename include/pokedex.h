@@ -25,72 +25,34 @@ typedef struct stats_s  stats_t;
 
 /* ------------------------------------------------------------------------- */
 
-/* FIXME make masked enum. 118 kinds... */
-#if 0
-typedef enum {
-  NORMAL, SHADOW, PURIFIED,
-  FALL_2019,    /* Seems to pop up on a lot of Kanto */
-  COPY,         /* Clone form. "COPY_2019" */
-  ALOLA,
-  VS_2019,      /* Pikachu, I'm assuming Luchador */
-  COSTUME_2020, /* Pikachu, 4th anniversary */
-  GALARIAN,
-  A, /* Armored Mewtwo I think. Also Unown */
-  /* Unowns... */
-  B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-  EXCLAMATION_POINT, QUESTION_MARK,
-  /* Spinda */
-  _00, _01, _02, _03, _04, _05, _06, _07, _08, _09, _10, _11, _12, _13, _14,
-  _15, _16, _17, _18, _19,
-  /* Castform */
-  SUNNY, RAINY, SNOWY,
-  /* Deoxys */
-  ATTACK, DEFENSE, SPEED,
-  /* Burmy/Worm */
-  PLANT, SANDY, TRASH,
-  /* Cherrim */
-  OVERCAST,
-  /* Shellos/Gastrodon */
-  EAST_SEA, WEST_SEA,
-  /* Rotom */
-  HEAT, WASH, FROST, FAN, MOW,
-  /* Tina */
-  ALTERED, ORIGIN,
-  /* Shaymin */
-  LAND, SKY,
-  /* Arceus */
-  FIGHTING, FLYING, POISON, GROUND, ROCK, BUG, GHOST, STEEL, FIRE, WATER, GRASS,
-  ELECTRIC, PSYCHIC, ICE, DRAGON, DARK, FAIRY,
-  /* Basculin */
-  RED_STRIPED, BLUE_STRIPED,
-  /* Darmanitan */
-  STANDARD, ZEN, GALARIAN_STANDARD, GALARIAN_ZEN,
-  /* Deerling/Sawsbuck */
-  SPRING, SUMMER, AUTUMN, WINTER,
-  /* Frillish/Jellicent */
-  FEMALE,
-  /* Tornadus/Thundurus/Landorus */
-  INCARNATE, THERIAN,
-  /* Kyurem */
-  WHITE, BLACK,
-  /* Keldeo */
-  ORDINARY, RESOLUTE,
-  /* Meloetta */
-  ARIA, PIROUETTE,
-  /* Genesect */
-  DOUSE, SHOCK, BURN, CHILL
-} form_t;
-#endif
-
-static const uint8_t MAX_FORM = UCHAR_MAX;
+DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
+                        TAG_SHADOW_ELIGABLE, TAG_SHADOW, TAG_PURE,
+                        TAG_ALOLAN, TAG_GALARIAN,
+                        TAG_STARTER, TAG_REGIONAL
+                      );
 
 
 /* ------------------------------------------------------------------------- */
 
-DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
-                        TAG_SHADOW_ELIGABLE, TAG_ALOLAN, TAG_GALARIAN,
-                        TAG_STARTER, TAG_SHADOW, TAG_PURE
-                      );
+struct region_s {
+  char     * name;
+  uint16_t   dex_start;
+  uint16_t   dex_end;
+};
+typedef struct region_s  region_t;
+
+#ifndef REGIONS
+static const region_t REGIONS[] = {
+  { "Kanto",     1, 151 },
+  { "Johto",   152, 251 },
+  { "Hoenn",   252, 386 },
+  { "Sinnoh",  387, 493 },
+  { "Unova",   494, 649 },
+  { "Unknown", 808, 809 }
+};
+#endif
+
+static const uint8_t NUM_REGIONS = array_size( REGIONS );
 
 
 /* ------------------------------------------------------------------------- */
@@ -149,6 +111,45 @@ print_pdex_mon( const pdex_mon_t * mon )
 /* ------------------------------------------------------------------------- */
 
 int  cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
+
+
+/* ------------------------------------------------------------------------- */
+
+  static inline bool
+is_starter( uint16_t dex_number )
+{
+  /* Skip "Unknown" region */
+  for ( uint8_t r = 0; r < NUM_REGIONS - 1; r++ )
+    {
+      if ( in_eq( REGIONS[r].dex_start, dex_number, REGIONS[r].dex_start + 9 ) )
+        {
+          return true;
+        }
+    }
+  return false;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+#ifndef REGIONAL_DEX_NUMBERS
+#define REGIONAL_DEX_NUMBERS                                                  \
+  83, 115, 122, 128, 214, 222, 313, 314, 324, 335, 336, 337, 338, 357, 369,   \
+  417, 441, 511, 512, 513, 514, 515, 516, 550, 556, 561, 626, 631, 632
+#endif
+
+static const uint16_t REGIONALS[] = { REGIONAL_DEX_NUMBERS };
+static const uint8_t  NUM_REGIONALS = array_size( REGIONALS );
+
+  static inline bool
+is_regional( uint16_t dex_number )
+{
+  for ( uint8_t i = 0; i < NUM_REGIONALS; i++ )
+    {
+      if ( REGIONALS[i] == dex_number ) return true;
+    }
+  return false;
+}
 
 
 /* ------------------------------------------------------------------------- */

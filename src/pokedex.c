@@ -49,16 +49,17 @@ pdex_mon_init( pdex_mon_t      * mon,
 
   mon->tags = tags;
   /* Add missing `starter' tag */
-  if ( ( !( mon->tags & TAG_STARTER_M ) ) &&
-       ( (   1 <= mon->dex_number ) && ( mon->dex_number <=   9 ) ) ||
-       ( ( 152 <= mon->dex_number ) && ( mon->dex_number <= 160 ) ) ||
-       ( ( 252 <= mon->dex_number ) && ( mon->dex_number <= 260 ) ) ||
-       ( ( 387 <= mon->dex_number ) && ( mon->dex_number <= 395 ) ) ||
-       ( ( 495 <= mon->dex_number ) && ( mon->dex_number <= 503 ) )
-       ) {
-    mon->tags |= TAG_STARTER_M;
-  }
+  if ( ( !( mon->tags & TAG_STARTER_M ) ) && is_starter( mon->dex_number ) )
+    {
+      mon->tags |= TAG_STARTER_M;
+    }
+  /* Add missing `regional' tag */
+  if ( ( !( mon->tags & TAG_REGIONAL_M ) ) && is_regional( mon->dex_number ) )
+    {
+      mon->tags |= TAG_REGIONAL_M;
+    }
 
+  /* Add fast moves */
   if ( 0 < fast_moves_cnt )
     {
       mon->fast_move_ids =
@@ -70,6 +71,7 @@ pdex_mon_init( pdex_mon_t      * mon,
             );
     }
 
+  /*  Add charged moves */
   if ( 0 < charged_moves_cnt )
     {
       mon->charged_move_ids =

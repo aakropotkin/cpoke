@@ -360,14 +360,8 @@ parse_pdex_mon( const char   *  json,
   assert( mon->dex_number != 0 );
 
   /* Mark starters */
-  if ( ( (   1 <= mon->dex_number ) && ( mon->dex_number <=   9 ) ) ||
-       ( ( 152 <= mon->dex_number ) && ( mon->dex_number <= 160 ) ) ||
-       ( ( 252 <= mon->dex_number ) && ( mon->dex_number <= 260 ) ) ||
-       ( ( 387 <= mon->dex_number ) && ( mon->dex_number <= 395 ) ) ||
-       ( ( 495 <= mon->dex_number ) && ( mon->dex_number <= 503 ) )
-     ) {
-    mon->tags |= TAG_STARTER_M;
-  }
+  if ( is_starter( mon->dex_number ) ) mon->tags |= TAG_STARTER_M;
+  if ( is_regional( mon->dex_number ) ) mon->tags |= TAG_REGIONAL_M;
 
   /* Create iterator on `pokemon' value */
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
