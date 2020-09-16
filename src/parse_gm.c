@@ -1136,8 +1136,10 @@ main( int argc, char * argv[], char ** envp )
              tmp_move
              )
     {
-      GM_get_move( curr_move->move_id, & curr_move2 );
-      printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
+      //GM_get_move( curr_move->move_id, & curr_move2 );
+      //printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
+      print_store_move( curr_move );
+      if ( tmp_move != NULL ) printf( "\n" );
     }
 
   /* Print Pokemon */
