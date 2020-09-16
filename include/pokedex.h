@@ -151,8 +151,10 @@ dex_form_store_key( uint16_t dex_num, uint8_t form_idx )
 /* ------------------------------------------------------------------------- */
 
 int fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon );
+int fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon );
 
 #define print_pdex_mon( MON )  fprint_pdex_mon( stdout, ( MON ) );
+#define print_pdex_mon_json( MON )  fprint_pdex_mon_json( stdout, ( MON ) );
 
 
 /* ------------------------------------------------------------------------- */

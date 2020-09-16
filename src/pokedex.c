@@ -227,6 +227,78 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
 
 /* ------------------------------------------------------------------------- */
 
+  int
+fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
+{
+  int          printed_chars = 0;
+  pdex_mon_t * form          = NULL;
+
+  printed_chars += fprintf( stream, "{\n" );
+  printed_chars += fprintf( stream,
+                            "  \"dex_number\": %d,\n",
+                            mon->dex_number
+                          );
+  printed_chars += fprintf( stream, "  \"name\": \"%s\",\n", mon->name );
+  printed_chars += fprintf( stream,
+                            "  \"form_name\": \"%s\",\n",
+                            mon->form_name
+                          );
+  printed_chars += fprintf( stream, "  \"family\": %d,\n", mon->family );
+  printed_chars += fprintf( stream, "  \"types\": [ \"" );
+  printed_chars += fprint_ptype_mask( stream, "\", \"", mon->types );
+  printed_chars += fprintf( stream, "\" ],\n" );
+  printed_chars += fprintf( stream,
+                            "  \"base_stats\": { \"stamina\": %d, \"attack\": "
+                            "%d, \"defense\": %d },\n",
+                            mon->base_stats.stamina,
+                            mon->base_stats.attack,
+                            mon->base_stats.defense
+                          );
+
+  printed_chars += fprintf( stream, "  \"tags\": [ \"" );
+  if ( mon->tags != TAG_NONE_M )
+    {
+      printed_chars += fprint_pdex_tag_mask( stream, "\", \"", mon->tags );
+      printed_chars += fprintf( stream, "\" " );
+    }
+  printed_chars += fprintf( stream, "],\n" );
+
+  printed_chars += fprintf( stream, "  \"fast_moves_ids\": [ " );
+  if ( 0 < mon->fast_moves_cnt )
+    {
+      printed_chars += fprintf( stream, "%d", mon->fast_move_ids[0] );
+      for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
+        {
+          printed_chars += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+        }
+      printed_chars += fprintf( stream, " " );
+    }
+  printed_chars += fprintf( stream, "],\n" );
+
+  printed_chars += fprintf( stream, "  \"charged_moves_ids\": [ " );
+  if ( 0 < mon->charged_moves_cnt )
+    {
+      printed_chars += fprintf( stream, "%d", mon->charged_move_ids[0] );
+      for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
+        {
+          printed_chars += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+        }
+      printed_chars += fprintf( stream, " " );
+    }
+  printed_chars += fprintf( stream, "],\n}" );
+
+  if ( mon->next_form != NULL )
+    {
+      printed_chars += fprintf( stream, ", " );
+      printed_chars += fprint_pdex_mon_json( stream, mon->next_form );
+    }
+
+  return printed_chars;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */

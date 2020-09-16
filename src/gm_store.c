@@ -277,6 +277,20 @@ gm_store_get_str_t( store_t      *  gm_store,
   int
 gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
 {
+  pdex_mon_t * curr_mon;
+  pdex_mon_t * tmp_mon;
+  fprintf( ostream, "{ \"pokedex\": [" );
+  HASH_ITER( hh_dex_num,
+             as_gmsa( gm_store )->mons_by_dex,
+             curr_mon,
+             tmp_mon
+           )
+    {
+      fprint_pdex_mon_json( ostream, curr_mon );
+      if ( tmp_mon != NULL ) fprintf( ostream, ", " );
+    }
+  fprintf( ostream, "\n],\n  \"moves\": []\n}" );
+  /* FIXME JSON moves */
   return STORE_SUCCESS;
 }
 

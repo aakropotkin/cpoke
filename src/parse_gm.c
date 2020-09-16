@@ -452,8 +452,7 @@ parse_pdex_mon( const char   *  json,
             }
           assert( mon->form_name != NULL );
           if ( ( strcmp( mon->form_name, "SHADOW" )   == 0 ) ||
-               ( strcmp( mon->form_name, "PURIFIED" ) == 0 ) ||
-               ( strcmp( mon->form_name, "NORMAL" )   == 0 )
+               ( strcmp( mon->form_name, "PURIFIED" ) == 0 )
              ) mon->tags |= TAG_SHADOW_ELIGABLE_M;
         }
       else if ( jsoneq_str( json, key, "familyId" ) )
@@ -570,7 +569,9 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
        * eligable on the base form, but don't add a new one. */
       if ( ( strcmp( mon->form_name, "SHADOW" )   == 0 ) ||
            ( strcmp( mon->form_name, "PURIFIED" ) == 0 ) ||
-           ( strcmp( mon->form_name, "NORMAL" )   == 0 )
+           ( ( strcmp( mon->form_name, "NORMAL" )   == 0 ) &&
+             ( mon->dex_number != 649 ) /* Genensect is an exception */
+           )
          )
         {
           stored->tags |= TAG_SHADOW_ELIGABLE_M;
@@ -1140,15 +1141,7 @@ main( int argc, char * argv[], char ** envp )
     }
 
   /* Print Pokemon */
-  HASH_ITER( hh_dex_num,
-             as_gmsa( & GM_STORE )->mons_by_dex,
-             curr_mon,
-             tmp_mon
-           )
-    {
-      GM_get_pokemon( curr_mon->dex_number, curr_mon->form_idx, & curr_mon2 );
-      print_pdex_mon( curr_mon2 );
-    }
+  GM_export( SS_JSON, stdout );
 
   /* Cleanup */
   GM_STORE.free( & GM_STORE );
