@@ -1112,71 +1112,47 @@ process_pokemon( gm_parser_t * gm_parser )
   int
 main( int argc, char * argv[], char ** envp )
 {
-  /* Parse file */
   gm_parser_t gm_parser;
-  size_t rsl = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
-  assert( rsl != 0 );
+  store_move_t * curr_move  = NULL;
+  store_move_t * curr_move2 = NULL;
+  store_move_t * tmp_move   = NULL;
+  pdex_mon_t   * curr_mon   = NULL;
+  pdex_mon_t   * curr_mon2  = NULL;
+  pdex_mon_t   * tmp_mon    = NULL;
+  size_t         tokens_cnt = 0;
 
-  store_move_t * curr_move = NULL;
-  store_move_t * tmp_move  = NULL;
-  //HASH_ITER( hh_name, gm_parser.moves_by_name, curr_move, tmp_move )
-  //  {
-  //    printf( "Move %u : %s\n", curr_move->move_id, curr_move->name );
-  //  }
-
-  pdex_mon_t * curr_mon = NULL;
-  pdex_mon_t * tmp_mon  = NULL;
-  //HASH_ITER( hh_name, gm_parser.mons_by_name, curr_mon, tmp_mon )
-  //  {
-  //    printf( "Pokemon %u : %s ( ", curr_mon->dex_number, curr_mon->name );
-  //    pdex_mon_t * f = curr_mon;
-  //    while( f->next_form != NULL ) f = f->next_form;
-  //    printf( "%d form", f->form_idx + 1 );
-  //    if ( f->form_idx <= 0 ) printf( " )\n" );
-  //    else                    printf( "s )\n" );
-  //    if ( 0 < f->form_idx )
-  //      {
-  //        f = curr_mon;
-  //        while( f->next_form != NULL )
-  //          {
-  //            printf( "                  %s\n", f->form_name );
-  //            f = f->next_form;
-  //          }
-  //        printf( "                  %s\n", f->form_name );
-  //      }
-  //  }
-
+  /* Parse file */
+  tokens_cnt = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
+  assert( tokens_cnt != 0 );
   printf( "\nGM Parsed Successfully!\n" );
 
-
   /* Cleanup */
-
   GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
+  /* Print Moves */
   HASH_ITER( hh_move_id,
              as_gmsa( & GM_STORE )->moves_by_id,
              curr_move,
              tmp_move
              )
     {
-      store_move_t * curr_move2 = NULL;
       GM_get_move( curr_move->move_id, & curr_move2 );
       printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
     }
 
+  /* Print Pokemon */
   HASH_ITER( hh_dex_num,
              as_gmsa( & GM_STORE )->mons_by_dex,
              curr_mon,
              tmp_mon
            )
     {
-      pdex_mon_t * curr_mon2 = NULL;
       GM_get_pokemon( curr_mon->dex_number, curr_mon->form_idx, & curr_mon2 );
       print_pdex_mon( curr_mon2 );
     }
 
-
+  /* Cleanup */
   GM_STORE.free( & GM_STORE );
 
   return EXIT_SUCCESS;

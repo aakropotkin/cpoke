@@ -143,17 +143,17 @@ gm_store_get_move( gm_store_t   *  gm_store,
 
 /* ------------------------------------------------------------------------- */
 
-#define def_gm_store()            \
-  {                               \
-    .name     = "Game Master",    \
-    .writable = false,            \
-    .has      = gm_store_has,     \
-    .get      = gm_store_get,     \
-    .add      = gm_store_add,     \
-    .set      = gm_store_set,     \
-    .init     = gm_store_init,    \
-    .free     = gm_store_free,    \
-    .aux      = NULL              \
+#define def_gm_store()                                                        \
+  {                                                                           \
+    .name     = "Game Master",                                                \
+    .flags    = SF_OFFICIAL_DATA | SF_STANDARD_KEY | SF_TYPED,                \
+    .has      = gm_store_has,                                                 \
+    .get      = gm_store_get,                                                 \
+    .add      = gm_store_add,                                                 \
+    .set      = gm_store_set,                                                 \
+    .init     = gm_store_init,                                                \
+    .free     = gm_store_free,                                                \
+    .aux      = NULL                                                          \
   }
 
 #ifdef GM_GLOBAL_STORE

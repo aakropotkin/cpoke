@@ -9,6 +9,7 @@
 #include "moves.h"
 #include "ptypes.h"
 #include "util/bits.h"
+#include "util/enumflags.h"
 #include <limits.h>
 #include <math.h>
 #include <stdint.h>
