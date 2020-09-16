@@ -92,21 +92,30 @@ pdex_mon_init( pdex_mon_t      * mon,
 pdex_mon_free( pdex_mon_t * mon )
 {
   if ( mon == NULL ) return;
+
   free( mon->name );
   mon->name = NULL;
+
+  free( mon->form_name );
+  mon->form_name = NULL;
+
   free( mon->fast_move_ids );
   mon->fast_move_ids = NULL;
+
   free( mon->charged_move_ids );
   mon->charged_move_ids = NULL;
 
   mon->dex_number        = 0;
   mon->family            = 0;
-  mon->form_idx          = 0;
   mon->types             = PT_NONE_M;
   mon->base_stats        = (stats_t) { 0, 0, 0 };
   mon->tags              = TAG_NONE_M;
   mon->fast_moves_cnt    = 0;
   mon->charged_moves_cnt = 0;
+  mon->form_idx          = 0;
+
+  if ( mon->next_form != NULL ) pdex_mon_free( mon->next_form );
+  free( mon );
 }
 
 

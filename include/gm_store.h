@@ -117,6 +117,18 @@ int gm_store_get_move_by_name( gm_store_t   *  gm_store,
 
 /* ------------------------------------------------------------------------- */
 
+int gm_store_export( gm_store_t   * gm_store,
+                     store_sink_t   sink_type,
+                     void         * target
+                   );
+
+int gm_store_export_json( gm_store_t * gm_store, FILE * ostream );
+int gm_store_export_c( gm_store_t * gm_store, FILE * ostream );
+int gm_store_export_sql( gm_store_t * gm_store, const char * db_name );
+
+
+/* ------------------------------------------------------------------------- */
+
 #define def_gm_store()                                                        \
   {                                                                           \
     .name      = "Game Master",                                               \
@@ -128,6 +140,7 @@ int gm_store_get_move_by_name( gm_store_t   *  gm_store,
     .get_str_t = gm_store_get_str_t,                                          \
     .add       = gm_store_add,                                                \
     .set       = gm_store_set,                                                \
+    .export    = gm_store_export,                                             \
     .init      = gm_store_init,                                               \
     .free      = gm_store_free,                                               \
     .aux       = NULL                                                         \
@@ -153,6 +166,8 @@ static store_t GM_STORE = def_gm_store();
   gm_store_set( & GM_STORE, ( KEY ), (void *) ( VAL ) )
 #define GM_init( PARSER )   gm_store_init( & GM_STORE, (void *) ( PARSER ) )
 #define GM_free()           gm_store_free( & GM_STORE )
+#define GM_export( SINK, TARGET )                                             \
+  gm_store_export( & GM_STORE, ( SINK ), ( TARGET ) )
 
 #define GM_get_pokemon( DEX, FORM, VAL )                                      \
   gm_store_get_pokemon( & GM_STORE, ( DEX ), ( FORM ), ( VAL ) )

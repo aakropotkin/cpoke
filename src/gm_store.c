@@ -63,6 +63,7 @@ gm_store_free( store_t * gm_store )
       free( curr_move->name );
       free( curr_move );
     }
+  HASH_CLEAR( hh_move_id, as_gmsa( gm_store )->moves_by_id );
   /* Free Pokedex */
   pdex_mon_t * curr_mon = NULL;
   pdex_mon_t * tmp_mon  = NULL;
@@ -72,6 +73,7 @@ gm_store_free( store_t * gm_store )
       HASH_DELETE( hh_dex_num, as_gmsa( gm_store )->mons_by_dex, curr_mon );
       pdex_mon_free( curr_mon );
     }
+  HASH_CLEAR( hh_dex_num, as_gmsa( gm_store )->mons_by_dex );
   free( gm_store->aux );
 }
 
@@ -269,6 +271,50 @@ gm_store_get_str_t( store_t      *  gm_store,
   return STORE_ERROR_BAD_VALUE;
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+  int
+gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
+{
+  return STORE_SUCCESS;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  int
+gm_store_export_c( gm_store_t * gm_store, FILE * ostream )
+{
+  return STORE_SUCCESS;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  int
+gm_store_export_sql( gm_store_t * gm_store, const char * db_name )
+{
+  return STORE_SUCCESS;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  int
+gm_store_export( gm_store_t   * gm_store,
+                 store_sink_t   sink_type,
+                 void         * target
+               )
+{
+  switch( sink_type )
+    {
+    case SS_JSON: return gm_store_export_json( gm_store, (FILE *) target );
+    case SS_C:    return gm_store_export_c( gm_store, (FILE *) target );
+    case SS_SQL:  return gm_store_export_sql( gm_store, (const char *) target );
+    default:      return STORE_ERROR_NOT_DEFINED;
+    }
+}
 
 /* ------------------------------------------------------------------------- */
 

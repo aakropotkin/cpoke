@@ -85,6 +85,13 @@ _Static_assert( sizeof( store_type_t ) == 1, "store_type_t must be 1 byte" );
 
 /* ------------------------------------------------------------------------- */
 
+typedef enum {
+  SS_UNKNOWN, SS_C, SS_JSON, SS_SQL
+} store_sink_t;
+
+
+/* ------------------------------------------------------------------------- */
+
 struct store_key_s {
   store_type_t key_type;
   store_type_t val_type;
@@ -131,6 +138,8 @@ typedef int  ( * store_get_str_t_fn )( struct store_s *,
 /* For `SF_WRITABLE' */
 typedef int  ( * store_add_fn )( struct store_s *, store_key_t, void * );
 typedef int  ( * store_set_fn )( struct store_s *, store_key_t, void * );
+/* For `SF_EXPORTABLE' */
+typedef int ( * store_export_fn )( struct store_s *, store_sink_t, void * );
 
 
 /* ------------------------------------------------------------------------- */
@@ -144,6 +153,7 @@ struct store_s {
   store_get_str_t_fn  get_str_t;
   store_add_fn        add;
   store_set_fn        set;
+  store_export_fn     export;
   store_init_fn       init;
   store_free_fn       free;
   void              * aux;

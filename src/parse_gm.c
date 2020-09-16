@@ -575,7 +575,7 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
         {
           stored->tags |= TAG_SHADOW_ELIGABLE_M;
           pdex_mon_free( mon );
-          return ( 0 < stored->family );
+          return true; /* This was freed so we cannot return `false' */
         }
 
       /* Check if this form already exists.
@@ -584,7 +584,7 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
         {
           stored->family = mon->family;
           pdex_mon_free( mon );
-          return ( 0 < stored->family );
+          return true; /* This was freed so we cannot return `false' */
         }
 
       while ( stored->next_form != NULL )
@@ -595,7 +595,7 @@ add_mon_data( gm_parser_t * gm_parser, pdex_mon_t * mon )
             {
               stored->family = mon->family;
               pdex_mon_free( mon );
-              return ( 0 < stored->family );
+              return true; /* This was freed so we cannot return `false' */
             }
         }
       stored->next_form = mon;
@@ -1075,14 +1075,14 @@ process_pokemon( gm_parser_t * gm_parser )
               gm_parser->incomplete_size <<= 1;
               gm_parser->incomplete_mon =
                 (pdex_mon_t **) realloc( gm_parser->incomplete_mon,
-                                         gm_parser->incomplete_size *
+                                          gm_parser->incomplete_size *
                                           sizeof( pdex_mon_t * )
-                                       );
+                                          );
               gm_parser->incomplete_fam =
                 (jsmntok_t **) realloc( gm_parser->incomplete_mon,
                                         gm_parser->incomplete_size *
-                                          sizeof( jsmntok_t * )
-                                      );
+                                        sizeof( jsmntok_t * )
+                                        );
             }
           gm_parser->incomplete_mon[gm_parser->incomplete_idx]   = mon;
           gm_parser->incomplete_fam[gm_parser->incomplete_idx++] = item;
@@ -1093,15 +1093,14 @@ process_pokemon( gm_parser_t * gm_parser )
 
   for ( uint8_t i = 0; i < gm_parser->incomplete_idx; i++ )
     {
-      gm_parser->incomplete_mon[i]->family =
-        lookup_dexn( gm_parser->mons_by_name,
-                     gm_parser->buffer +
-                       gm_parser->incomplete_fam[i]->start + 7,
-                     toklen( gm_parser->incomplete_fam[i] ) - 7
-                   );
-      assert( gm_parser->incomplete_mon[i]->family != 0 );
+      mon = gm_parser->incomplete_mon[i];
+      mon->family = lookup_dexn( gm_parser->mons_by_name,
+                                 gm_parser->buffer +
+                                   gm_parser->incomplete_fam[i]->start + 7,
+                                 toklen( gm_parser->incomplete_fam[i] ) - 7
+                               );
+      assert( mon->family != 0 );
     }
-
 }
 
 
