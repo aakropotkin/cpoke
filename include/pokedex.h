@@ -130,7 +130,20 @@ pdex_store_key( pdex_mon_t * mon )
     .key_type = STORE_NUM,
     .val_type = STORE_POKEDEX,
     .data_h0  = mon->dex_number,
-    .data_q2  = mon->form_idx
+    .data_q2  = mon->form_idx,
+    .data_q3  = 0
+  };
+}
+
+  static inline store_key_t
+dex_form_store_key( uint16_t dex_num, uint8_t form_idx )
+{
+  return (store_key_t) {
+    .key_type = STORE_NUM,
+    .val_type = STORE_POKEDEX,
+    .data_h0  = dex_num,
+    .data_q2  = form_idx,
+    .data_q3  = 0
   };
 }
 

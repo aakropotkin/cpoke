@@ -45,7 +45,8 @@ typedef enum {
   STORE_ERROR_BAD_VALUE,
   STORE_ERROR_NOMEM,
   STORE_ERROR_NOT_FOUND,
-  STORE_ERROR_NOT_WRITABLE
+  STORE_ERROR_NOT_WRITABLE,
+  STORE_ERROR_NOT_DEFINED
 } store_status_t;
 
 
@@ -53,7 +54,8 @@ typedef enum {
 
 DEFINE_ENUM_WITH_FLAGS( store_flag,
     SF_NONE, SF_WRITABLE, SF_THREAD_SAFE, SF_OFFICIAL_DATA, SF_CUSTOM_DATA,
-    SF_EXPORTABLE, SF_STANDARD_KEY, SF_TYPED
+    SF_EXPORTABLE, SF_STANDARD_KEY, SF_TYPED, SF_GET_STRING,
+    SF_GET_TYPED_STRING
   );
 
 
@@ -84,8 +86,8 @@ _Static_assert( sizeof( store_type_t ) == 1, "store_type_t must be 1 byte" );
 /* ------------------------------------------------------------------------- */
 
 struct store_key_s {
-  store_type_t key_type;   /* 16 */
-  store_type_t val_type; /* 16 */
+  store_type_t key_type;
+  store_type_t val_type;
   union {
     uint32_t   data_f;
 
@@ -107,12 +109,28 @@ typedef struct store_key_s  store_key_t;
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Optional functions may be left as `NULL', but it is suggested to instead
+ * provide an empty function which simply returns an appropriate error code.
+ */
+
+/* Mandatory */
 typedef bool ( * store_has_fn )( struct store_s *, store_key_t );
 typedef int  ( * store_get_fn )( struct store_s *, store_key_t, void ** );
-typedef int  ( * store_add_fn )( struct store_s *, store_key_t, void * );
-typedef int  ( * store_set_fn )( struct store_s *, store_key_t, void * );
 typedef int  ( * store_init_fn )( struct store_s *, void * );
 typedef void ( * store_free_fn )( struct store_s * );
+
+/* For `SF_GET_STRING' */
+typedef int  ( * store_get_str_fn )( struct store_s *, const char *, void ** );
+/* For `SF_GET_STRING' */
+typedef int  ( * store_get_str_t_fn )( struct store_s *,
+                                       store_type_t,
+                                       const char *,
+                                       void **
+                                     );
+/* For `SF_WRITABLE' */
+typedef int  ( * store_add_fn )( struct store_s *, store_key_t, void * );
+typedef int  ( * store_set_fn )( struct store_s *, store_key_t, void * );
 
 
 /* ------------------------------------------------------------------------- */
@@ -122,6 +140,8 @@ struct store_s {
   store_flag_mask_t   flags;
   store_has_fn        has;
   store_get_fn        get;
+  store_get_str_fn    get_str;
+  store_get_str_t_fn  get_str_t;
   store_add_fn        add;
   store_set_fn        set;
   store_init_fn       init;

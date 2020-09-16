@@ -7,6 +7,7 @@
 
 #include "ext/uthash.h"
 #include "ptypes.h"
+#include "store.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -25,7 +26,6 @@ struct stat_buff_s {
   uint8_t debuffp : 1; /* 1 --> Debuff --> ( - amount ) */
   uint8_t amount  : 2;
 } packed;
-
 typedef struct stat_buff_s  stat_buff_t;
 
 
@@ -43,7 +43,6 @@ struct buff_s {
   stat_buff_t   atk_buff;
   stat_buff_t   def_buff;
 } packed; /* 11 bits used, 16 total */
-
 typedef struct buff_s  buff_t;
 
 
@@ -75,7 +74,6 @@ struct buff_state_s {
   buff_level_t atk_buff_lv;
   buff_level_t def_buff_lv;
 } packed;
-
 typedef struct buff_state_s  buff_state_t;
 
 #define get_buff_mod( buff_level )  ( BUFF_MOD[( buff_level )] )
@@ -116,7 +114,6 @@ struct base_move_s {
   uint8_t  power;   /* NOTE: These values are not always the same for PvP/PvE */
   uint8_t  energy;  /* NOTE: These values are not always the same for PvP/PvE */
 } packed;
-
 typedef struct base_move_s  base_move_t;
 
 static const base_move_t NO_MOVE = {
@@ -142,7 +139,6 @@ struct pve_move_s {
   base_move_t;           /* Inherit */
   uint16_t    cooldown;  /* ms */
 } packed;
-
 typedef struct pve_move_s  pve_move_t;
 
 static const pve_move_t NO_MOVE_PVE = {
@@ -157,7 +153,6 @@ struct pvp_charged_move_s {
   base_move_t;       /* Inherit */
   buff_t      buff;  /* A pointer could be used, but it costs more */
 } packed;
-
 typedef struct pvp_charged_move_s  pvp_charged_move_t;
 
 static const pvp_charged_move_t NO_MOVE_PVP_CHARGED = {
@@ -172,7 +167,6 @@ struct pvp_fast_move_s {
   base_move_t;            /* Inherit */
   uint8_t     turns : 2;  /* 1-4 */
 } packed;
-
 typedef struct pvp_fast_move_s  pvp_fast_move_t;
 
 static const pvp_fast_move_t NO_MOVE_PVP_FAST = { NO_MOVE, .turns = 0 };
@@ -198,9 +192,32 @@ struct store_move_s {
   UT_hash_handle hh_name;
   UT_hash_handle hh_move_id;
 };
-
 typedef struct store_move_s  store_move_t;
 
+  static inline store_key_t
+move_store_key( store_move_t * move )
+{
+  return (store_key_t) {
+    .key_type = STORE_NUM,
+    .val_type = STORE_MOVE,
+    .data_h0  = move->move_id,
+    .data_h1  = 0
+  };
+}
+
+  static inline store_key_t
+move_id_store_key( uint16_t move_id )
+{
+  return (store_key_t) {
+    .key_type = STORE_NUM,
+    .val_type = STORE_MOVE,
+    .data_h0  = move_id,
+    .data_h1  = 0
+  };
+}
+
+
+/* ------------------------------------------------------------------------- */
 
   static inline pve_move_t
 pve_move_from_store( store_move_t * stored )
