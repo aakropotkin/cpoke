@@ -8,6 +8,7 @@
 #include "ext/uthash.h"
 #include "moves.h"
 #include "ptypes.h"
+#include "store.h"
 #include "util/bits.h"
 #include "util/enumflags.h"
 #include <limits.h>
@@ -91,7 +92,6 @@ struct pdex_mon_s {
   uint8_t             form_idx;
   struct pdex_mon_s * next_form;
   /* For hash table */
-  uint32_t            hkey;
   UT_hash_handle      hh_name;
   UT_hash_handle      hh_dex_num;
 };
@@ -123,10 +123,15 @@ void pdex_mon_free( pdex_mon_t * mon );
  * This is the "store" key, it may change in different contexts.
  * For example the parser uses `UT_hash_handle' keys directly.
  */
-  static inline uint32_t
-pdex_mon_hkey( pdex_mon_t * mon )
+  static inline store_key_t
+pdex_store_key( pdex_mon_t * mon )
 {
-  return ( mon->dex_number << ( 8 * sizeof( uint8_t ) ) ) | mon->form_idx;
+  return (store_key_t) {
+    .key_type = STORE_NUM,
+    .val_type = STORE_POKEDEX,
+    .data_h0  = mon->dex_number,
+    .data_q2  = mon->form_idx
+  };
 }
 
 

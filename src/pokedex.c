@@ -85,8 +85,6 @@ pdex_mon_init( pdex_mon_t      * mon,
               sizeof( uint16_t ) * charged_moves_cnt
             );
     }
-
-  mon->hkey = pdex_mon_hkey( mon );
 }
 
 
@@ -109,7 +107,6 @@ pdex_mon_free( pdex_mon_t * mon )
   mon->tags              = TAG_NONE_M;
   mon->fast_moves_cnt    = 0;
   mon->charged_moves_cnt = 0;
-  /* FIXME handle hkey */
 }
 
 

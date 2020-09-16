@@ -39,42 +39,20 @@ union gm_store_key_u {
     store_type_t val_type;
     uint16_t     id;
     uint8_t      form_idx;
-    uint8_t      : 0;
-  } fields;
-};
+    uint32_t      : 0;      /* 22 bits padding */
+  };
+} transparent;
 typedef union gm_store_key_u  gm_store_key_t;
 
-  static inline gm_store_key_t
-hkey_to_gmskey( uint32_t hkey )
-{
-  return (gm_store_key_t) {
-    .fields = {
-      .key_type = STORE_NUM,
-      .val_type = STORE_MOVE,
-      .id       = hkey >> ( 8 * sizeof( uint8_t ) ),
-      .form_idx = hkey & 0b11111111
-    }
-  };
-}
-
-  static inline uint32_t
-gmskey_to_hkey( gm_store_key_t key )
-{
-  assert( key.fields.key_type == STORE_NUM );
-  assert( key.fields.val_type == STORE_POKEDEX );
-  return ( key.fields.id << ( 8 * sizeof( uint8_t ) ) ) | key.fields.form_idx;
-}
 
   static inline gm_store_key_t
 dex_form_to_gmskey( uint16_t dex_num, uint8_t form_idx )
 {
   return (gm_store_key_t) {
-    .fields = {
-      .key_type = STORE_NUM,
-      .val_type = STORE_POKEDEX,
-      .id       = dex_num,
-      .form_idx = form_idx
-    }
+    .key_type = STORE_NUM,
+    .val_type = STORE_POKEDEX,
+    .id       = dex_num,
+    .form_idx = form_idx
   };
 }
 
@@ -89,25 +67,23 @@ dex_form_to_skey( uint16_t dex_num, uint8_t form_idx )
 move_id_to_gmskey( uint16_t move_id )
 {
   return (gm_store_key_t) {
-    .fields = {
-      .key_type = STORE_NUM,
-      .val_type = STORE_MOVE,
-      .id       = move_id,
-      .form_idx = 0
-    }
+    .key_type = STORE_NUM,
+    .val_type = STORE_MOVE,
+    .id       = move_id,
+    .form_idx = 0
   };
 }
 
   static inline uint16_t
 gmskey_to_move_id( gm_store_key_t key )
 {
-  assert( key.fields.key_type == STORE_NUM );
-  assert( key.fields.val_type == STORE_MOVE );
-  return key.fields.id;
+  assert( key.key_type == STORE_NUM );
+  assert( key.val_type == STORE_MOVE );
+  return key.id;
 }
 
 #define as_gmsk( STORE_KEY )                                                  \
-  ( (gm_store_key_t) { .store_key = ( STORE_KEY ) } ).fields
+  ( (gm_store_key_t) { .store_key = ( STORE_KEY ) } )
 
 
 /* ------------------------------------------------------------------------- */

@@ -78,6 +78,8 @@ typedef enum packed {
   STORE_CUSTOM
 } store_type_t;
 
+_Static_assert( sizeof( store_type_t ) == 1, "store_type_t must be 1 byte" );
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -90,19 +92,17 @@ struct store_key_s {
     struct {
       uint16_t data_h0;
       uint16_t data_h1;
-    } data_h;
+    };
 
     struct {
       uint8_t data_q0;
       uint8_t data_q1;
       uint8_t data_q2;
       uint8_t data_q3;
-    } data_q;
+    };
   } transparent;
 };
 typedef struct store_key_s  store_key_t;
-
-//typedef uint64_t  store_key_t;
 
 
 /* ------------------------------------------------------------------------- */

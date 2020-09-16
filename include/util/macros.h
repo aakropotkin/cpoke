@@ -71,8 +71,10 @@
 #define throw( s )    assert( 0, "Exception: " ( s ) )
 
 /**
- * Compile time assertions, that can be used in macros, unlike `static_assert`.
+ * Compile time assertions, that can be used in macros, unlike `_Static_assert'.
  * Borrowed from the Linux Kernel.
+ * This does NOT work outside of block scope, you should use `_Static_assert'
+ * in "global" scope.
  */
 #define _compiletime_assert( condition, msg, prefix, suffix )                 \
   __compiletime_assert( condition, msg, prefix, suffix )

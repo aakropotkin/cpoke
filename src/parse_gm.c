@@ -500,7 +500,6 @@ parse_pdex_mon( const char   *  json,
       mon->form_name = strdup( "BASE" );
       assert( mon->form_name != NULL );
     }
-  mon->hkey = pdex_mon_hkey( mon );
 
   assert( mon->name != NULL );
   assert( iter_stack->stack_index == stack_idx );
