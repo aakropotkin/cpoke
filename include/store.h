@@ -83,7 +83,7 @@ typedef enum packed {
 
 struct store_key_s {
   store_type_t key_type;   /* 16 */
-  store_type_t value_type; /* 16 */
+  store_type_t val_type; /* 16 */
   union {
     uint32_t   data_f;
 

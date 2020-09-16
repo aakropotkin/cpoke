@@ -90,8 +90,10 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
 {
   assert( gm_store != NULL );
 
-  if ( as_gmsk( key ).is_move ) /* Move */
-    {
+  if ( ( as_gmsk( key ).key_type == STORE_NUM  ) &&
+       ( as_gmsk( key ).val_type == STORE_MOVE )
+     )
+    { /* Move */
       store_move_t * move = NULL;
       HASH_FIND( hh_move_id,
                  as_gmsa( gm_store )->moves_by_id,
@@ -102,8 +104,10 @@ gm_store_get( store_t * gm_store, store_key_t key, void ** val )
       if ( val != NULL ) *val = (void *) move;
       if ( move != NULL ) return STORE_SUCCESS;
     }
-  else /* Pokemon */
-    {
+  else if ( ( as_gmsk( key ).key_type == STORE_NUM  )    &&
+            ( as_gmsk( key ).val_type == STORE_POKEDEX )
+          )
+    { /* Pokemon */
       pdex_mon_t * mon = NULL;
       HASH_FIND( hh_dex_num,
                  as_gmsa( gm_store )->mons_by_dex,
