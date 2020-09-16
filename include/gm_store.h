@@ -167,9 +167,12 @@ gm_store_get_move( gm_store_t   *  gm_store,
 
 static store_t GM_STORE = def_gm_store();
 #define GM_has( KEY )       gm_store_has( & GM_STORE, ( KEY ) )
-#define GM_get( KEY, VAL )  gm_store_get( & GM_STORE, ( KEY ), (void **) ( VAL ) )
-#define GM_add( KEY, VAL )  gm_store_add( & GM_STORE, ( KEY ), (void *) ( VAL ) )
-#define GM_set( KEY, VAL )  gm_store_set( & GM_STORE, ( KEY ), (void *) ( VAL ) )
+#define GM_get( KEY, VAL )                                                    \
+  gm_store_get( & GM_STORE, ( KEY ), (void **) ( VAL ) )
+#define GM_add( KEY, VAL )                                                    \
+  gm_store_add( & GM_STORE, ( KEY ), (void *) ( VAL ) )
+#define GM_set( KEY, VAL )                                                    \
+  gm_store_set( & GM_STORE, ( KEY ), (void *) ( VAL ) )
 #define GM_init( PARSER )   gm_store_init( & GM_STORE, (void *) ( PARSER ) )
 #define GM_free()           gm_store_free( & GM_STORE )
 
