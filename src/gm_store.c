@@ -277,9 +277,12 @@ gm_store_get_str_t( store_t      *  gm_store,
   int
 gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
 {
-  pdex_mon_t * curr_mon;
-  pdex_mon_t * tmp_mon;
-  fprintf( ostream, "{ \"pokedex\": [" );
+  pdex_mon_t   * curr_mon;
+  pdex_mon_t   * tmp_mon;
+  store_move_t * curr_move;
+  store_move_t * tmp_move;
+
+  fprintf( ostream, "{ \"pokedex\": [ " );
   HASH_ITER( hh_dex_num,
              as_gmsa( gm_store )->mons_by_dex,
              curr_mon,
@@ -289,8 +292,19 @@ gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
       fprint_pdex_mon_json( ostream, curr_mon );
       if ( tmp_mon != NULL ) fprintf( ostream, ", " );
     }
-  fprintf( ostream, "\n],\n  \"moves\": []\n}" );
-  /* FIXME JSON moves */
+
+  fprintf( ostream, "\n],\n  \"moves\": [ " );
+  HASH_ITER( hh_move_id,
+             as_gmsa( gm_store )->moves_by_id,
+             curr_move,
+             tmp_move
+           )
+    {
+      fprint_store_move_json( ostream, curr_move );
+      if ( tmp_move != NULL ) fprintf( ostream, ", " );
+    }
+  fprintf( ostream, " ]\n}" );
+
   return STORE_SUCCESS;
 }
 

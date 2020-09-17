@@ -1129,20 +1129,7 @@ main( int argc, char * argv[], char ** envp )
   GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
-  /* Print Moves */
-  HASH_ITER( hh_move_id,
-             as_gmsa( & GM_STORE )->moves_by_id,
-             curr_move,
-             tmp_move
-             )
-    {
-      //GM_get_move( curr_move->move_id, & curr_move2 );
-      //printf( "Move %u : %s\n", curr_move2->move_id, curr_move2->name );
-      print_store_move( curr_move );
-      if ( tmp_move != NULL ) printf( "\n" );
-    }
-
-  /* Print Pokemon */
+  /* Print Store as JSON */
   GM_export( SS_JSON, stdout );
 
   /* Cleanup */
