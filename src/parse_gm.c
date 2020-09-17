@@ -1107,6 +1107,8 @@ process_pokemon( gm_parser_t * gm_parser )
 
 /* ------------------------------------------------------------------------- */
 
+extern pdex_mon_t bulby;
+
 #ifdef MK_PARSE_GM_BINARY
   int
 main( int argc, char * argv[], char ** envp )
@@ -1129,8 +1131,31 @@ main( int argc, char * argv[], char ** envp )
   GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
+  // printf( "#include \"pokedex.h\"\n" );
+  // printf( "#include \"ptypes.h\"\n" );
+  // printf( "#include \"util/macros.h\"\n" );
+  // printf( "#include  <stdint.h>\n" );
+  // printf( "#include  <stdlib.h>\n\n" );
+  // printf( "pdex_mon_t POKEDEX[][] = {\n" );
+  // for ( int i = 1; i < 6; i++ )
+  //   {
+  //     GM_get_pokemon( i, 0, & curr_mon );
+  //     print_pdex_mon_c( curr_mon );
+  //     if ( i < 5 ) printf( ", " );
+  //   }
+  // printf( "\n};\n\n  pdex_mon_t ***\ninit( void )\n{\n" );
+  // printf( "  for ( int d = 0; d < array_size( POKEDEX ); d++ )\n" );
+  // printf( "    {\n      for ( int f = 1; f < array_size( POKEDEX[d] ); f++ )" );
+  // printf( "\n        {\n          POKEDEX[d][f - 1].next_form = & " );
+  // printf( "POKEDEX[d][f];\n        }\n    }\n" );
+  // printf( "  pdex_mon_t *** store = (pdex_mon_t ***) " );
+  // printf( "malloc( sizeof( POKEDEX ) );\n" );
+  // printf( "  memcpy( store, & POKEDEX, sizeof( POKEDEX ) );\n" );
+  // printf( "  return store;\n" );
+  // printf( "}\n" );
+
   /* Print Store as JSON */
-  GM_export( SS_JSON, stdout );
+  //GM_export( SS_JSON, stdout );
 
   /* Cleanup */
   GM_STORE.free( & GM_STORE );

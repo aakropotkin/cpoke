@@ -88,6 +88,8 @@ pdex_mon_init( pdex_mon_t      * mon,
 }
 
 
+/* ------------------------------------------------------------------------- */
+
   void
 pdex_mon_free( pdex_mon_t * mon )
 {
@@ -124,8 +126,8 @@ pdex_mon_free( pdex_mon_t * mon )
   int
 fprint_pdex_tag_mask( FILE * fd, const char * sep, pdex_tag_mask_t tm )
 {
-  bool fst           = true;
-  int  printed_chars = 0;
+  bool fst = true;
+  int  pc  = 0;
 
   /* Masking aginst 0 will always fail, so `PT_NONE' is a special case. */
   if ( tm == TAG_NONE_M )
@@ -139,12 +141,12 @@ fprint_pdex_tag_mask( FILE * fd, const char * sep, pdex_tag_mask_t tm )
         {
           /* Don't print a seperator for the first match. */
           if ( fst ) fst = false;
-          else       printed_chars += fprintf( fd, "%s", sep );
-          printed_chars += fprintf( fd, "%s", get_pdex_tag_name( i ) );
+          else       pc += fprintf( fd, "%s", sep );
+          pc += fprintf( fd, "%s", get_pdex_tag_name( i ) );
         }
     }
 
-  return printed_chars;
+  return pc;
 }
 
 
@@ -153,75 +155,73 @@ fprint_pdex_tag_mask( FILE * fd, const char * sep, pdex_tag_mask_t tm )
   int
 fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
 {
-  int          printed_chars = 0;
-  pdex_mon_t * form          = NULL;
+  int          pc   = 0;
+  pdex_mon_t * form = NULL;
 
-  printed_chars += fprintf( stream, "(pdex_mon_t) {\n" );
-  printed_chars += fprintf( stream, "  dex_number: %d,\n", mon->dex_number );
-  printed_chars += fprintf( stream, "  name: \"%s\",\n", mon->name );
-  printed_chars += fprintf( stream, "  form_name: \"%s\",\n", mon->form_name );
-  printed_chars += fprintf( stream, "  family: %d,\n", mon->family );
-  printed_chars += fprintf( stream, "  types: [ " );
-  printed_chars += fprint_ptype_mask( stream, ", ", mon->types );
-  printed_chars += fprintf( stream, " ],\n" );
-  printed_chars += fprintf( stream,
-                            "  base_stats: { stamina: %d, attack: %d, "
-                            "defense: %d },\n",
-                            mon->base_stats.stamina,
-                            mon->base_stats.attack,
-                            mon->base_stats.defense
-                          );
+  pc += fprintf( stream, "(pdex_mon_t) {\n" );
+  pc += fprintf( stream, "  dex_number: %d,\n", mon->dex_number );
+  pc += fprintf( stream, "  name: \"%s\",\n", mon->name );
+  pc += fprintf( stream, "  form_name: \"%s\",\n", mon->form_name );
+  pc += fprintf( stream, "  family: %d,\n", mon->family );
+  pc += fprintf( stream, "  types: [ " );
+  pc += fprint_ptype_mask( stream, ", ", mon->types );
+  pc += fprintf( stream, " ],\n" );
+  pc += fprintf( stream,
+                 "  base_stats: { stamina: %d, attack: %d, defense: %d },\n",
+                 mon->base_stats.stamina,
+                 mon->base_stats.attack,
+                 mon->base_stats.defense
+               );
 
-  printed_chars += fprintf( stream, "  tags: [ " );
+  pc += fprintf( stream, "  tags: [ " );
   if ( mon->tags != TAG_NONE_M )
     {
-      printed_chars += fprint_pdex_tag_mask( stream, ", ", mon->tags );
-      printed_chars += fprintf( stream, " " );
+      pc += fprint_pdex_tag_mask( stream, ", ", mon->tags );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "],\n" );
+  pc += fprintf( stream, "],\n" );
 
-  printed_chars += fprintf( stream, "  fast_moves_ids: [ " );
+  pc += fprintf( stream, "  fast_move_ids: [ " );
   if ( 0 < mon->fast_moves_cnt )
     {
-      printed_chars += fprintf( stream, "%d", mon->fast_move_ids[0] );
+      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
       for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
         {
-          printed_chars += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
         }
-      printed_chars += fprintf( stream, " " );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "],\n" );
+  pc += fprintf( stream, "],\n" );
 
-  printed_chars += fprintf( stream, "  charged_moves_ids: [ " );
+  pc += fprintf( stream, "  charged_move_ids: [ " );
   if ( 0 < mon->charged_moves_cnt )
     {
-      printed_chars += fprintf( stream, "%d", mon->charged_move_ids[0] );
+      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
       for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
         {
-          printed_chars += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
         }
-      printed_chars += fprintf( stream, " " );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "],\n" );
+  pc += fprintf( stream, "],\n" );
 
-  printed_chars += fprintf( stream, "  forms: [ " );
+  pc += fprintf( stream, "  forms: [ " );
   if ( mon->next_form != NULL )
     {
-      printed_chars += fprintf( stream, "\"%s\"", mon->next_form->form_name );
+      pc += fprintf( stream, "\"%s\"", mon->next_form->form_name );
       form = mon->next_form;
       while ( form->next_form != NULL )
         {
-          printed_chars +=
-            fprintf( stream, ", \"%s\"", form->next_form->form_name );
+          pc += fprintf( stream, ", \"%s\"", form->next_form->form_name );
           form = form->next_form;
         }
-      printed_chars += fprintf( stream, " " );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "]\n" );
+  pc += fprintf( stream, "]\n" );
 
-  printed_chars += fprintf( stream, "}\n" );
+  pc += fprintf( stream, "}\n" );
 
-  return printed_chars;
+  return pc;
 }
 
 
@@ -230,71 +230,138 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
   int
 fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
 {
-  int          printed_chars = 0;
-  pdex_mon_t * form          = NULL;
+  int          pc   = 0;
+  pdex_mon_t * form = NULL;
 
-  printed_chars += fprintf( stream, "{\n" );
-  printed_chars += fprintf( stream,
-                            "  \"dex_number\": %d,\n",
-                            mon->dex_number
-                          );
-  printed_chars += fprintf( stream, "  \"name\": \"%s\",\n", mon->name );
-  printed_chars += fprintf( stream,
-                            "  \"form_name\": \"%s\",\n",
-                            mon->form_name
-                          );
-  printed_chars += fprintf( stream, "  \"family\": %d,\n", mon->family );
-  printed_chars += fprintf( stream, "  \"types\": [ \"" );
-  printed_chars += fprint_ptype_mask( stream, "\", \"", mon->types );
-  printed_chars += fprintf( stream, "\" ],\n" );
-  printed_chars += fprintf( stream,
-                            "  \"base_stats\": { \"stamina\": %d, \"attack\": "
-                            "%d, \"defense\": %d },\n",
-                            mon->base_stats.stamina,
-                            mon->base_stats.attack,
-                            mon->base_stats.defense
-                          );
+  pc += fprintf( stream, "{\n" );
+  pc += fprintf( stream, "  \"dex_number\": %d,\n", mon->dex_number );
+  pc += fprintf( stream, "  \"name\": \"%s\",\n", mon->name );
+  pc += fprintf( stream, "  \"form_name\": \"%s\",\n", mon->form_name );
+  pc += fprintf( stream, "  \"family\": %d,\n", mon->family );
+  pc += fprintf( stream, "  \"types\": [ \"" );
+  pc += fprint_ptype_mask( stream, "\", \"", mon->types );
+  pc += fprintf( stream, "\" ],\n" );
+  pc += fprintf( stream,
+                 "  \"base_stats\": { \"stamina\": %d, \"attack\": "
+                 "%d, \"defense\": %d },\n",
+                 mon->base_stats.stamina,
+                 mon->base_stats.attack,
+                 mon->base_stats.defense
+               );
 
-  printed_chars += fprintf( stream, "  \"tags\": [ " );
+  pc += fprintf( stream, "  \"tags\": [ " );
   if ( mon->tags != TAG_NONE_M )
     {
-      printed_chars += fprintf( stream, "\"" );
-      printed_chars += fprint_pdex_tag_mask( stream, "\", \"", mon->tags );
-      printed_chars += fprintf( stream, "\" " );
+      pc += fprintf( stream, "\"" );
+      pc += fprint_pdex_tag_mask( stream, "\", \"", mon->tags );
+      pc += fprintf( stream, "\" " );
     }
-  printed_chars += fprintf( stream, "],\n" );
+  pc += fprintf( stream, "],\n" );
 
-  printed_chars += fprintf( stream, "  \"fast_moves_ids\": [ " );
+  pc += fprintf( stream, "  \"fast_move_ids\": [ " );
   if ( 0 < mon->fast_moves_cnt )
     {
-      printed_chars += fprintf( stream, "%d", mon->fast_move_ids[0] );
+      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
       for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
         {
-          printed_chars += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
         }
-      printed_chars += fprintf( stream, " " );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "],\n" );
+  pc += fprintf( stream, "],\n" );
 
-  printed_chars += fprintf( stream, "  \"charged_moves_ids\": [ " );
+  pc += fprintf( stream, "  \"charged_move_ids\": [ " );
   if ( 0 < mon->charged_moves_cnt )
     {
-      printed_chars += fprintf( stream, "%d", mon->charged_move_ids[0] );
+      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
       for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
         {
-          printed_chars += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
         }
-      printed_chars += fprintf( stream, " " );
+      pc += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "]\n}" );
+  pc += fprintf( stream, "]\n}" );
 
   if ( mon->next_form != NULL )
     {
-      printed_chars += fprintf( stream, ", " );
-      printed_chars += fprint_pdex_mon_json( stream, mon->next_form );
+      pc += fprintf( stream, ", " );
+      pc += fprint_pdex_mon_json( stream, mon->next_form );
     }
 
-  return printed_chars;
+  return pc;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  int
+fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
+{
+  int          pc   = 0;
+  pdex_mon_t * form = NULL;
+
+  if ( mon->form_idx == 0 ) pc += fprintf( stream, "{ " );
+  pc += fprintf( stream, "{\n" );
+  pc += fprintf( stream, "  .dex_number = %d,\n", mon->dex_number );
+  pc += fprintf( stream, "  .name = \"%s\",\n", mon->name );
+  pc += fprintf( stream, "  .form_name = \"%s\",\n", mon->form_name );
+  pc += fprintf( stream, "  .family = %d,\n", mon->family );
+  pc += fprintf( stream, "  .types = " );
+  pc += fprint_ptype_mask( stream, "_M | ", mon->types );
+  pc += fprintf( stream, "_M,\n" );
+  pc += fprintf( stream,
+                 "  .base_stats = { .stamina = %d, .attack = %d, "
+                 ".defense = %d },",
+                 mon->base_stats.stamina,
+                 mon->base_stats.attack,
+                 mon->base_stats.defense
+               );
+
+  pc += fprintf( stream, "\n  .tags = TAG_" );
+  pc += fprint_pdex_tag_mask( stream, "_M | TAG_", mon->tags );
+  pc += fprintf( stream, "_M,\n" );
+
+  pc += fprintf( stream, "  .fast_move_ids = { " );
+  if ( 0 < mon->fast_moves_cnt )
+    {
+      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
+      for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
+        {
+          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "},\n" );
+  pc += fprintf( stream, "  .fast_moves_cnt = %u,\n", mon->fast_moves_cnt );
+
+  pc += fprintf( stream, "  .charged_move_ids = { " );
+  if ( 0 < mon->charged_moves_cnt )
+    {
+      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
+      for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
+        {
+          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "},\n" );
+  pc += fprintf( stream,
+                 "  .charged_moves_cnt = %u,\n",
+                 mon->charged_moves_cnt
+               );
+  pc += fprintf( stream, "  .next_form = NULL" );
+
+  pc += fprintf( stream, "\n}" );
+
+  if ( mon->next_form != NULL )
+    {
+      pc += fprintf( stream, ", " );
+      pc += fprint_pdex_mon_c( stream, mon->next_form );
+    }
+
+  if ( mon->form_idx == 0 ) pc += fprintf( stream, " }" );
+
+  return pc;
 }
 
 
