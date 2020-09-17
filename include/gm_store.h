@@ -133,7 +133,7 @@ int gm_store_export_sql( gm_store_t * gm_store, const char * db_name );
   {                                                                           \
     .name      = "Game Master",                                               \
     .flags     = SF_OFFICIAL_DATA | SF_STANDARD_KEY | SF_TYPED |              \
-                 SF_GET_STRING | SF_GET_TYPED_STRING,                         \
+                 SF_GET_STRING | SF_GET_TYPED_STRING | SF_EXPORTABLE,         \
     .has       = gm_store_has,                                                \
     .get       = gm_store_get,                                                \
     .get_str   = gm_store_get_str,                                            \

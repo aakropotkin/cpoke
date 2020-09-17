@@ -103,7 +103,7 @@ gm_store_get_pokemon( gm_store_t *  gm_store,
              & dex_num,
              sizeof( uint16_t ),
              mon
-             );
+           );
 
   if ( mon == NULL )
     {
