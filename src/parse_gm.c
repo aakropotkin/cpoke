@@ -1123,7 +1123,7 @@ main( int argc, char * argv[], char ** envp )
   /* Parse file */
   tokens_cnt = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
   assert( tokens_cnt != 0 );
-  printf( "\nGM Parsed Successfully!\n" );
+  //printf( "\nGM Parsed Successfully!\n" );
 
   /* Cleanup */
   GM_init( & gm_parser );

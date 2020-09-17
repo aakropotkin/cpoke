@@ -255,9 +255,10 @@ fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
                             mon->base_stats.defense
                           );
 
-  printed_chars += fprintf( stream, "  \"tags\": [ \"" );
+  printed_chars += fprintf( stream, "  \"tags\": [ " );
   if ( mon->tags != TAG_NONE_M )
     {
+      printed_chars += fprintf( stream, "\"" );
       printed_chars += fprint_pdex_tag_mask( stream, "\", \"", mon->tags );
       printed_chars += fprintf( stream, "\" " );
     }
@@ -285,7 +286,7 @@ fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
         }
       printed_chars += fprintf( stream, " " );
     }
-  printed_chars += fprintf( stream, "],\n}" );
+  printed_chars += fprintf( stream, "]\n}" );
 
   if ( mon->next_form != NULL )
     {
