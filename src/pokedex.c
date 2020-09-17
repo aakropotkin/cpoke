@@ -3,6 +3,7 @@
 /* ========================================================================= */
 
 #include "pokedex.h"
+#include "defs/cstore_template.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,8 +56,7 @@ pdex_mon_init( pdex_mon_t      * mon,
   if ( ( !( mon->tags & TAG_STARTER_M ) ) && is_starter( mon->dex_number ) )
     {
       mon->tags |= TAG_STARTER_M;
-    }
-  /* Add missing `regional' tag */
+    } /* Add missing `regional' tag */
   if ( ( !( mon->tags & TAG_REGIONAL_M ) ) && is_regional( mon->dex_number ) )
     {
       mon->tags |= TAG_REGIONAL_M;
@@ -300,7 +300,57 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
   int          pc   = 0;
   pdex_mon_t * form = NULL;
 
-  if ( mon->form_idx == 0 ) pc += fprintf( stream, "{ " );
+    pc += fprintf( stream,
+                    MOVELIST_FMT,
+                    "FAST",
+                    mon->dex_number,
+                    mon->form_idx
+                  );
+    if ( 0 < mon->fast_moves_cnt )
+      {
+        pc += fprintf( stream, "{ %d", mon->fast_move_ids[0] );
+        for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
+          {
+            pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+          }
+        pc += fprintf( stream, " " );
+      }
+    else
+      {
+        pc += fprintf( stream, "{" );
+      }
+    pc += fprintf( stream, "};\n" );
+
+
+    pc += fprintf( stream,
+                   MOVELIST_FMT,
+                   "CHARGED",
+                   mon->dex_number,
+                   mon->form_idx
+                 );
+    if ( 0 < mon->charged_moves_cnt )
+      {
+        pc += fprintf( stream, "{ %d", mon->charged_move_ids[0] );
+        for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
+          {
+            pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+          }
+        pc += fprintf( stream, " " );
+      }
+    else
+      {
+        pc += fprintf( stream, "{" );
+      }
+    pc += fprintf( stream, "};\n" );
+
+
+  if ( mon->next_form != NULL )
+    {
+      pc += fprint_pdex_mon_c( stream, mon->next_form );
+      pc += fprintf( stream, "\n" );
+    }
+
+  pc += fprintf( stream, POKEMON_FMT, mon->dex_number, mon->form_idx );
   pc += fprintf( stream, "{\n" );
   pc += fprintf( stream, "  .dex_number = %d,\n", mon->dex_number );
   pc += fprintf( stream, "  .name = \"%s\",\n", mon->name );
@@ -321,45 +371,38 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
   pc += fprint_pdex_tag_mask( stream, "_M | TAG_", mon->tags );
   pc += fprintf( stream, "_M,\n" );
 
-  pc += fprintf( stream, "  .fast_move_ids = { " );
-  if ( 0 < mon->fast_moves_cnt )
-    {
-      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
-        {
-          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
-        }
-      pc += fprintf( stream, " " );
-    }
-  pc += fprintf( stream, "},\n" );
+  pc += fprintf( stream,
+                 "  .fast_move_ids = & FAST_MOVELIST_%u_%u,\n",
+                 mon->dex_number,
+                 mon->form_idx
+               );
+
   pc += fprintf( stream, "  .fast_moves_cnt = %u,\n", mon->fast_moves_cnt );
 
-  pc += fprintf( stream, "  .charged_move_ids = { " );
-  if ( 0 < mon->charged_moves_cnt )
-    {
-      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
-        {
-          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
-        }
-      pc += fprintf( stream, " " );
-    }
-  pc += fprintf( stream, "},\n" );
+  pc += fprintf( stream,
+                 "  .charged_move_ids = & CHARGED_MOVELIST_%u_%u,\n",
+                 mon->dex_number,
+                 mon->form_idx
+               );
   pc += fprintf( stream,
                  "  .charged_moves_cnt = %u,\n",
                  mon->charged_moves_cnt
                );
-  pc += fprintf( stream, "  .next_form = NULL" );
 
-  pc += fprintf( stream, "\n}" );
-
-  if ( mon->next_form != NULL )
+  if ( mon->next_form == NULL )
     {
-      pc += fprintf( stream, ", " );
-      pc += fprint_pdex_mon_c( stream, mon->next_form );
+      pc += fprintf( stream, "  .next_form = NULL" );
+    }
+  else
+    {
+      pc += fprintf( stream,
+                     "  .next_form = & DEXMON_%u_%u",
+                     mon->dex_number,
+                     mon->next_form->form_idx
+                   );
     }
 
-  if ( mon->form_idx == 0 ) pc += fprintf( stream, " }" );
+  pc += fprintf( stream, "\n}" );
 
   return pc;
 }

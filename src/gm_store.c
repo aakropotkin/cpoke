@@ -3,6 +3,7 @@
 /* ========================================================================= */
 
 #include "ext/uthash.h"
+#include "defs/cstore_template.h"
 #include "gm_store.h"
 #include "moves.h"
 #include "parse_gm.h"
@@ -314,6 +315,40 @@ gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
   int
 gm_store_export_c( gm_store_t * gm_store, FILE * ostream )
 {
+  pdex_mon_t * curr_mon = NULL;
+
+  fprintf( ostream, "/* -*- mode: c; -*- */\n\n%s\n", EQSEP );
+  fprintf( ostream, "%s\n\n%s\n\n", INCLUDES, DASHSEP );
+
+  /* Define Pokemon */
+  for ( uint8_t r = 0; r < NUM_REGIONS; r++ )
+    {
+      for ( int i = REGIONS[r].dex_start; i <= REGIONS[r].dex_end; i++ )
+        {
+          gm_store_get_pokemon( gm_store, i, 0, & curr_mon );
+          fprint_pdex_mon_c( ostream, curr_mon );
+          fprintf( ostream, ";\n" );
+        }
+    }
+
+  fprintf( ostream, "\n%s\n\n", DASHSEP );
+
+  /* Create Pokedex from Pokemon */
+  fprintf( ostream, "\npdex_mon_t * POKEDEX[] = {\n" );
+  for ( uint8_t r = 0; r < NUM_REGIONS; r++ )
+    {
+      for ( int i = REGIONS[r].dex_start; i <= REGIONS[r].dex_end; i++ )
+        {
+          gm_store_get_pokemon( gm_store, i, 0, & curr_mon );
+          fprintf( ostream, "  & DEXMON_%u_0", curr_mon->dex_number );
+          if ( ( i < REGIONS[r].dex_end ) || ( r < ( NUM_REGIONS - 1) ) )
+            {
+              fprintf( ostream, ",\n" );
+            }
+        }
+    }
+  fprintf( ostream, "\n};\n\n\n%s\n\n/* vim: set filetype=c : */\n", EQSEP );
+
   return STORE_SUCCESS;
 }
 
