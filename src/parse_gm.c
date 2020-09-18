@@ -1131,7 +1131,9 @@ main( int argc, char * argv[], char ** envp )
   GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
+  /* Prints store as a Static C Store */
   GM_export( SS_C, stdout );
+
   /* Print Store as JSON */
   //GM_export( SS_JSON, stdout );
 

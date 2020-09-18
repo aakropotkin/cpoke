@@ -24,6 +24,8 @@ UTIL_OBJECTS := files.o json_util.o
 CORE_OBJECTS := pokemon.o player.o ptypes.o pokedex.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
+CSTORE_OBJECTS := cstore.o cstore_data.o
+
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o test_parse_gm.o
 
 
@@ -39,6 +41,12 @@ cpoke: main.o ${CORE_OBJECTS}
 # -------------------------------------------------------------------------- #
 
 cstore.o: ${SRCPATH}/cstore.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+data/cstore_data.c: parse_gm
+	./parse_gm > $@
+
+cstore_data.o: data/cstore_data.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 gm_store.o: ${SRCPATH}/gm_store.c ${HEADERS}

@@ -57,3 +57,4 @@ dkms.conf
 /test_utils
 /fetch_gm
 /test
+/data/cstore_data.c

@@ -334,15 +334,15 @@ fprint_buff_c( FILE * stream, const buff_t * buff )
 {
   int pc = 0;
   pc += fprintf( stream,
-                 "{ .attack =  { .target = %d, .amount = %d, .debuffp = %d }"
-                 ",\n            .defense = { .target = %d, .amount = %d, "
-                 ".debuffp = %d },\n            .chance = ",
+                 "{ .atk_buff =  { .target = %d, .debuffp = %d, .amount = %d }"
+                 ",\n              .atk_buff = { .target = %d, .debuffp = %d, "
+                 ".amount = %d },\n              .chance = ",
                  buff->atk_buff.target,
-                 buff->atk_buff.amount,
                  buff->atk_buff.debuffp,
+                 buff->atk_buff.amount,
                  buff->def_buff.target,
-                 buff->def_buff.amount,
-                 buff->def_buff.debuffp
+                 buff->def_buff.debuffp,
+                 buff->def_buff.amount
                );
   switch ( buff->chance )
     {
@@ -353,7 +353,7 @@ fprint_buff_c( FILE * stream, const buff_t * buff )
     case bc_0100: pc += fprintf( stream, "bc_0100" ); break;
     case bc_0000: pc += fprintf( stream, "bc_0000" ); break;
     }
-  pc += fprintf( stream, "\n          }" );
+  pc += fprintf( stream, "\n            }" );
   return pc;
 }
 #define print_buff_c( BUFF )  fprint_buff_c( stdout, ( BUFF ) )

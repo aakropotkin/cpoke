@@ -347,7 +347,7 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
   if ( mon->next_form != NULL )
     {
       pc += fprint_pdex_mon_c( stream, mon->next_form );
-      pc += fprintf( stream, "\n" );
+      pc += fprintf( stream, ";\n" );
     }
 
   pc += fprintf( stream, POKEMON_FMT, mon->dex_number, mon->form_idx );
@@ -372,7 +372,7 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "_M,\n" );
 
   pc += fprintf( stream,
-                 "  .fast_move_ids = & FAST_MOVELIST_%u_%u,\n",
+                 "  .fast_move_ids = FAST_MOVELIST_%u_%u,\n",
                  mon->dex_number,
                  mon->form_idx
                );
@@ -380,7 +380,7 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "  .fast_moves_cnt = %u,\n", mon->fast_moves_cnt );
 
   pc += fprintf( stream,
-                 "  .charged_move_ids = & CHARGED_MOVELIST_%u_%u,\n",
+                 "  .charged_move_ids = CHARGED_MOVELIST_%u_%u,\n",
                  mon->dex_number,
                  mon->form_idx
                );
