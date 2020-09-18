@@ -24,9 +24,9 @@ pdex_mon_init( pdex_mon_t      * mon,
                uint16_t          attack,
                uint16_t          defense,
                pdex_tag_mask_t   tags,
-               uint16_t        * fast_move_ids,
+               int16_t         * fast_move_ids,
                uint8_t           fast_moves_cnt,
-               uint16_t        * charged_move_ids,
+               int16_t         * charged_move_ids,
                uint8_t           charged_moves_cnt
              )
 {
@@ -66,11 +66,11 @@ pdex_mon_init( pdex_mon_t      * mon,
   if ( 0 < fast_moves_cnt )
     {
       mon->fast_move_ids =
-        (uint16_t *) malloc( sizeof( uint16_t ) * fast_moves_cnt );
+        (int16_t *) malloc( sizeof( int16_t ) * fast_moves_cnt );
       assert( mon->fast_move_ids );
       memcpy( mon->fast_move_ids,
               fast_move_ids,
-              sizeof( uint16_t ) * fast_moves_cnt
+              sizeof( int16_t ) * fast_moves_cnt
             );
     }
 
@@ -78,11 +78,11 @@ pdex_mon_init( pdex_mon_t      * mon,
   if ( 0 < charged_moves_cnt )
     {
       mon->charged_move_ids =
-        (uint16_t *) malloc( sizeof( uint16_t ) * charged_moves_cnt );
+        (int16_t *) malloc( sizeof( int16_t ) * charged_moves_cnt );
       assert( mon->charged_move_ids );
       memcpy( mon->charged_move_ids,
               charged_move_ids,
-              sizeof( uint16_t ) * charged_moves_cnt
+              sizeof( int16_t ) * charged_moves_cnt
             );
     }
 }
@@ -410,6 +410,91 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Ignore names, tags, and family.
+ * This implementation isn't trying to sort. Feel free to change it.
+ */
+  int
+cmp_pdex_mon_practical( pdex_mon_t * a, pdex_mon_t * b )
+{
+  int cmp = 0;
+  if ( a == b )                         return 0;  /* Equal */
+  if ( ( a == NULL ) || ( b == NULL ) ) return 1;  /* Not Equal */
+
+  /* Compare strings last */
+  cmp = a->dex_number - b->dex_number;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->types - b->types;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->fast_moves_cnt - b->fast_moves_cnt;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->charged_moves_cnt - b->charged_moves_cnt;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->base_stats.attack - b->base_stats.attack;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->base_stats.defense - b->base_stats.defense;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->base_stats.stamina - b->base_stats.stamina;
+  if ( cmp != 0 ) return cmp;
+  /* Match fast moves, ignoring order */
+  for ( uint8_t ma = 0; ma < a->fast_moves_cnt; ma++ )
+    {
+      cmp = 1;
+      for ( uint8_t mb = 0; mb < b->fast_moves_cnt; mb++ )
+        {
+          if ( a->fast_move_ids[ma] == b->fast_move_ids[mb] )
+            {
+              cmp = 0;
+              break;
+            }
+        }
+      if ( cmp != 0 ) return cmp;
+    }
+  /* Match charged moves, ignoring order */
+  for ( uint8_t ma = 0; ma < a->charged_moves_cnt; ma++ )
+    {
+      cmp = 1;
+      for ( uint8_t mb = 0; mb < b->charged_moves_cnt; mb++ )
+        {
+          if ( a->charged_move_ids[ma] == b->charged_move_ids[mb] )
+            {
+              cmp = 0;
+              break;
+            }
+        }
+      if ( cmp != 0 ) return cmp;
+    }
+
+  return 0;  /* Equal */
+}
+
+
+/**
+ * Does not compare `form_idx' because different data sources might lead to
+ * different orderings.
+ * This implementation isn't trying to sort. Feel free to change it.
+ */
+  int
+cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b )
+{
+  int cmp = cmp_pdex_mon_practical( a, b );
+  if ( cmp != 0 ) return cmp;
+
+  cmp = a->family - b->family;
+  if ( cmp != 0 ) return cmp;
+  cmp = a->tags - b->tags;
+  if ( cmp != 0 ) return cmp;
+  /* Okay, finally do the strings */
+  cmp = strcmp( a->name, b->name );
+  if ( cmp != 0 ) return cmp;
+  cmp = strcmp( a->form_name, b->form_name );
+  if ( cmp != 0 ) return cmp;
+
+  return 0;  /* Equal */
+}
+
+
+/* ------------------------------------------------------------------------- */
 
 
 /* ========================================================================= */

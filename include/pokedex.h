@@ -85,9 +85,9 @@ struct pdex_mon_s {
   ptype_mask_t        types;
   stats_t             base_stats;
   pdex_tag_mask_t     tags;
-  uint16_t          * fast_move_ids;
+  int16_t           * fast_move_ids;     /* Negative values are legacy */
   uint8_t             fast_moves_cnt;
-  uint16_t          * charged_move_ids;
+  int16_t           * charged_move_ids;  /* Negative values are legacy */
   uint8_t             charged_moves_cnt;
   uint8_t             form_idx;
   struct pdex_mon_s * next_form;
@@ -112,9 +112,9 @@ void pdex_mon_init( pdex_mon_t      * mon,
                     uint16_t          attack,
                     uint16_t          defense,
                     pdex_tag_mask_t   tags,
-                    uint16_t        * fast_move_ids,
+                    int16_t         * fast_move_ids,
                     uint8_t           fast_moves_cnt,
-                    uint16_t        * charged_move_ids,
+                    int16_t         * charged_move_ids,
                     uint8_t           charged_moves_cnt
                   );
 void pdex_mon_free( pdex_mon_t * mon );
@@ -161,7 +161,8 @@ int fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon );
 
 /* ------------------------------------------------------------------------- */
 
-int  cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
+int cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
+int cmp_pdex_mon_practical( pdex_mon_t * a, pdex_mon_t * b );
 
 
 /* ------------------------------------------------------------------------- */

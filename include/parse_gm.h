@@ -111,7 +111,7 @@ void add_pvp_fast_move_data( gm_parser_t     * gm_parser,
 uint16_t lookup_move_id( store_move_t * moves, const char * name );
 uint16_t lookup_move_idn( store_move_t * moves,
                           const char   * name,
-                          size_t         n
+                          int16_t        n
                         );
 
 

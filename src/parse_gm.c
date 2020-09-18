@@ -397,38 +397,44 @@ parse_pdex_mon( const char   *  json,
           mon->base_stats = parse_gm_stats( json, iter_stack );
           jsmnis_pop( iter_stack );
         }
-      else if ( jsoneq_str( json, key, "quickMoves" ) )
+      else if ( jsoneq_str( json, key, "quickMoves" ) ||
+                jsoneq_str( json, key, "eliteQuickMoves" )
+              )
         {
           mon->fast_move_ids  = malloc( sizeof( uint16_t ) * val->size );
           mon->fast_moves_cnt = val->size;
           assert( mon->fast_move_ids != NULL );
           jsmnis_push_curr( iter_stack );
+          rsl = json[key->start] == 'e' ? -1 : 1;
           idx = 0;
           while ( jsmni_next( jsmnis_curr( iter_stack ), NULL, &val, 0 ) > 0 )
             {
               mon->fast_move_ids[idx++] = lookup_move_idn( moves_by_name,
                                                            json + val->start,
                                                            toklen( val ) - 5
-                                                         );
-              assert( 0 < mon->fast_move_ids[idx - 1] );
+                                                         ) * rsl;
+              assert( 0 != mon->fast_move_ids[idx - 1] );
             }
           jsmnis_pop( iter_stack );
           assert( idx == mon->fast_moves_cnt );
         }
-      else if ( jsoneq_str( json, key, "cinematicMoves" ) )
+      else if ( jsoneq_str( json, key, "cinematicMoves" ) ||
+                jsoneq_str( json, key, "eliteCinematicMoves" )
+              )
         {
           mon->charged_move_ids  = malloc( sizeof( uint16_t ) * val->size );
           mon->charged_moves_cnt = val->size;
           assert( mon->charged_move_ids != NULL );
           jsmnis_push_curr( iter_stack );
+          rsl = json[key->start] == 'e' ? -1 : 1;
           idx = 0;
           while ( jsmni_next( jsmnis_curr( iter_stack ), NULL, &val, 0 ) > 0 )
             {
               mon->charged_move_ids[idx++] = lookup_move_idn( moves_by_name,
                                                               json + val->start,
                                                               toklen( val )
-                                                            );
-              assert( 0 < mon->charged_move_ids[idx - 1] );
+                                                            ) * rsl;
+              assert( 0 != mon->charged_move_ids[idx - 1] );
             }
           jsmnis_pop( iter_stack );
           assert( idx == mon->charged_moves_cnt );
@@ -874,13 +880,17 @@ lookup_move_id( store_move_t * moves, const char * name )
 }
 
   uint16_t
-lookup_move_idn( store_move_t * moves, const char * name, size_t n )
+lookup_move_idn( store_move_t * moves, const char * name, int16_t n )
 {
   assert( moves != NULL );
   assert( name != NULL );
-  assert( 0 < n );
+  assert( 0 != n );
   store_move_t * move = NULL;
-  HASH_FIND( hh_name, moves, name, n, move );
+  /**
+   * Take absolute value of move index incase the caller forgot to clear the
+   * highest bit ( indicating legacy moves in a `pdex_mon_t' `move_id' list )
+   */
+  HASH_FIND( hh_name, moves, name, max( n, -n ), move );
   return ( move == NULL ) ? 0 : move->move_id;
 }
 
@@ -1008,7 +1018,8 @@ should_parse_mon( const char      * json,
   if ( ! jsonmatch_str( json, token, &( regs->tmpl_mon ) ) )  return false;
   if ( jsonmatch_str( json, token, &( regs->tmpl_shadow ) ) ) return false;
   if ( jsonmatch_str( json, token, &( regs->tmpl_pure ) ) )   return false;
-  if ( jsonmatch_str( json, token, &( regs->tmpl_norm ) ) )   return false;
+  /* We still have to parse "NORMAL" forms because of Genesect */
+  //if ( jsonmatch_str( json, token, &( regs->tmpl_norm ) ) )   return false;
   return true;
 }
 
@@ -1076,14 +1087,14 @@ process_pokemon( gm_parser_t * gm_parser )
               gm_parser->incomplete_size <<= 1;
               gm_parser->incomplete_mon =
                 (pdex_mon_t **) realloc( gm_parser->incomplete_mon,
-                                          gm_parser->incomplete_size *
-                                          sizeof( pdex_mon_t * )
-                                          );
+                                         gm_parser->incomplete_size *
+                                           sizeof( pdex_mon_t * )
+                                       );
               gm_parser->incomplete_fam =
                 (jsmntok_t **) realloc( gm_parser->incomplete_mon,
                                         gm_parser->incomplete_size *
-                                        sizeof( jsmntok_t * )
-                                        );
+                                          sizeof( jsmntok_t * )
+                                      );
             }
           gm_parser->incomplete_mon[gm_parser->incomplete_idx]   = mon;
           gm_parser->incomplete_fam[gm_parser->incomplete_idx++] = item;
