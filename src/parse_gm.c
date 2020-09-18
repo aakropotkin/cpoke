@@ -1124,6 +1124,18 @@ process_pokemon( gm_parser_t * gm_parser )
 #include <ctype.h>
 #include <string.h>
 
+static const char USAGE_STR[] = R"RAW(
+Usage: parse_gm [OPTION]... [FILE]
+Parse a GAME_MASTER.json file and convert it to another format.
+Example: parse_gm -e c -f ./my_gm.json
+
+Options:
+  -e FORMAT    Encode to FORMAT. One of: C, JSON, SQL.  ( Case Insensitive )
+  -f FILE      Use FILE as GAME_MASTER.json file.
+
+Default export format is C, default FILE is ./data/GAME_MASTER.json
+)RAW";
+
   int
 main( int argc, char * argv[], char ** envp )
 {
@@ -1135,7 +1147,7 @@ main( int argc, char * argv[], char ** envp )
 
   while ( optind < argc )
     {
-      opt = getopt( argc, argv, "e:f:" );
+      opt = getopt( argc, argv, "he:f:" );
       switch( opt )
         {
         case 'e':
@@ -1146,6 +1158,11 @@ main( int argc, char * argv[], char ** envp )
 
         case 'f':
           gm_path = optarg;
+          break;
+
+        case 'h':
+          fprintf( stdout, USAGE_STR );
+          return EXIT_SUCCESS;
           break;
 
         case '?':
@@ -1161,6 +1178,7 @@ main( int argc, char * argv[], char ** envp )
             {
               fprintf( stderr, "Unknown option character `\\x%x'.\n" );
             }
+          fprintf( stderr, USAGE_STR );
           return EXIT_FAILURE;
           break;
 
@@ -1175,7 +1193,7 @@ main( int argc, char * argv[], char ** envp )
                        "Only one unflagged argument is permitted to be used"
                        "as the file path to `GAME_MASTER.json'.\n"
                        "However multiple unflagged arguments were encountered:"
-                       " `%s' and `%s'",
+                       " `%s' and `%s'.\nUse `-h' for Usage/Help info.\n",
                        gm_path,
                        argv[optind]
                      );
