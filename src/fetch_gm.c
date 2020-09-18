@@ -7,7 +7,7 @@
 
 const char GM_URL[] =
   "https://raw.githubusercontent.com/pokemongo-dev-contrib/"
-  "pokemongo-game-master/master/versions/latest/GAME_MASTER.json";
+  "pokemongo-game-master/master/versions/latest/V2_GAME_MASTER.json";
 
 int
 fetch_gm( const char * out_path ) {

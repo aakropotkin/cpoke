@@ -1130,7 +1130,7 @@ main( int argc, char * argv[], char ** envp )
   gm_parser_t    gm_parser;
   size_t         tokens_cnt = 0;
   char         * gm_path    = NULL;
-  store_sink_t   export_fmt = SS_JSON;
+  store_sink_t   export_fmt = SS_C;
   char           opt        = '\0';
 
   while ( optind < argc )
