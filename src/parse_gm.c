@@ -1118,35 +1118,86 @@ process_pokemon( gm_parser_t * gm_parser )
 
 /* ------------------------------------------------------------------------- */
 
-extern pdex_mon_t bulby;
-
 #ifdef MK_PARSE_GM_BINARY
+
+#include <unistd.h>
+#include <ctype.h>
+#include <string.h>
+
   int
 main( int argc, char * argv[], char ** envp )
 {
-  gm_parser_t gm_parser;
-  store_move_t * curr_move  = NULL;
-  store_move_t * curr_move2 = NULL;
-  store_move_t * tmp_move   = NULL;
-  pdex_mon_t   * curr_mon   = NULL;
-  pdex_mon_t   * curr_mon2  = NULL;
-  pdex_mon_t   * tmp_mon    = NULL;
+  gm_parser_t    gm_parser;
   size_t         tokens_cnt = 0;
+  char         * gm_path    = NULL;
+  store_sink_t   export_fmt = SS_JSON;
+  char           opt        = '\0';
+
+  while ( optind < argc )
+    {
+      opt = getopt( argc, argv, "e:f:" );
+      switch( opt )
+        {
+        case 'e':
+          if ( strcasecmp( optarg, "json" ) == 0 )     export_fmt = SS_JSON;
+          else if ( strcasecmp( optarg, "c" ) == 0 )   export_fmt = SS_C;
+          else if ( strcasecmp( optarg, "sql" ) == 0 ) export_fmt = SS_SQL;
+          break;
+
+        case 'f':
+          gm_path = optarg;
+          break;
+
+        case '?':
+          if ( ( optopt == 'e' ) || ( optopt == 'f' ) )
+            {
+              fprintf( stderr, "Option `-%c' requires an argument.\n", optopt );
+            }
+          else if ( isprint( optopt ) )
+            {
+              fprintf( stderr, "Unknown option `-%c'.\n", optopt );
+            }
+          else
+            {
+              fprintf( stderr, "Unknown option character `\\x%x'.\n" );
+            }
+          return EXIT_FAILURE;
+          break;
+
+        default:
+          if ( gm_path == NULL )
+            {
+              gm_path = argv[optind++];
+            }
+          else
+            {
+              fprintf( stderr,
+                       "Only one unflagged argument is permitted to be used"
+                       "as the file path to `GAME_MASTER.json'.\n"
+                       "However multiple unflagged arguments were encountered:"
+                       " `%s' and `%s'",
+                       gm_path,
+                       argv[optind]
+                     );
+              return EXIT_FAILURE;
+            }
+          break;
+        }
+
+    }
+
+  if ( gm_path == NULL ) gm_path = "./data/GAME_MASTER.json";
 
   /* Parse file */
-  tokens_cnt = gm_parser_init( & gm_parser, "./data/GAME_MASTER.json" );
+  tokens_cnt = gm_parser_init( & gm_parser, gm_path );
   assert( tokens_cnt != 0 );
-  //printf( "\nGM Parsed Successfully!\n" );
 
   /* Cleanup */
   GM_init( & gm_parser );
   gm_parser_release( & gm_parser );
 
   /* Prints store as a Static C Store */
-  GM_export( SS_C, stdout );
-
-  /* Print Store as JSON */
-  //GM_export( SS_JSON, stdout );
+  GM_export( export_fmt, stdout );
 
   /* Cleanup */
   GM_STORE.free( & GM_STORE );

@@ -89,6 +89,10 @@ typedef enum {
   SS_UNKNOWN, SS_C, SS_JSON, SS_SQL
 } store_sink_t;
 
+static const char * STORE_SINK_NAMES[] = {
+  "SS_UNKNOWN", "SS_C", "SS_JSON", "SS_SQL"
+};
+
 
 /* ------------------------------------------------------------------------- */
 
