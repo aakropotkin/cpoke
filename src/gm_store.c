@@ -315,37 +315,50 @@ gm_store_export_json( gm_store_t * gm_store, FILE * ostream )
   int
 gm_store_export_c( gm_store_t * gm_store, FILE * ostream )
 {
-  pdex_mon_t * curr_mon = NULL;
+  pdex_mon_t   * curr_mon  = NULL;
+  pdex_mon_t   * tmp_mon   = NULL;
+  store_move_t * curr_move = NULL;
+  store_move_t * tmp_move  = NULL;
 
   fprintf( ostream, "/* -*- mode: c; -*- */\n\n%s\n", EQSEP );
   fprintf( ostream, "%s\n\n%s\n\n", INCLUDES, DASHSEP );
+  fprintf( ostream,
+           "const uint16_t NUM_POKEMON = %u;\n\n",
+           as_gmsa( gm_store )->mons_cnt
+         );
+  fprintf( ostream,
+           "const uint16_t NUM_MOVES = %u;\n\n",
+           as_gmsa( gm_store )->moves_cnt
+         );
+
+  fprintf( ostream, "\n%s\n\n", DASHSEP );
+
+  fprintf( ostream, "store_move_t MOVES[] = {\n" );
+  /* Define Moves */
+  HASH_ITER( hh_move_id, as_gmsa( gm_store )->moves_by_id, curr_move, tmp_move )
+    {
+      fprint_store_move_c( ostream, curr_move );
+      if ( tmp_move != NULL ) fprintf( ostream, ", " );
+    }
+  fprintf( ostream, "};\n" );
+
+  fprintf( ostream, "\n%s\n\n", DASHSEP );
 
   /* Define Pokemon */
-  for ( uint8_t r = 0; r < NUM_REGIONS; r++ )
+  HASH_ITER( hh_dex_num, as_gmsa( gm_store )->mons_by_dex, curr_mon, tmp_mon )
     {
-      for ( int i = REGIONS[r].dex_start; i <= REGIONS[r].dex_end; i++ )
-        {
-          gm_store_get_pokemon( gm_store, i, 0, & curr_mon );
-          fprint_pdex_mon_c( ostream, curr_mon );
-          fprintf( ostream, ";\n" );
-        }
+      fprint_pdex_mon_c( ostream, curr_mon );
+      fprintf( ostream, ";\n" );
     }
 
   fprintf( ostream, "\n%s\n\n", DASHSEP );
 
   /* Create Pokedex from Pokemon */
   fprintf( ostream, "\npdex_mon_t * POKEDEX[] = {\n" );
-  for ( uint8_t r = 0; r < NUM_REGIONS; r++ )
+  HASH_ITER( hh_dex_num, as_gmsa( gm_store )->mons_by_dex, curr_mon, tmp_mon )
     {
-      for ( int i = REGIONS[r].dex_start; i <= REGIONS[r].dex_end; i++ )
-        {
-          gm_store_get_pokemon( gm_store, i, 0, & curr_mon );
-          fprintf( ostream, "  & DEXMON_%u_0", curr_mon->dex_number );
-          if ( ( i < REGIONS[r].dex_end ) || ( r < ( NUM_REGIONS - 1) ) )
-            {
-              fprintf( ostream, ",\n" );
-            }
-        }
+      fprintf( ostream, "  & DEXMON_%u_0", curr_mon->dex_number );
+      if ( tmp_mon != NULL ) fprintf( ostream, ",\n" );
     }
   fprintf( ostream, "\n};\n\n\n%s\n\n/* vim: set filetype=c : */\n", EQSEP );
 
