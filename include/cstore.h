@@ -16,7 +16,8 @@
 /* ------------------------------------------------------------------------- */
 
 struct cstore_aux_s {
-  pdex_mon_t   ** pokedex;
+  uint16_t        mons_cnt;
+  uint16_t        moves_cnt;
   pdex_mon_t   *  mons_by_name;
   store_move_t *  moves_by_id;
   store_move_t *  moves_by_name;
@@ -114,10 +115,10 @@ int cstore_get_move_by_name( cstore_t     *  cstore,
 /* ------------------------------------------------------------------------- */
 
   static inline int
-gm_store_export( gm_store_t   * gm_store,
-                 store_sink_t   sink_type,
-                 void         * target
-               )
+cstore_export( store_t      * cstore,
+               store_sink_t   sink_type,
+               void         * target
+             )
 {
   return STORE_ERROR_NOT_DEFINED;
 }

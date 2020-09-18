@@ -38,6 +38,9 @@ cpoke: main.o ${CORE_OBJECTS}
 
 # -------------------------------------------------------------------------- #
 
+cstore.o: ${SRCPATH}/cstore.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
 gm_store.o: ${SRCPATH}/gm_store.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
