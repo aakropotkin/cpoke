@@ -157,6 +157,7 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
 {
   int          pc   = 0;
   pdex_mon_t * form = NULL;
+  bool         fst  = false;
 
   pc += fprintf( stream, "(pdex_mon_t) {\n" );
   pc += fprintf( stream, "  dex_number: %d,\n", mon->dex_number );
@@ -184,10 +185,32 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "  fast_move_ids: [ " );
   if ( 0 < mon->fast_moves_cnt )
     {
-      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
+      fst = false;
+      for ( uint16_t i = 0; i < mon->fast_moves_cnt; i++ )
         {
-          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+          if ( 0 < mon->fast_move_ids[i] )
+            {
+              if ( fst ) pc += fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", mon->fast_move_ids[i] );
+              fst = true;
+            }
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "],\n" );
+
+  pc += fprintf( stream, "  legacy_fast_move_ids: [ " );
+  if ( 0 < mon->fast_moves_cnt )
+    {
+      fst = false;
+      for ( uint16_t i = 0; i < mon->fast_moves_cnt; i++ )
+        {
+          if ( mon->fast_move_ids[i] < 0 )
+            {
+              if ( fst ) pc += fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", - mon->fast_move_ids[i] );
+              fst = true;
+            }
         }
       pc += fprintf( stream, " " );
     }
@@ -196,10 +219,32 @@ fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "  charged_move_ids: [ " );
   if ( 0 < mon->charged_moves_cnt )
     {
-      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
+      fst = false;
+      for ( uint16_t i = 0; i < mon->charged_moves_cnt; i++ )
         {
-          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+          if ( 0 < mon->charged_move_ids[i] )
+            {
+              if ( fst ) pc += fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", mon->charged_move_ids[i] );
+              fst = true;
+            }
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "],\n" );
+
+  pc += fprintf( stream, "  legacy_charged_move_ids: [ " );
+  if ( 0 < mon->charged_moves_cnt )
+    {
+      fst = false;
+      for ( uint16_t i = 0; i < mon->charged_moves_cnt; i++ )
+        {
+          if ( mon->charged_move_ids[i] < 0 )
+            {
+              if ( fst ) pc += fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", - mon->charged_move_ids[i] );
+              fst = true;
+            }
         }
       pc += fprintf( stream, " " );
     }
@@ -232,6 +277,7 @@ fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
 {
   int          pc   = 0;
   pdex_mon_t * form = NULL;
+  bool         fst  = false;
 
   pc += fprintf( stream, "{\n" );
   pc += fprintf( stream, "  \"dex_number\": %d,\n", mon->dex_number );
@@ -261,10 +307,32 @@ fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "  \"fast_move_ids\": [ " );
   if ( 0 < mon->fast_moves_cnt )
     {
-      pc += fprintf( stream, "%d", mon->fast_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->fast_moves_cnt; i++ )
+      fst = false;
+      for ( uint16_t i = 0; i < mon->fast_moves_cnt; i++ )
         {
-          pc += fprintf( stream, ", %d", mon->fast_move_ids[i] );
+          if ( 0 < mon->fast_move_ids[i] )
+            {
+              if ( fst ) fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", mon->fast_move_ids[i] );
+              fst = true;
+            }
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "],\n" );
+
+  pc += fprintf( stream, "  \"legacy_fast_move_ids\": [ " );
+  if ( 0 < mon->fast_moves_cnt )
+    {
+      fst = false;
+      for ( uint16_t i = 0; i < mon->fast_moves_cnt; i++ )
+        {
+          if ( mon->fast_move_ids[i] < 0 )
+            {
+              if ( fst ) fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", - mon->fast_move_ids[i] );
+              fst = true;
+            }
         }
       pc += fprintf( stream, " " );
     }
@@ -273,10 +341,32 @@ fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon )
   pc += fprintf( stream, "  \"charged_move_ids\": [ " );
   if ( 0 < mon->charged_moves_cnt )
     {
-      pc += fprintf( stream, "%d", mon->charged_move_ids[0] );
-      for ( uint16_t i = 1; i < mon->charged_moves_cnt; i++ )
+      fst = false;
+      for ( uint16_t i = 0; i < mon->charged_moves_cnt; i++ )
         {
-          pc += fprintf( stream, ", %d", mon->charged_move_ids[i] );
+          if ( 0 < mon->charged_move_ids[i] )
+            {
+              if ( fst ) fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", mon->charged_move_ids[i] );
+              fst = true;
+            }
+        }
+      pc += fprintf( stream, " " );
+    }
+  pc += fprintf( stream, "],\n" );
+
+  pc += fprintf( stream, "  \"legacy_charged_move_ids\": [ " );
+  if ( 0 < mon->charged_moves_cnt )
+    {
+      fst = false;
+      for ( uint16_t i = 0; i < mon->charged_moves_cnt; i++ )
+        {
+          if ( mon->charged_move_ids[i] < 0 )
+            {
+              if ( fst ) fprintf( stream, ", " );
+              pc += fprintf( stream, "%d", - mon->charged_move_ids[i] );
+              fst = true;
+            }
         }
       pc += fprintf( stream, " " );
     }

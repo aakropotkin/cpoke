@@ -363,6 +363,8 @@ parse_pdex_mon( const char   *  json,
   memset( mon, 0, sizeof( pdex_mon_t ) );
   mon->next_form = NULL;
   mon->tags = TAG_NONE_M;
+  mon->fast_moves_cnt = 0;
+  mon->charged_moves_cnt = 0;
 
   /* Parse Dex # from `templateId' value */
   mon->dex_number = parse_gm_dex_num( json, iter_stack->tokens + idx );
@@ -398,15 +400,27 @@ parse_pdex_mon( const char   *  json,
           jsmnis_pop( iter_stack );
         }
       else if ( jsoneq_str( json, key, "quickMoves" ) ||
-                jsoneq_str( json, key, "eliteQuickMoves" )
+                jsoneq_str( json, key, "eliteQuickMove" )
               )
         {
-          mon->fast_move_ids  = malloc( sizeof( uint16_t ) * val->size );
-          mon->fast_moves_cnt = val->size;
+          idx = mon->fast_moves_cnt;
+          mon->fast_moves_cnt += val->size;
+          if ( mon->fast_move_ids == NULL )
+            {
+              mon->fast_move_ids  = malloc( sizeof( uint16_t ) *
+                                              mon->fast_moves_cnt
+                                          );
+            }
+          else
+            {
+              mon->fast_move_ids  = realloc( mon->fast_move_ids,
+                                             sizeof( uint16_t ) *
+                                               mon->fast_moves_cnt
+                                           );
+            }
           assert( mon->fast_move_ids != NULL );
-          jsmnis_push_curr( iter_stack );
           rsl = json[key->start] == 'e' ? -1 : 1;
-          idx = 0;
+          jsmnis_push_curr( iter_stack );
           while ( jsmni_next( jsmnis_curr( iter_stack ), NULL, &val, 0 ) > 0 )
             {
               mon->fast_move_ids[idx++] = lookup_move_idn( moves_by_name,
@@ -419,15 +433,27 @@ parse_pdex_mon( const char   *  json,
           assert( idx == mon->fast_moves_cnt );
         }
       else if ( jsoneq_str( json, key, "cinematicMoves" ) ||
-                jsoneq_str( json, key, "eliteCinematicMoves" )
+                jsoneq_str( json, key, "eliteCinematicMove" )
               )
         {
-          mon->charged_move_ids  = malloc( sizeof( uint16_t ) * val->size );
-          mon->charged_moves_cnt = val->size;
+          idx = mon->charged_moves_cnt;
+          mon->charged_moves_cnt += val->size;
+          if ( mon->charged_move_ids == NULL )
+            {
+              mon->charged_move_ids  = malloc( sizeof( uint16_t ) *
+                                                 mon->charged_moves_cnt
+                                             );
+            }
+          else
+            {
+              mon->charged_move_ids  = realloc( mon->charged_move_ids,
+                                                sizeof( uint16_t ) *
+                                                  mon->charged_moves_cnt
+                                              );
+            }
           assert( mon->charged_move_ids != NULL );
-          jsmnis_push_curr( iter_stack );
           rsl = json[key->start] == 'e' ? -1 : 1;
-          idx = 0;
+          jsmnis_push_curr( iter_stack );
           while ( jsmni_next( jsmnis_curr( iter_stack ), NULL, &val, 0 ) > 0 )
             {
               mon->charged_move_ids[idx++] = lookup_move_idn( moves_by_name,
@@ -1124,17 +1150,17 @@ process_pokemon( gm_parser_t * gm_parser )
 #include <ctype.h>
 #include <string.h>
 
-static const char USAGE_STR[] = R"RAW(
+static const char USAGE_STR[] = R"RAW_STRING(
 Usage: parse_gm [OPTION]... [FILE]
 Parse a GAME_MASTER.json file and convert it to another format.
 Example: parse_gm -e c -f ./my_gm.json
 
 Options:
-  -e FORMAT    Encode to FORMAT. One of: C, JSON, SQL.  ( Case Insensitive )
+  -e FORMAT    Encode to FORMAT. One of: C, JSON, SQL.  \( Case Insensitive \)
   -f FILE      Use FILE as GAME_MASTER.json file.
 
 Default export format is C, default FILE is ./data/GAME_MASTER.json
-)RAW";
+)RAW_STRING";
 
   int
 main( int argc, char * argv[], char ** envp )
@@ -1216,6 +1242,7 @@ main( int argc, char * argv[], char ** envp )
 
   /* Prints store as a Static C Store */
   GM_export( export_fmt, stdout );
+  pdex_mon_t * mon = NULL;
 
   /* Cleanup */
   GM_STORE.free( & GM_STORE );
