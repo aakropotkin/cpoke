@@ -54,7 +54,6 @@ const pdex_mon_t bulbasaur = {
   .charged_moves_cnt = 1,
   .form_idx          = 0,
   .next_form         = NULL,
-  .hkey              = 0,
   .hh_name           = 0,
   .hh_dex_num        = 0
 };

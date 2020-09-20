@@ -121,7 +121,7 @@ test.o: ${SRCPATH}/test/test.c ${HEADERS}
 test_main.o: ${SRCPATH}/test/test.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_TEST_BINARY -c $< -o test_main.o
 
-test: test_main.o ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o
+test: test_main.o ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o gm_store.o
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 

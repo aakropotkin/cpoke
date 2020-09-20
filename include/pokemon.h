@@ -27,7 +27,6 @@ struct base_pokemon_s {
   float              level;
   stats_t            ivs;
 } packed;
-
 typedef struct base_pokemon_s  base_pokemon_t;
 
 
@@ -38,7 +37,6 @@ struct roster_pokemon_s {
   uint16_t         fast_move_id;
   uint16_t         charged_move_ids[2];
 } packed;
-
 typedef struct roster_pokemon_s  roster_pokemon_t;
 
 typedef enum { M_CHARGED1, M_CHARGED2, M_FAST } pmove_idx_t;
@@ -55,7 +53,6 @@ struct roster_s {
   roster_pokemon_t * roster_pokemon;
   size_t             roster_length;
 };
-
 typedef struct roster_s  roster_t;
 
 
@@ -79,7 +76,6 @@ struct pvp_pokemon_s {
   pvp_fast_move_t    fast_move;
   pvp_charged_move_t charged_moves[2];
 } packed;
-
 typedef struct pvp_pokemon_s  pvp_pokemon_t;
 
 void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
