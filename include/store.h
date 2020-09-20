@@ -101,17 +101,9 @@ struct store_key_s {
   store_type_t val_type;
   union {
     uint32_t   data_f;
-
     struct {
-      uint16_t data_h0;
-      uint16_t data_h1;
-    };
-
-    struct {
-      uint8_t data_q0;
-      uint8_t data_q1;
-      uint8_t data_q2;
-      uint8_t data_q3;
+      union { uint16_t data_h0; struct { uint8_t data_q0, data_q1; }; };
+      union { uint16_t data_h1; struct { uint8_t data_q2, data_q3; }; };
     };
   } transparent;
 };

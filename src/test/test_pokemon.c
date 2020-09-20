@@ -110,7 +110,9 @@ test_cstore_base_mon_from_store( void )
 {
   store_t cstore = CSTORE;
 
-  base_pokemon_t mon = base_mon_from_store( & cstore, 1, 0, 15.0, 10, 11, 12 );
+  base_pokemon_t mon;
+
+  int rsl = base_mon_from_store( & cstore, 1, 0, 15.0, 10, 11, 12, & mon );
   expect( mon.pdex_mon != NULL );
   expect( mon.pdex_mon->dex_number == 1 );
   expect( mon.pdex_mon->form_idx == 0 );
@@ -129,6 +131,7 @@ test_cstore_base_mon_from_store( void )
 test_cstore_roster( void )
 {
   store_t cstore = CSTORE;
+  base_pokemon_t USER1_BASE_MONS[] = def_user1_base_mons();
 
   roster_pokemon_t bulbasaur = {
     .base = & USER1_BASE_MONS[0],
@@ -168,6 +171,61 @@ test_cstore_roster( void )
   return true;
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+static bool
+test_roster_append( void )
+{
+  store_t cstore  = CSTORE;
+  base_pokemon_t USER1_BASE_MONS[] = def_user1_base_mons();
+  roster_t roster = { .roster_pokemon = NULL, .roster_length = 0 };
+
+  roster_pokemon_t bulbasaur = {
+    .base = & USER1_BASE_MONS[0],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[0].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[0].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[0].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_pokemon_t charmander = {
+    .base = & USER1_BASE_MONS[1],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[1].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[1].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[1].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_pokemon_t squirtle = {
+    .base = & USER1_BASE_MONS[2],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[2].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_append( & roster, & bulbasaur );
+  expect( roster.roster_pokemon != NULL );
+  expect( roster.roster_length == 1 );
+
+  roster_append( & roster, & charmander );
+  expect( roster.roster_pokemon != NULL );
+  expect( roster.roster_length == 2 );
+
+  roster_append( & roster, & squirtle );
+  expect( roster.roster_pokemon != NULL );
+  expect( roster.roster_length == 3 );
+
+  free( roster.roster_pokemon );
+
+  return true;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
   bool
@@ -179,6 +237,7 @@ test_pokemon( void )
   rsl &= do_test( get_cpm_for_level );
   rsl &= do_test( cstore_roster );
   rsl &= do_test( cstore_base_mon_from_store );
+  rsl &= do_test( roster_append );
   CS_free();
   return rsl;
 }

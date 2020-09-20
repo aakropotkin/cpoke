@@ -105,7 +105,8 @@ cstore_get_pokemon( cstore_t   *  cstore,
    * Everything except for Meltan and Melmetal are perfectly sequential, and
    * their indices are simply their dex # - 1
    */
-  if ( in_eq( REGIONS[0].dex_start, dex_num, REGIONS[NUM_REGIONS - 2].dex_end )
+  if ( ( REGIONS[0].dex_start <= dex_num ) &&
+       ( dex_num <= REGIONS[NUM_REGIONS - 2].dex_end )
      )
     {
       mon = POKEDEX[dex_num - 1];
@@ -116,6 +117,7 @@ cstore_get_pokemon( cstore_t   *  cstore,
                             + REGIONS[NUM_REGIONS - 2].dex_end
                    ];
     }
+  assert( dex_num == mon->dex_number );
 
   for ( uint8_t f = 0; f < form_idx; f++ )
     {
@@ -126,6 +128,7 @@ cstore_get_pokemon( cstore_t   *  cstore,
         }
       mon = mon->next_form;
     }
+  assert( form_idx == mon->form_idx );
 
   *val = mon;
   return STORE_SUCCESS;
@@ -196,22 +199,22 @@ cstore_get( store_t * cstore, store_key_t key, void ** val )
 {
   assert( cstore != NULL );
 
-  if ( ( as_csk( key ).key_type == STORE_NUM  ) &&
-       ( as_csk( key ).val_type == STORE_MOVE )
+  if ( ( key.key_type == STORE_NUM  ) &&
+       ( key.val_type == STORE_MOVE )
      )
     {
       return cstore_get_move( cstore,
-                              as_csk( key ).id,
+                              key.data_h0,
                               (store_move_t **) val
                             );
     }
-  else if ( ( as_csk( key ).key_type == STORE_NUM  )    &&
-            ( as_csk( key ).val_type == STORE_POKEDEX )
+  else if ( ( key.key_type == STORE_NUM  )    &&
+            ( key.val_type == STORE_POKEDEX )
           )
     {
       return cstore_get_pokemon( cstore,
-                                 as_csk( key ).id,
-                                 as_csk( key ).form_idx,
+                                 key.data_h0,
+                                 key.data_q2,
                                  (pdex_mon_t **) val
                                );
     }

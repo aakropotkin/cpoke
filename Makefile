@@ -27,6 +27,7 @@ CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 CSTORE_OBJECTS := cstore.o cstore_data.o
 
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o test_parse_gm.o
+TEST_OBJECTS += test_cstore.o
 
 
 # -------------------------------------------------------------------------- #
@@ -113,6 +114,9 @@ test_ptypes.o: ${SRCPATH}/test/test_ptypes.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 test_parse_gm.o: ${SRCPATH}/test/test_parse_gm.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+test_cstore.o: ${SRCPATH}/test/test_cstore.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 test.o: ${SRCPATH}/test/test.c ${HEADERS}

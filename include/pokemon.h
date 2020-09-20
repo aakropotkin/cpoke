@@ -12,10 +12,11 @@
 #include "util/macros.h"
 #include <math.h>
 #include <stdint.h>
+#include "store.h"
+#include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
-
 
 #define get_cpm_for_level( lvl )  CPMS[( (int) ( ( ( lvl ) - 1 ) * 2 ) )]
 
@@ -29,27 +30,37 @@ struct base_pokemon_s {
 };
 typedef struct base_pokemon_s  base_pokemon_t;
 
-  static inline base_pokemon_t
-base_mon_from_store( store_t * store,
-                     uint16_t  dex_num,
-                     uint8_t   form_idx,
-                     float     level,
-                     uint16_t  attack,
-                     uint16_t  stamina,
-                     uint16_t  defense
+  static inline int
+base_mon_from_store( store_t        * store,
+                     uint16_t         dex_num,
+                     uint8_t          form_idx,
+                     float            level,
+                     uint16_t         attack,
+                     uint16_t         stamina,
+                     uint16_t         defense,
+                     base_pokemon_t * mon
                      )
 {
   assert( store != NULL );
+  assert( mon != NULL );
   assert( !!( store->flags & SF_STANDARD_KEY_M ) );
-  store_key_t key = dex_form_store_key( dex_num, form_idx );
-  base_pokemon_t mon = {
-    .pdex_mon = NULL,
-    .level = level,
-    .ivs = { .attack = attack, .stamina = stamina, .defense = defense }
-  };
-  store->get( store, key, (void **) & mon.pdex_mon );
-  assert( mon.pdex_mon != NULL );
-  return mon;
+  const store_key_t key = dex_form_store_key( dex_num, form_idx );
+  assert( key.key_type == STORE_NUM );
+  assert( key.val_type == STORE_POKEDEX );
+  assert( key.data_h0 == dex_num );
+  assert( key.data_q2 == form_idx );
+  int rsl = 0;
+  mon->pdex_mon = NULL;
+  mon->level = level;
+  mon->ivs.attack = attack;
+  mon->ivs.stamina = stamina;
+  mon->ivs.defense = defense;
+  rsl = store->get( store, key, (void **) & mon->pdex_mon );
+  assert( rsl == STORE_SUCCESS );
+  assert( mon->pdex_mon != NULL );
+  assert( mon->pdex_mon->dex_number == dex_num );
+  assert( mon->pdex_mon->form_idx == form_idx );
+  return rsl;
 }
 
 
@@ -77,6 +88,37 @@ struct roster_s {
   size_t             roster_length;
 };
 typedef struct roster_s  roster_t;
+
+  static roster_t *
+roster_append( roster_t * roster, roster_pokemon_t * mon )
+{
+  assert( mon != NULL );
+  assert( roster != NULL );
+  assert( ( roster->roster_pokemon != NULL ) ||
+          ( roster->roster_length == 0 )
+        );
+  if ( ( roster->roster_pokemon == NULL ) && ( roster->roster_length == 0 ) )
+    {
+      roster->roster_pokemon =
+        (roster_pokemon_t *) malloc( sizeof( roster_pokemon_t ) );
+      roster->roster_length = 0;
+    }
+  else
+    {
+      roster->roster_pokemon =
+        (roster_pokemon_t *) realloc( roster->roster_pokemon,
+                                      sizeof( roster_pokemon_t ) *
+                                        ( roster->roster_length + 1)
+                                    );
+    }
+  assert( roster->roster_pokemon != NULL );
+  memcpy( roster->roster_pokemon + roster->roster_length,
+          mon,
+          sizeof( roster_pokemon_t )
+        );
+  roster->roster_length++;
+  return roster;
+}
 
 
 /* ------------------------------------------------------------------------- */

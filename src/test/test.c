@@ -18,6 +18,7 @@ test_all( void )
   rsl &= do_test( pokemon );
   rsl &= do_test( ptypes );
   rsl &= do_test( parse_gm );
+  rsl &= do_test( cstore );
   return rsl;
 }
 

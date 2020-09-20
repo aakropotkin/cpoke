@@ -479,6 +479,8 @@ fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon )
                  mon->charged_moves_cnt
                );
 
+  pc += fprintf( stream, " .form_idx = %d,\n", mon->form_idx );
+
   if ( mon->next_form == NULL )
     {
       pc += fprintf( stream, "  .next_form = NULL" );
