@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "util/test_util.h"
+#include "data/test/roster.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -103,12 +105,60 @@ test_get_cpm_for_level( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_cstore_roster( void )
+{
+  store_t cstore = def_cstore();
+  cstore.init( & cstore, NULL );
+
+  roster_pokemon_t bulbasaur = {
+    .base = & USER1_BASE_MONS[0],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[0].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[0].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[0].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_pokemon_t charmander = {
+    .base = & USER1_BASE_MONS[1],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[1].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[1].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[1].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_pokemon_t squirtle = {
+    .base = & USER1_BASE_MONS[2],
+    .fast_move_id = (uint16_t) USER1_BASE_MONS[2].pdex_mon->fast_move_ids[0],
+    .charged_move_ids = {
+      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[0],
+      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[1]
+    }
+  };
+
+  roster_pokemon_t user1_rmons[] = { bulbasaur, charmander, squirtle };
+  roster_t user1_roster = { .roster_pokemon = user1_rmons, .roster_length = 3 };
+
+  expect( strcmp( user1_roster.roster_pokemon[0].base->pdex_mon->name,
+                  "BULBASAUR"
+                ) == 0
+        );
+
+  cstore.free( & cstore );
+  return true;
+}
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
   bool rsl = true;
   rsl &= do_test( construct_pokemon );
   rsl &= do_test( get_cpm_for_level );
+  rsl &= do_test( cstore_roster );
   return rsl;
 }
 
