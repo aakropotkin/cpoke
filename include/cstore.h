@@ -141,8 +141,8 @@ cstore_set( store_t * cstore, store_key_t key, void * val )
 #define def_cstore()                                                        \
   {                                                                         \
     .name      = "Game Master Static",                                      \
-    .flags     = SF_OFFICIAL_DATA | SF_STANDARD_KEY | SF_TYPED |            \
-                 SF_GET_STRING | SF_GET_TYPED_STRING,                       \
+    .flags     = SF_OFFICIAL_DATA_M | SF_STANDARD_KEY_M | SF_TYPED_M |      \
+                 SF_GET_STRING_M | SF_GET_TYPED_STRING_M,                   \
     .has       = cstore_has,                                                \
     .get       = cstore_get,                                                \
     .get_str   = cstore_get_str,                                            \
@@ -173,8 +173,8 @@ static store_t CSTORE = def_cstore();
   cstore_add( & CSTORE, ( KEY ), (void *) ( VAL ) )
 #define CS_set( KEY, VAL )                                                    \
   cstore_set( & CSTORE, ( KEY ), (void *) ( VAL ) )
-#define CS_init( PARSER )   cstore_init( & CSTORE, (void *) ( PARSER ) )
-#define CS_free()           cstore_free( & CSTORE )
+#define CS_init()  cstore_init( & CSTORE, NULL )
+#define CS_free()  cstore_free( & CSTORE )
 #define CS_export( SINK, TARGET )                                             \
   cstore_export( & CSTORE, ( SINK ), ( TARGET ) )
 

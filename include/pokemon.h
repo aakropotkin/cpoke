@@ -26,8 +26,31 @@ struct base_pokemon_s {
   const pdex_mon_t * pdex_mon;
   float              level;
   stats_t            ivs;
-} packed;
+};
 typedef struct base_pokemon_s  base_pokemon_t;
+
+  static inline base_pokemon_t
+base_mon_from_store( store_t * store,
+                     uint16_t  dex_num,
+                     uint8_t   form_idx,
+                     float     level,
+                     uint16_t  attack,
+                     uint16_t  stamina,
+                     uint16_t  defense
+                     )
+{
+  assert( store != NULL );
+  assert( !!( store->flags & SF_STANDARD_KEY_M ) );
+  store_key_t key = dex_form_store_key( dex_num, form_idx );
+  base_pokemon_t mon = {
+    .pdex_mon = NULL,
+    .level = level,
+    .ivs = { .attack = attack, .stamina = stamina, .defense = defense }
+  };
+  store->get( store, key, (void **) & mon.pdex_mon );
+  assert( mon.pdex_mon != NULL );
+  return mon;
+}
 
 
 /* ------------------------------------------------------------------------- */

@@ -106,10 +106,29 @@ test_get_cpm_for_level( void )
 /* ------------------------------------------------------------------------- */
 
   static bool
+test_cstore_base_mon_from_store( void )
+{
+  store_t cstore = CSTORE;
+
+  base_pokemon_t mon = base_mon_from_store( & cstore, 1, 0, 15.0, 10, 11, 12 );
+  expect( mon.pdex_mon != NULL );
+  expect( mon.pdex_mon->dex_number == 1 );
+  expect( mon.pdex_mon->form_idx == 0 );
+  expect( mon.level == 15.0 );
+  expect( mon.ivs.attack == 10 );
+  expect( mon.ivs.stamina == 11 );
+  expect( mon.ivs.defense == 12 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
 test_cstore_roster( void )
 {
-  store_t cstore = def_cstore();
-  cstore.init( & cstore, NULL );
+  store_t cstore = CSTORE;
 
   roster_pokemon_t bulbasaur = {
     .base = & USER1_BASE_MONS[0],
@@ -146,7 +165,6 @@ test_cstore_roster( void )
                 ) == 0
         );
 
-  cstore.free( & cstore );
   return true;
 }
 
@@ -156,9 +174,12 @@ test_cstore_roster( void )
 test_pokemon( void )
 {
   bool rsl = true;
+  CS_init();
   rsl &= do_test( construct_pokemon );
   rsl &= do_test( get_cpm_for_level );
   rsl &= do_test( cstore_roster );
+  rsl &= do_test( cstore_base_mon_from_store );
+  CS_free();
   return rsl;
 }
 

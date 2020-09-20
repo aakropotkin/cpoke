@@ -5,7 +5,7 @@
 #include "pokedex.h"
 #include "pokemon.h"
 #include <stdlib.h>
-//#include "store.h"
+#define CSTORE_GLOBAL_STORE
 #include "cstore.h"
 
 extern pdex_mon_t POKEDEX[];
