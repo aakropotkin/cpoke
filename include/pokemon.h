@@ -137,6 +137,7 @@ struct pvp_pokemon_s {
   ptype_mask_t       types;
   uint16_t           hp;
   uint8_t            cooldown;     /* # Turns until next action */
+  uint8_t            stored_energy;
   buff_state_t       buffs;
   pvp_fast_move_t    fast_move;
   pvp_charged_move_t charged_moves[2];
@@ -184,7 +185,7 @@ typedef pvp_pokemon_t  pvp_team_t[3];
 /* ------------------------------------------------------------------------- */
 
 const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
-const_fn stats_t get_effective_stats( stats_t base, stats_t ivs, float level );
+const_fn stats_t  get_effective_stats( stats_t base, stats_t ivs, float level );
 
  const_fn uint16_t
 get_pvp_damage( pmove_idx_t     attack_idx,

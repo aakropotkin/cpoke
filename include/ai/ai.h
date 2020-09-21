@@ -51,6 +51,7 @@ typedef ai_status_t ( * select_team_fn ) ( struct roster_s *,
                                            void *
                                          );
 
+typedef ai_status_t ( * ai_init_fn ) ( struct ai_s *, void * );
 typedef void ( * ai_free_fn ) ( struct ai_s * );
 
 
@@ -60,6 +61,7 @@ typedef struct {
   char *           name;
   select_team_fn   select_team;
   decide_action_fn decide_action;
+  ai_init_fn       init;
   ai_free_fn       free;
   void *           aux;
 } ai_t;

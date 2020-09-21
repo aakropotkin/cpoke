@@ -168,8 +168,21 @@ ai_status_t pvpoke_ai_decide_action( bool                  decide_p1,
                                      pvp_action_t        * choice
                                    );
 
-ai_status_t pvpoke_ai_init( ai_t * ai );
-ai_status_t pvpoke_ai_free( ai_t * ai );
+ai_status_t pvpoke_ai_init( ai_t * ai, void * init_aux );
+void        pvpoke_ai_free( ai_t * ai );
+
+
+/* ------------------------------------------------------------------------- */
+
+#define def_pvpoke_ai()                                                       \
+  {                                                                           \
+    .name          = "PvPoke AI",                                             \
+    .select_team   = pvpoke_ai_select_team,                                   \
+    .decide_action = pvpoke_ai_decide_action,                                 \
+    .init          = pvpoke_ai_init,                                          \
+    .free          = pvpoke_ai_free,                                          \
+    .aux           = NULL                                                     \
+  }
 
 
 /* ------------------------------------------------------------------------- */

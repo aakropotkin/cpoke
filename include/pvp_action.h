@@ -5,6 +5,12 @@
 
 /* ========================================================================= */
 
+#include "util/bits.h"
+#include "util/enumflags.h"
+
+
+/* ------------------------------------------------------------------------- */
+
 /**
  * PvPoke has separate constructs for "Actions" and "Timeline Events".
  * From what I can tell these are nearly identical, and they spent a huge amount
@@ -17,10 +23,11 @@
  * this encoding. This should be fixed once the simulator is more fleshed out
  * and we understand how buffs are relevant to analysis.
  */
-typedef enum packed {
-  ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2, SHIELD
-} pvp_action_t;
-
+DEFINE_ENUM_WITH_FLAGS( pvp_action,
+    ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2, SHIELD
+  );
+static const uint8_t NUM_PVP_ACTIONS = SHIELD + 1;
+#define get_pvp_act_mask( ACTION )  to_mask( ACTION )
 
 
 /* ------------------------------------------------------------------------- */

@@ -65,7 +65,7 @@ typedef enum packed {
  * interactive battles.
  */
 typedef enum packed {
-  NEUTRAL, COUNTDOWN, SUSPEND_CHARGED, SUSPED_CHARGED_ATTACK,
+  NEUTRAL, COUNTDOWN, SUSPEND_CHARGED, SUSPEND_CHARGED_ATTACK,
   SUSPEND_CHARGED_SHIELD, SUSPEND_CHARGED_NO_SHIELD, SUSPEND_SWITCH_P1,
   SUSPEND_SWITCH_P2, ANIMATING, GAME_OVER
 } battle_phase_t;
@@ -114,7 +114,7 @@ struct pvp_battle_s {
   pvp_action_t          p1_action;  /* Queued/Current action */
   pvp_action_t          p2_action;
   uint32_t              turn;
-  //battle_phase_t phase;      /* Not sure if we actually need this */
+  battle_phase_t        phase;
 } packed;
 
 typedef struct pvp_battle_s pvp_battle_t;
@@ -137,6 +137,18 @@ bool is_battle_over( pvp_battle_t * battle );
 bool is_p1_winner( pvp_battle_t * battle );
 
 struct pvp_player_s * get_battle_winner( pvp_battle_t * battle );
+
+/**
+ * A helper for AI functions/battle handler to restrict available actions
+ * based on things like stored energy, hp, and battle phase.
+ * For example it is not valid to use a charged move without the available
+ * energy, or to switch when there are no available pokemon.
+ */
+pvp_action_flag_t valid_actions( bool decide_p1, pvp_battle_t * battle );
+bool              is_valid_action( bool           decide_p1,
+                                   pvp_action_t   action,
+                                   pvp_battle_t * battle
+                                 );
 
 
 
