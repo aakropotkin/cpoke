@@ -191,6 +191,9 @@ test_parse_pvp_charged_move( void )
   expect( move.buff.atk_buff.debuffp == 1 );
   expect( move.buff.chance           == bc_0300 );
 
+  free( name );
+  free( tokens );
+
   return true;
 }
 
@@ -220,9 +223,9 @@ test_parse_pvp_fast_move( void )
 
   pvp_fast_move_t move;
   char *             name = NULL;
-  memset( &move, 0, sizeof( pvp_fast_move_t ) );
+  memset( & move, 0, sizeof( pvp_fast_move_t ) );
 
-  uint16_t move_id = parse_pvp_fast_move( JSON3, &iter_stack, &name, &move );
+  uint16_t move_id = parse_pvp_fast_move( JSON3, &iter_stack, &name, & move );
 
   jsmnis_free( &iter_stack );
 
@@ -234,6 +237,9 @@ test_parse_pvp_fast_move( void )
   expect( move.energy  == 6 );
   expect( move.is_fast == true );
   expect( move.turns   == 2 );
+
+  free( name );
+  free( tokens );
 
   return true;
 }
