@@ -21,19 +21,19 @@
  * roster.
  */
   ai_status_t
-naive_ai_select_team( roster_t   * our_roster,
-                      roster_t   * their_roser,
-                      pvp_team_t * team,
-                      void       * aux
+naive_ai_select_team( roster_t      * our_roster,
+                      roster_t      * their_roser,
+                      pvp_pokemon_t * team, /* EXACTLY 3 ELEMENTS */
+                      void          * aux
                     )
 {
   if ( our_roster == NULL ) return AI_ERROR_BAD_VALUE;
   if ( team == NULL ) return AI_ERROR_BAD_VALUE;
-  memset( team, 0, sizeof( pvp_team_t ) );
+  memset( team, 0, sizeof( pvp_pokemon_t ) * 3 );
   /* Take the first 3, or as many as possible */
   for ( size_t i = 0; i < min( 3, our_roster->roster_length ); i++ )
     {
-      pvp_pokemon_init( our_roster->roster_pokemon + i, team[i] );
+      pvp_pokemon_init( our_roster->roster_pokemon + i, team );
     }
   return AI_SUCCESS;
 }
