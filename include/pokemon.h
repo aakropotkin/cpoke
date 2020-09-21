@@ -30,38 +30,24 @@ struct base_pokemon_s {
 };
 typedef struct base_pokemon_s  base_pokemon_t;
 
-  static inline int
-base_mon_from_store( store_t        * store,
-                     uint16_t         dex_num,
-                     uint8_t          form_idx,
-                     float            level,
-                     uint16_t         attack,
-                     uint16_t         stamina,
-                     uint16_t         defense,
-                     base_pokemon_t * mon
-                     )
-{
-  assert( store != NULL );
-  assert( mon != NULL );
-  assert( !!( store->flags & SF_STANDARD_KEY_M ) );
-  const store_key_t key = dex_form_store_key( dex_num, form_idx );
-  assert( key.key_type == STORE_NUM );
-  assert( key.val_type == STORE_POKEDEX );
-  assert( key.data_h0 == dex_num );
-  assert( key.data_q2 == form_idx );
-  int rsl = 0;
-  mon->pdex_mon = NULL;
-  mon->level = level;
-  mon->ivs.attack = attack;
-  mon->ivs.stamina = stamina;
-  mon->ivs.defense = defense;
-  rsl = store->get( store, key, (void **) & mon->pdex_mon );
-  assert( rsl == STORE_SUCCESS );
-  assert( mon->pdex_mon != NULL );
-  assert( mon->pdex_mon->dex_number == dex_num );
-  assert( mon->pdex_mon->form_idx == form_idx );
-  return rsl;
-}
+static const base_pokemon_t BASE_MON_NULL = {
+  .pdex_mon = NULL,
+  .level    = 1.0,
+  .ivs      = { .attack = 0, .stamina = 0, .defense = 0 }
+};
+
+
+/* ------------------------------------------------------------------------- */
+
+int base_mon_from_store( store_t        * store,
+                         uint16_t         dex_num,
+                         uint8_t          form_idx,
+                         float            level,
+                         uint16_t         attack,
+                         uint16_t         stamina,
+                         uint16_t         defense,
+                         base_pokemon_t * mon
+                       );
 
 
 /* ------------------------------------------------------------------------- */
@@ -72,6 +58,12 @@ struct roster_pokemon_s {
   uint16_t         charged_move_ids[2];
 } packed;
 typedef struct roster_pokemon_s  roster_pokemon_t;
+
+static const roster_pokemon_t ROSTER_MON_NULL = {
+  .base             = NULL,
+  .fast_move_id     = 0,
+  .charged_move_ids = { 0, 0 }
+};
 
 typedef enum { M_CHARGED1, M_CHARGED2, M_FAST } pmove_idx_t;
 
@@ -89,36 +81,7 @@ struct roster_s {
 };
 typedef struct roster_s  roster_t;
 
-  static roster_t *
-roster_append( roster_t * roster, roster_pokemon_t * mon )
-{
-  assert( mon != NULL );
-  assert( roster != NULL );
-  assert( ( roster->roster_pokemon != NULL ) ||
-          ( roster->roster_length == 0 )
-        );
-  if ( ( roster->roster_pokemon == NULL ) && ( roster->roster_length == 0 ) )
-    {
-      roster->roster_pokemon =
-        (roster_pokemon_t *) malloc( sizeof( roster_pokemon_t ) );
-      roster->roster_length = 0;
-    }
-  else
-    {
-      roster->roster_pokemon =
-        (roster_pokemon_t *) realloc( roster->roster_pokemon,
-                                      sizeof( roster_pokemon_t ) *
-                                        ( roster->roster_length + 1)
-                                    );
-    }
-  assert( roster->roster_pokemon != NULL );
-  memcpy( roster->roster_pokemon + roster->roster_length,
-          mon,
-          sizeof( roster_pokemon_t )
-        );
-  roster->roster_length++;
-  return roster;
-}
+roster_t * roster_append( roster_t * roster, roster_pokemon_t * mon );
 
 
 /* ------------------------------------------------------------------------- */
