@@ -6,6 +6,7 @@
 /* ========================================================================= */
 
 #include "ext/uthash.h"
+#include "hash.h"
 #include "ptypes.h"
 #include "store.h"
 #include <stdbool.h>
@@ -193,6 +194,27 @@ struct store_move_s {
   UT_hash_handle hh_move_id;
 };
 typedef struct store_move_s  store_move_t;
+
+
+/* ------------------------------------------------------------------------- */
+
+static const store_move_t NO_MOVE_STORE = {
+  .name       = NULL,
+  .type       = PT_NONE,
+  .is_fast    = false,
+  .move_id    = 0,
+  .cooldown   = 1,
+  .pve_power  = 1,
+  .pvp_power  = 1,
+  .pve_energy = 1,
+  .pvp_energy = 1,
+  .buff       = NO_BUFF,
+  .hh_name    = HH_NULL,
+  .hh_move_id = HH_NULL
+};
+
+
+/* ------------------------------------------------------------------------- */
 
   static inline store_key_t
 move_store_key( store_move_t * move )

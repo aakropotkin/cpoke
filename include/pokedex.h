@@ -6,6 +6,7 @@
 /* ========================================================================= */
 
 #include "ext/uthash.h"
+#include "hash.h"
 #include "moves.h"
 #include "ptypes.h"
 #include "store.h"
@@ -32,7 +33,6 @@ DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
                         TAG_ALOLAN, TAG_GALARIAN,
                         TAG_STARTER, TAG_REGIONAL
                       );
-
 static const uint8_t NUM_PDEX_TAGS = TAG_REGIONAL + 1;
 
 static const char * PDEX_TAG_NAMES[] = {
@@ -95,10 +95,29 @@ struct pdex_mon_s {
   UT_hash_handle      hh_name;
   UT_hash_handle      hh_dex_num;
 };
-
 typedef struct pdex_mon_s  pdex_mon_t;
 
-static const uint16_t MAX_DEX = 809;  /* Melmetal */
+static const pdex_mon_t PDEX_NULL = {
+  .dex_number        = 0,
+  .name              = NULL,
+  .form_name         = NULL,
+  .family            = 0,
+  .types             = PT_NONE_M,
+  .base_stats        = { .attack = 0, .stamina = 0, .defense = 0 },
+  .tags              = TAG_NONE_M,
+  .fast_move_ids     = NULL,
+  .fast_moves_cnt    = 0,
+  .charged_move_ids  = NULL,
+  .charged_moves_cnt = 0,
+  .form_idx          = 0,
+  .hh_name           = HH_NULL,
+  .hh_dex_num        = HH_NULL
+};
+
+
+/* ------------------------------------------------------------------------- */
+
+static const uint16_t MAX_DEX = 865;
 
 void pdex_mon_init( pdex_mon_t      * mon,
                     uint16_t          dex_num,
@@ -118,6 +137,9 @@ void pdex_mon_init( pdex_mon_t      * mon,
                     uint8_t           charged_moves_cnt
                   );
 void pdex_mon_free( pdex_mon_t * mon );
+
+
+/* ------------------------------------------------------------------------- */
 
 /**
  * This is the "store" key, it may change in different contexts.
