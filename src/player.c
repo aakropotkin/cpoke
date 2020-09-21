@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include "player.h"
+#include "pokemon.h"
 
 /* ------------------------------------------------------------------------- */
 
@@ -11,14 +12,8 @@
 get_remaining_pokemon( pvp_player_t * player )
 {
   assert( player != NULL );
-  uint8_t rem = 0;
-  /* If you wanted to be REAL cool you would unroll this into a one liner... */
-  for ( pvp_pokemon_t * p = player->team;
-        p < player->team + 3;
-        rem += ( ( p != NULL ) && ( p->hp > 0 ) ), p++
-      );
-  assert( rem <= 3 );
-  return rem;
+  return ( !! player->team.mon0.hp ) + ( !! player->team.mon1.hp ) +
+         ( !! player->team.mon2.hp );
 }
 
 

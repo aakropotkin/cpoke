@@ -21,13 +21,19 @@ BINS    := cpoke parse_gm fetch_gm test
 EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
 
-CORE_OBJECTS := pokemon.o player.o ptypes.o pokedex.o
+CORE_OBJECTS := pokemon.o ptypes.o pokedex.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
 CSTORE_OBJECTS := cstore.o cstore_data.o
 
+SIM_OBJECTS := battle.o player.o
+
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o test_parse_gm.o
-TEST_OBJECTS += test_cstore.o
+TEST_OBJECTS += test_cstore.o test_battle.o test_player.o
+
+GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
+
+NAIVE_AI_OBJECTS := naive_ai.o
 
 
 # -------------------------------------------------------------------------- #
@@ -80,10 +86,22 @@ pokedex.o: ${SRCPATH}/pokedex.c ${HEADERS}
 pokemon.o: ${SRCPATH}/pokemon.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
+ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+
+# -------------------------------------------------------------------------- #
+
+battle.o: ${SRCPATH}/battle.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
 player.o: ${SRCPATH}/player.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
+
+# -------------------------------------------------------------------------- #
+
+naive_ai.o: ${SRCPATH}/naive_ai.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 
@@ -119,13 +137,19 @@ test_parse_gm.o: ${SRCPATH}/test/test_parse_gm.c ${HEADERS}
 test_cstore.o: ${SRCPATH}/test/test_cstore.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
+test_battle.o: ${SRCPATH}/test/test_battle.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+test_player.o: ${SRCPATH}/test/test_player.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
 test.o: ${SRCPATH}/test/test.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 test_main.o: ${SRCPATH}/test/test.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_TEST_BINARY -c $< -o test_main.o
 
-test: test_main.o ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o gm_store.o ${CSTORE_OBJECTS}
+test: test_main.o ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o gm_store.o ${CSTORE_OBJECTS} ${SIM_OBJECTS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 

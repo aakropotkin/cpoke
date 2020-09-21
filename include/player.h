@@ -26,11 +26,11 @@ typedef struct player_s  player_t;
 /* ------------------------------------------------------------------------- */
 
 struct pvp_player_s {
-  ai_t *     ai;
-  pvp_team_t team;
-  uint8_t    active_pokemon : 2;   /* 0-2  */
-  uint8_t    shields        : 2;   /* 0-2  */
-  uint8_t    switch_turns   : 4;   /* 0-12 */
+  ai_t *          ai;
+  struct { pvp_pokemon_t mon0, mon1, mon2; } team;
+  uint8_t         active_pokemon : 2;   /* 0-2  */
+  uint8_t         shields        : 2;   /* 0-2  */
+  uint8_t         switch_turns   : 4;   /* 0-12 */
 } packed;
 
 typedef struct pvp_player_s  pvp_player_t;
@@ -38,8 +38,12 @@ typedef struct pvp_player_s  pvp_player_t;
 
 /* ------------------------------------------------------------------------- */
 
-#define get_active_pokemon( PLAYER )              \
-  ( ( PLAYER ).team[( PLAYER ).active_pokemon] )
+#define get_active_pokemon( PLAYER )                                          \
+  ( ( ( PLAYER ).active_pokemon == 0 ) ? ( PLAYER ).team.mon0 :               \
+    ( ( PLAYER ).active_pokemon == 1 ) ? ( PLAYER ).team.mon1                 \
+                                       : ( PLAYER ).team.mon2                 \
+  )
+
 
 
 /* ------------------------------------------------------------------------- */

@@ -10,6 +10,8 @@
 #include "pvp_action.h"
 #include "pokemon.h"
 #include "battle.h"
+#include "player.h"
+#include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -25,15 +27,13 @@ naive_ai_select_team( roster_t   * our_roster,
                       void       * aux
                     )
 {
-  if ( our_roster == NULL ) return AI_BAD_VALUE;
-  if ( team == NULL ) return AI_BAD_VALUE;
-  team[0] = NULL;
-  team[1] = NULL;
-  team[2] = NULL;
+  if ( our_roster == NULL ) return AI_ERROR_BAD_VALUE;
+  if ( team == NULL ) return AI_ERROR_BAD_VALUE;
+  memset( team, 0, sizeof( pvp_team_t ) );
   /* Take the first 3, or as many as possible */
   for ( size_t i = 0; i < min( 3, our_roster->roster_length ); i++ )
     {
-      pvp_pokemon_init( our_roster->roster_pokemon + i, team + i );
+      pvp_pokemon_init( our_roster->roster_pokemon + i, team[i] );
     }
   return AI_SUCCESS;
 }
@@ -54,11 +54,11 @@ naive_ai_decide_action( bool           decide_p1,
                         void         * aux
                       )
 {
-  if ( battle == NULL ) return AI_BAD_VALUE;
-  if ( choice == NULL ) return AI_BAD_VALUE;
+  if ( battle == NULL ) return AI_ERROR_BAD_VALUE;
+  if ( choice == NULL ) return AI_ERROR_BAD_VALUE;
 
   pvp_player_t * self = decide_p1 ? battle->p1 : battle->p2;
-  if ( self == NULL ) return AI_BAD_VALUE;
+  if ( self == NULL ) return AI_ERROR_BAD_VALUE;
 
   if ( is_valid_action( decide_p1, CHARGED1, battle ) )
     {
@@ -98,7 +98,7 @@ naive_ai_decide_action( bool           decide_p1,
   ai_status_t
 naive_ai_init( ai_t * ai, void * init_aux )
 {
-  if ( ai == NULL ) return AI_BAD_VALUE;
+  if ( ai == NULL ) return AI_ERROR_BAD_VALUE;
   return AI_SUCCESS;
 }
 

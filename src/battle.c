@@ -4,6 +4,9 @@
 
 #include <stdio.h>
 #include "battle.h"
+#include "player.h"
+#include "pvp_action.h"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -32,7 +35,7 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              ( get_pvp_mon_move_energy( get_active_pokemon( *self ),
                                         M_CHARGED1
                                       ) <=
-               get_active_pokemon( *self ).energy
+               get_active_pokemon( *self ).stored_energy
              );
 
     case CHARGED2:
@@ -42,7 +45,7 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              ( get_pvp_mon_move_energy( get_active_pokemon( *self ),
                                         M_CHARGED2
                                       ) <=
-               get_active_pokemon( *self ).energy
+               get_active_pokemon( *self ).stored_energy
              );
 
     case SWITCH1:
@@ -62,15 +65,15 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
 
 /* ------------------------------------------------------------------------- */
 
-  pvp_action_flag_t
+  pvp_action_mask_t
 valid_actions( bool decide_p1, pvp_battle_t * battle )
 {
-  pvp_action_flag_t valids = ACT_NULL_M;
+  pvp_action_mask_t valids = ACT_NULL_M;
   for ( uint8_t a = 1; a < NUM_PVP_ACTIONS; a++ )
      {
        if ( is_valid_action( decide_p1, a, battle ) )
          {
-           valids |= get_pvp_act_mask( a );
+           valids |= get_pvp_act_mask( (pvp_action_t) a );
          }
      }
   return valids;

@@ -176,14 +176,6 @@ void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 
 /* ------------------------------------------------------------------------- */
 
-/**
- * A "team" is explicitly 3 pokemon which are being used in PvP battle.
- */
-typedef pvp_pokemon_t  pvp_team_t[3];
-
-
-/* ------------------------------------------------------------------------- */
-
 const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
 const_fn stats_t  get_effective_stats( stats_t base, stats_t ivs, float level );
 

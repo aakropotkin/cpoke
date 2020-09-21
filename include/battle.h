@@ -144,7 +144,7 @@ struct pvp_player_s * get_battle_winner( pvp_battle_t * battle );
  * For example it is not valid to use a charged move without the available
  * energy, or to switch when there are no available pokemon.
  */
-pvp_action_flag_t valid_actions( bool decide_p1, pvp_battle_t * battle );
+pvp_action_mask_t valid_actions( bool decide_p1, pvp_battle_t * battle );
 bool              is_valid_action( bool           decide_p1,
                                    pvp_action_t   action,
                                    pvp_battle_t * battle
