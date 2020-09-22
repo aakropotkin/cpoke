@@ -174,7 +174,7 @@ test_cstore_roster( void )
 
 /* ------------------------------------------------------------------------- */
 
-static bool
+  static bool
 test_roster_append( void )
 {
   store_t cstore  = CSTORE;
@@ -300,6 +300,48 @@ test_get_effective_stats( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_pvp_damage( void )
+{
+  /**
+   * Originally Cribbed from `pokemongohub.net', notably their math is off by 1
+   * because they rounded up rather than down for `floor'.
+   * No it is not a precision issue, I've tried it a million ways.
+   *
+   * They also use the wrong defense for Vaporeon so I just redid it.
+   */
+  pvp_pokemon_t venusaur = PVP_MON_NULL;
+  venusaur.stats = (stats_t) { .stamina = 190 + 15,
+                               .attack  = 198 + 15,
+                               .defense = 189 + 15
+                             };
+  venusaur.types = GRASS_M | POISON_M;
+  venusaur.level = 30;
+  venusaur.charged_moves[0] = (pvp_charged_move_t) {
+    .move_id = 116,
+    .type    = GRASS,
+    .is_fast = false,
+    .power   = 150,
+    .energy  = 80,
+    .buff    = NO_BUFF
+  };
+
+  pvp_pokemon_t vaporeon = PVP_MON_NULL;
+  vaporeon.level = 30;
+  vaporeon.stats = (stats_t) { .stamina = 277 + 15,
+                               .attack  = 205 + 15,
+                               .defense = 161 + 15
+                              };
+  vaporeon.types = WATER_M;
+
+  expect( get_pvp_damage( M_CHARGED1, & venusaur, & vaporeon ) == 182 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
@@ -314,6 +356,7 @@ test_pokemon( void )
   rsl &= do_test( get_pvp_mon_move );
   rsl &= do_test( get_cp_from_stats );
   rsl &= do_test( get_effective_stats );
+  rsl &= do_test( get_pvp_damage );
 
   CS_free();
   return rsl;

@@ -105,7 +105,8 @@ roster_t * roster_append( roster_t * roster, roster_pokemon_t * mon );
  * simulation runner to manage logging that info.
  */
 struct pvp_pokemon_s {
-  stats_t            stats;        /* From LV, IVs, and Base stats */
+  uint8_t            level;
+  stats_t            stats;        /* Sum of IVs and Base stats */
   ptype_mask_t       types;
   uint16_t           hp;
   uint8_t            cooldown;     /* # Turns until next action */
@@ -117,6 +118,7 @@ struct pvp_pokemon_s {
 typedef struct pvp_pokemon_s  pvp_pokemon_t;
 
 static const pvp_pokemon_t PVP_MON_NULL = {
+  .level         = 0,
   .stats         = { .attack = 0, .stamina = 0, .defense = 0 },
   .types         = PT_NONE_M,
   .hp            = 0,
