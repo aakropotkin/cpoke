@@ -23,7 +23,7 @@ test_is_valid_action( void )
   pvp_player_t p2     = PVP_PLAYER_NULL;
   pvp_battle_t battle = PVP_BATTLE_NULL;
 
-  p1.team.mon0.hp = 10;
+  p1.team[0].hp = 10;
 
   return true;
 }

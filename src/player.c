@@ -6,14 +6,15 @@
 #include "player.h"
 #include "pokemon.h"
 
+
 /* ------------------------------------------------------------------------- */
 
   uint8_t
 get_remaining_pokemon( pvp_player_t * player )
 {
   assert( player != NULL );
-  return ( !! player->team.mon0.hp ) + ( !! player->team.mon1.hp ) +
-         ( !! player->team.mon2.hp );
+  return ( !! player->team[0].hp ) + ( !! player->team[1].hp ) +
+         ( !! player->team[2].hp );
 }
 
 
