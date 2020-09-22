@@ -228,16 +228,47 @@ test_roster_append( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_pvp_mon_move( void )
+{
+  pvp_pokemon_t mon    = PVP_MON_NULL;
+  mon.fast_move        = vine_whip_pvp;
+  mon.charged_moves[0] = power_whip_pvp;
+
+  expect( get_pvp_mon_move( mon, M_FAST ).move_id == vine_whip_pvp.move_id );
+  expect( get_pvp_mon_move( mon, M_CHARGED1 ).move_id ==
+          power_whip_pvp.move_id
+        );
+
+  expect( get_pvp_mon_move_id( mon, M_FAST ) == vine_whip_pvp.move_id );
+  expect( get_pvp_mon_move_id( mon, M_CHARGED1 ) == power_whip_pvp.move_id );
+
+  expect( get_pvp_mon_move_power( mon, M_FAST ) == vine_whip_pvp.power );
+  expect( get_pvp_mon_move_power( mon, M_CHARGED1 ) == power_whip_pvp.power );
+
+  expect( get_pvp_mon_move_energy( mon, M_FAST ) == vine_whip_pvp.energy );
+  expect( get_pvp_mon_move_energy( mon, M_CHARGED1 ) == power_whip_pvp.energy
+        );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
   bool rsl = true;
   CS_init();
+
   rsl &= do_test( construct_pokemon );
   rsl &= do_test( get_cpm_for_level );
   rsl &= do_test( cstore_roster );
   rsl &= do_test( cstore_base_mon_from_store );
   rsl &= do_test( roster_append );
+  rsl &= do_test( get_pvp_mon_move );
+
   CS_free();
   return rsl;
 }

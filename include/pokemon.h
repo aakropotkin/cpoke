@@ -162,11 +162,10 @@ void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
 const_fn stats_t  get_effective_stats( stats_t base, stats_t ivs, float level );
 
- const_fn uint16_t
-get_pvp_damage( pmove_idx_t     attack_idx,
-                pvp_pokemon_t * attacker,
-                pvp_pokemon_t * defender
-              );
+const_fn uint16_t get_pvp_damage( pmove_idx_t     attack_idx,
+                                  pvp_pokemon_t * attacker,
+                                  pvp_pokemon_t * defender
+                                );
 
 
 /* ------------------------------------------------------------------------- */
