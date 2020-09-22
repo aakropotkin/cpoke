@@ -116,8 +116,19 @@ struct pvp_battle_s {
   uint32_t              turn;
   battle_phase_t        phase;
 } packed;
-
 typedef struct pvp_battle_s pvp_battle_t;
+
+static const pvp_battle_t PVP_BATTLE_NULL = {
+  .p1        = NULL,
+  .p2        = NULL,
+  .p1_action = ACT_NULL,
+  .p2_action = ACT_NULL,
+  .turn      = 0,
+  .phase     = COUNTDOWN
+};
+
+
+/* ------------------------------------------------------------------------- */
 
 void pvp_battle_init( pvp_battle_t * battle );
 void pvp_battle_free( pvp_battle_t * battle );

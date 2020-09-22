@@ -21,7 +21,7 @@ BINS    := cpoke parse_gm fetch_gm test
 EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
 
-CORE_OBJECTS := pokemon.o ptypes.o pokedex.o
+CORE_OBJECTS := pokemon.o ptypes.o pokedex.o moves.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
 CSTORE_OBJECTS := cstore.o cstore_data.o
@@ -87,6 +87,9 @@ pokemon.o: ${SRCPATH}/pokemon.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 ptypes.o: ${SRCPATH}/ptypes.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+moves.o: ${SRCPATH}/moves.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 

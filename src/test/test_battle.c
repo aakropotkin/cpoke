@@ -17,8 +17,13 @@
 
 
   static bool
-test_foo( void )
+test_is_valid_action( void )
 {
+  pvp_player_t p1     = PVP_PLAYER_NULL;
+  pvp_player_t p2     = PVP_PLAYER_NULL;
+  pvp_battle_t battle = PVP_BATTLE_NULL;
+
+  p1.team.mon0.hp = 10;
 
   return true;
 }
@@ -30,7 +35,7 @@ test_foo( void )
 test_battle( void )
 {
   bool rsl = true;
-  rsl &= do_test( foo );
+  rsl &= do_test( is_valid_action );
 
   return rsl;
 }

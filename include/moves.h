@@ -83,28 +83,7 @@ static const buff_state_t NO_BUFF_STATE = {
 
 #define get_buff_mod( buff_level )  ( BUFF_MOD[( buff_level )] )
 
-  static inline void
-apply_buff( buff_state_t * buff_state, buff_t buff )
-{
-  /* Attack */
-  if ( buff.atk_buff.debuffp )
-    {
-      buff_state->atk_buff_lv =
-        max( B_4_8, buff_state->atk_buff_lv - buff.atk_buff.amount );
-    } else {
-    buff_state->atk_buff_lv =
-      min( B_8_4, buff_state->atk_buff_lv + buff.atk_buff.amount );
-  }
-  /* Defense */
-  if ( buff.def_buff.debuffp )
-    {
-      buff_state->def_buff_lv =
-        max( B_4_8, buff_state->def_buff_lv - buff.def_buff.amount );
-    } else {
-    buff_state->def_buff_lv =
-      min( B_8_4, buff_state->def_buff_lv + buff.def_buff.amount );
-  }
-}
+void apply_buff( buff_state_t * buff_state, buff_t buff );
 
 
 /* ------------------------------------------------------------------------- */
@@ -151,6 +130,11 @@ static const pve_move_t NO_MOVE_PVE = {
   .cooldown = 0
 };
 
+int pve_move_from_store( store_t    * store,
+                         uint16_t     move_id,
+                         pve_move_t * move
+                       );
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -165,6 +149,11 @@ static const pvp_charged_move_t NO_MOVE_PVP_CHARGED = {
   .buff    = NO_BUFF
 };
 
+int pvp_charged_move_from_store( store_t            * store,
+                                 uint16_t             move_id,
+                                 pvp_charged_move_t * move
+                               );
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -175,6 +164,11 @@ struct pvp_fast_move_s {
 typedef struct pvp_fast_move_s  pvp_fast_move_t;
 
 static const pvp_fast_move_t NO_MOVE_PVP_FAST = { NO_MOVE, .turns = 0 };
+
+int pvp_fast_move_from_store( store_t         * store,
+                              uint16_t          move_id,
+                              pvp_fast_move_t * move
+                            );
 
 
 /* ------------------------------------------------------------------------- */
@@ -198,9 +192,6 @@ struct store_move_s {
   UT_hash_handle hh_move_id;
 };
 typedef struct store_move_s  store_move_t;
-
-
-/* ------------------------------------------------------------------------- */
 
 static const store_move_t NO_MOVE_STORE = {
   .name       = NULL,
@@ -246,7 +237,7 @@ move_id_store_key( uint16_t move_id )
 /* ------------------------------------------------------------------------- */
 
   static inline pve_move_t
-pve_move_from_store( store_move_t * stored )
+pve_move_from_store_move( store_move_t * stored )
 {
   assert( stored != NULL );
   pve_move_t move = {
@@ -261,7 +252,7 @@ pve_move_from_store( store_move_t * stored )
 }
 
   static inline pvp_charged_move_t
-pvp_charged_move_from_store( store_move_t * stored )
+pvp_charged_move_from_store_move( store_move_t * stored )
 {
   assert( stored != NULL );
   pvp_charged_move_t move = {
@@ -276,7 +267,7 @@ pvp_charged_move_from_store( store_move_t * stored )
 }
 
   static inline pvp_fast_move_t
-pvp_fast_move_from_store( store_move_t * stored )
+pvp_fast_move_from_store_move( store_move_t * stored )
 {
   assert( stored != NULL );
   pvp_fast_move_t move = {
@@ -293,179 +284,25 @@ pvp_fast_move_from_store( store_move_t * stored )
 
 /* ------------------------------------------------------------------------- */
 
-  static int
-fprint_buff( FILE * stream, const buff_t * buff )
-{
-  int pc = 0;
-  pc += fprintf( stream, "{ attack:  { target: " );
-  if ( buff->atk_buff.target == 1 ) pc += fprintf( stream, "OPPONENT" );
-  else                              pc += fprintf( stream, "SELF" );
-  pc += fprintf( stream, ", amount: %d", decode_stat_buff( buff->atk_buff ) );
-
-  pc += fprintf( stream, " },\n          defense: { target: " );
-  if ( buff->def_buff.target == 1 ) pc += fprintf( stream, "OPPONENT" );
-  else                              pc += fprintf( stream, "SELF" );
-  pc += fprintf( stream, ", amount: %d", decode_stat_buff( buff->def_buff ) );
-  pc += fprintf( stream, " },\n          chance: " );
-  switch ( buff->chance )
-    {
-    case bc_1000: pc += fprintf( stream, "1.0" ); break;
-    case bc_0500: pc += fprintf( stream, "0.5" ); break;
-    case bc_0300: pc += fprintf( stream, "0.3" ); break;
-    case bc_0125: pc += fprintf( stream, "0.125" ); break;
-    case bc_0100: pc += fprintf( stream, "0.1" ); break;
-    case bc_0000: pc += fprintf( stream, "0.0" ); break;
-    }
-  pc += fprintf( stream, "\n        }" );
-  return pc;
-}
+int fprint_buff( FILE * stream, const buff_t * buff );
 #define print_buff( BUFF )  fprint_buff( stdout, ( BUFF ) )
 
-
-/* ------------------------------------------------------------------------- */
-
-  static int
-fprint_buff_json( FILE * stream, const buff_t * buff )
-{
-  int pc = 0;
-  pc += fprintf( stream, "{ \"attack\":  { \"target\": " );
-  if ( buff->atk_buff.target == 1 ) pc += fprintf( stream, "\"OPPONENT\"" );
-  else                              pc += fprintf( stream, "\"SELF\"" );
-  pc += fprintf( stream, ", \"amount\": %d", decode_stat_buff( buff->atk_buff ) );
-
-  pc += fprintf( stream, " },\n            \"defense\": { \"target\": " );
-  if ( buff->def_buff.target == 1 ) pc += fprintf( stream, "\"OPPONENT\"" );
-  else                              pc += fprintf( stream, "\"SELF\"" );
-  pc += fprintf( stream, ", \"amount\": %d", decode_stat_buff( buff->def_buff ) );
-  pc += fprintf( stream, " },\n            \"chance\": " );
-  switch ( buff->chance )
-    {
-    case bc_1000: pc += fprintf( stream, "1.0" ); break;
-    case bc_0500: pc += fprintf( stream, "0.5" ); break;
-    case bc_0300: pc += fprintf( stream, "0.3" ); break;
-    case bc_0125: pc += fprintf( stream, "0.125" ); break;
-    case bc_0100: pc += fprintf( stream, "0.1" ); break;
-    case bc_0000: pc += fprintf( stream, "0.0" ); break;
-    }
-  pc += fprintf( stream, "\n          }" );
-  return pc;
-}
+int fprint_buff_json( FILE * stream, const buff_t * buff );
 #define print_buff_json( BUFF )  fprint_buff_json( stdout, ( BUFF ) )
 
-
-/* ------------------------------------------------------------------------- */
-
-  static int
-fprint_buff_c( FILE * stream, const buff_t * buff )
-{
-  int pc = 0;
-  pc += fprintf( stream,
-                 "{ .atk_buff =  { .target = %d, .debuffp = %d, .amount = %d }"
-                 ",\n              .atk_buff = { .target = %d, .debuffp = %d, "
-                 ".amount = %d },\n              .chance = ",
-                 buff->atk_buff.target,
-                 buff->atk_buff.debuffp,
-                 buff->atk_buff.amount,
-                 buff->def_buff.target,
-                 buff->def_buff.debuffp,
-                 buff->def_buff.amount
-               );
-  switch ( buff->chance )
-    {
-    case bc_1000: pc += fprintf( stream, "bc_1000" ); break;
-    case bc_0500: pc += fprintf( stream, "bc_0500" ); break;
-    case bc_0300: pc += fprintf( stream, "bc_0300" ); break;
-    case bc_0125: pc += fprintf( stream, "bc_0125" ); break;
-    case bc_0100: pc += fprintf( stream, "bc_0100" ); break;
-    case bc_0000: pc += fprintf( stream, "bc_0000" ); break;
-    }
-  pc += fprintf( stream, "\n            }" );
-  return pc;
-}
+int fprint_buff_c( FILE * stream, const buff_t * buff );
 #define print_buff_c( BUFF )  fprint_buff_c( stdout, ( BUFF ) )
 
 
 /* ------------------------------------------------------------------------- */
 
-  static int
-fprint_store_move( FILE * stream, const store_move_t * move )
-{
-  int pc = 0;
-  pc += fprintf( stream, "(store_move_t) {\n" );
-  pc += fprintf( stream, "  name: %s,\n", move->name );
-  pc += fprintf( stream, "  type: %s,\n", get_ptype_name( move->type ) );
-  pc += fprintf( stream, "  is_fast: %d,\n", move->is_fast );
-  pc += fprintf( stream, "  move_id: %d,\n", move->move_id );
-  pc += fprintf( stream, "  cooldown: %d,\n", move->cooldown );
-  pc += fprintf( stream, "  pve_power: %d,\n", move->pve_power );
-  pc += fprintf( stream, "  pvp_power: %d,\n", move->pvp_power );
-  pc += fprintf( stream, "  pve_energy: %d,\n", move->pve_energy );
-  pc += fprintf( stream, "  pvp_energy: %d,\n", move->pvp_energy );
-  pc += fprintf( stream, "  buff: " );
-  if ( ( move->buff.atk_buff.amount == 0 ) &&
-       ( move->buff.def_buff.amount == 0 )
-     ) pc += fprintf( stream, "NO_BUFF" );
-  else pc += fprint_buff( stream, & move->buff );
-  pc += fprintf( stream, "\n}");
-  return pc;
-}
+int fprint_store_move( FILE * stream, const store_move_t * move );
 #define print_store_move( MOVE )  fprint_store_move( stdout, ( MOVE ) )
 
-
-/* ------------------------------------------------------------------------- */
-
-  static int
-fprint_store_move_json( FILE * stream, const store_move_t * move )
-{
-  int pc = 0;
-  pc += fprintf( stream, "{\n" );
-  pc += fprintf( stream, "  \"name\": \"%s\",\n", move->name );
-  pc += fprintf( stream,
-                 "  \"type\": \"%s\",\n",
-                 get_ptype_name( move->type )
-               );
-  pc += fprintf( stream, "  \"is_fast\": %d,\n", move->is_fast );
-  pc += fprintf( stream, "  \"move_id\": %d,\n", move->move_id );
-  pc += fprintf( stream, "  \"cooldown\": %d,\n", move->cooldown );
-  pc += fprintf( stream, "  \"pve_power\": %d,\n", move->pve_power );
-  pc += fprintf( stream, "  \"pvp_power\": %d,\n", move->pvp_power );
-  pc += fprintf( stream, "  \"pve_energy\": %d,\n", move->pve_energy );
-  pc += fprintf( stream, "  \"pvp_energy\": %d,\n", move->pvp_energy );
-  pc += fprintf( stream, "  \"buff\": " );
-  if ( ( move->buff.atk_buff.amount == 0 ) &&
-       ( move->buff.def_buff.amount == 0 )
-     ) pc += fprint_buff_json( stream, & NO_BUFF );
-  else pc += fprint_buff_json( stream, & move->buff );
-  pc += fprintf( stream, "\n}");
-  return pc;
-}
+int fprint_store_move_json( FILE * stream, const store_move_t * move );
 #define print_store_move_json( MOVE )  fprint_store_move_json( stdout, ( MOVE ) )
 
-
-/* ------------------------------------------------------------------------- */
-
-  static int
-fprint_store_move_c( FILE * stream, const store_move_t * move )
-{
-  int pc = 0;
-  pc += fprintf( stream, "{\n" );
-  pc += fprintf( stream, "  .name = \"%s\",\n", move->name );
-  pc += fprintf( stream, "  .type = %s,\n", get_ptype_name( move->type ) );
-  pc += fprintf( stream, "  .is_fast = %d,\n", move->is_fast );
-  pc += fprintf( stream, "  .move_id = %d,\n", move->move_id );
-  pc += fprintf( stream, "  .cooldown = %d,\n", move->cooldown );
-  pc += fprintf( stream, "  .pve_power = %d,\n", move->pve_power );
-  pc += fprintf( stream, "  .pvp_power = %d,\n", move->pvp_power );
-  pc += fprintf( stream, "  .pve_energy = %d,\n", move->pve_energy );
-  pc += fprintf( stream, "  .pvp_energy = %d,\n", move->pvp_energy );
-  pc += fprintf( stream, "  .buff = " );
-  if ( ( move->buff.atk_buff.amount == 0 ) &&
-       ( move->buff.def_buff.amount == 0 )
-     ) pc += fprintf( stream, "NO_BUFF" );
-  else pc += fprint_buff_c( stream, & move->buff );
-  pc += fprintf( stream, "\n}");
-  return pc;
-}
+int fprint_store_move_c( FILE * stream, const store_move_t * move );
 #define print_store_move_c( MOVE )  fprint_store_move_c( stdout, ( MOVE ) )
 
 

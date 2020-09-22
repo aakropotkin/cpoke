@@ -19,7 +19,6 @@ struct player_s {
   uint16_t wins;
   uint16_t battles;
 } packed;
-
 typedef struct player_s  player_t;
 
 
@@ -32,8 +31,15 @@ struct pvp_player_s {
   uint8_t         shields        : 2;   /* 0-2  */
   uint8_t         switch_turns   : 4;   /* 0-12 */
 } packed;
-
 typedef struct pvp_player_s  pvp_player_t;
+
+static const pvp_player_t PVP_PLAYER_NULL = {
+  .ai             = NULL,
+  .team           = { PVP_MON_NULL, PVP_MON_NULL, PVP_MON_NULL },
+  .active_pokemon = 0,
+  .shields        = 2,
+  .switch_turns   = 0
+};
 
 
 /* ------------------------------------------------------------------------- */
@@ -43,7 +49,6 @@ typedef struct pvp_player_s  pvp_player_t;
     ( ( PLAYER ).active_pokemon == 1 ) ? ( PLAYER ).team.mon1                 \
                                        : ( PLAYER ).team.mon2                 \
   )
-
 
 
 /* ------------------------------------------------------------------------- */
