@@ -285,6 +285,21 @@ test_get_cp_from_stats( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_effective_stats( void )
+{
+  const stats_t mewtwo_base = { .attack = 300, .stamina = 214, .defense = 182 };
+  const stats_t mewtwo_ivs  = { .attack  = 14, .stamina = 15, .defense = 15};
+
+  /* HP is the only real good indicator we have from the game */
+  expect( get_effective_stats( mewtwo_base, mewtwo_ivs, 40 ).stamina == 180 );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
@@ -298,6 +313,7 @@ test_pokemon( void )
   rsl &= do_test( roster_append );
   rsl &= do_test( get_pvp_mon_move );
   rsl &= do_test( get_cp_from_stats );
+  rsl &= do_test( get_effective_stats );
 
   CS_free();
   return rsl;
