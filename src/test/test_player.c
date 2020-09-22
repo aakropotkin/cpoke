@@ -103,6 +103,7 @@ test_switch_timer( void )
 
   start_switch_timer( & player );
   expect( 0 < player.switch_turns );
+  expect( player.switch_turns == SWITCH_TURNS );
 
   assert( 2 < player.switch_turns );
   decr_switch_timer( & player, 2 );
@@ -111,6 +112,10 @@ test_switch_timer( void )
   assert( 0 < player.switch_turns );
   decr_switch_timer( & player, player.switch_turns + 1 );
   expect( player.switch_turns == 0 );
+
+  start_switch_timer( & player );
+  expect( 0 < player.switch_turns );
+  expect( player.switch_turns == SWITCH_TURNS );
 
   return true;
 }
