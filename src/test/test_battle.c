@@ -23,7 +23,19 @@ test_is_valid_action( void )
   pvp_player_t p2     = PVP_PLAYER_NULL;
   pvp_battle_t battle = PVP_BATTLE_NULL;
 
+  battle.p1 = & p1;
+  battle.p2 = & p2;
+  battle.phase = NEUTRAL;
+
+  assert( p1.active_pokemon == 0 );
   p1.team[0].hp = 10;
+  p1.team[0].charged_moves[0].energy = 10;
+  p1.team[0].charged_moves[1].energy = 10;
+  assert( p2.active_pokemon == 0 );
+  p2.team[0].hp = 10;
+
+  expect( is_valid_action( true, FAST, & battle ) == true );
+  expect( is_valid_action( true, CHARGED1, & battle ) == false );
 
   return true;
 }
