@@ -256,6 +256,35 @@ test_get_pvp_mon_move( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_cp_from_stats( void )
+{
+  const stats_t ralts_base = { .attack = 79, .stamina = 99, .defense = 59 };
+  expect( get_cp_from_stats( ralts_base,
+                             (stats_t) { .attack  = 4,
+                                         .stamina = 6,
+                                         .defense = 12
+                                       },
+                             20
+                           ) == 255
+        );
+
+  const stats_t mewtwo_base = { .attack = 300, .stamina = 214, .defense = 182 };
+  expect( get_cp_from_stats( mewtwo_base,
+                             (stats_t) { .attack  = 14,
+                                         .stamina = 15,
+                                         .defense = 15
+                                       },
+                             40
+                           ) == 4165
+        );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
@@ -268,6 +297,7 @@ test_pokemon( void )
   rsl &= do_test( cstore_base_mon_from_store );
   rsl &= do_test( roster_append );
   rsl &= do_test( get_pvp_mon_move );
+  rsl &= do_test( get_cp_from_stats );
 
   CS_free();
   return rsl;
