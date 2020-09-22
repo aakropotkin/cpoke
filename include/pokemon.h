@@ -39,6 +39,9 @@ static const base_pokemon_t BASE_MON_NULL = {
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Fetch a pokemon from a store to create a `base_pokemon_t'
+ */
 int base_mon_from_store( store_t        * store,
                          uint16_t         dex_num,
                          uint8_t          form_idx,
@@ -52,6 +55,12 @@ int base_mon_from_store( store_t        * store,
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Represents an instance of a pokemon with IVs and moves.
+ * Used to create PvP/PvE pokemon.
+ * A user will likely store their pokemon collection as a roster to import into
+ * the simulator.
+ */
 struct roster_pokemon_s {
   base_pokemon_t * base;
   uint16_t         fast_move_id;
@@ -106,6 +115,17 @@ struct pvp_pokemon_s {
   pvp_charged_move_t charged_moves[2];
 } packed;
 typedef struct pvp_pokemon_s  pvp_pokemon_t;
+
+static const pvp_pokemon_t PVP_MON_NULL = {
+  .stats         = { .attack = 0, .stamina = 0, .defense = 0 },
+  .types         = PT_NONE_M,
+  .hp            = 0,
+  .cooldown      = 0,
+  .stored_energy = 0,
+  .buffs         = NO_BUFF_STATE,
+  .fast_move     = NO_MOVE_PVP_FAST,
+  .charged_moves = { NO_MOVE_PVP_CHARGED, NO_MOVE_PVP_CHARGED }
+};
 
 void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 

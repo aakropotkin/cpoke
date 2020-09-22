@@ -77,6 +77,10 @@ struct buff_state_s {
 } packed;
 typedef struct buff_state_s  buff_state_t;
 
+static const buff_state_t NO_BUFF_STATE = {
+  .atk_buff_lv = B_4_4, .def_buff_lv = B_4_4
+};
+
 #define get_buff_mod( buff_level )  ( BUFF_MOD[( buff_level )] )
 
   static inline void
