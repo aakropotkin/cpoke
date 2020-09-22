@@ -49,10 +49,14 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              );
 
     case SWITCH1:
-      return ( 0 < get_remaining_pokemon( self ) );
+      return ( !!( 0 < get_active_pokemon( *self ).hp ) <
+               get_remaining_pokemon( self )
+             );
 
     case SWITCH2:
-      return ( 1 < get_remaining_pokemon( self ) );
+      return ( ( 1 + !!( 0 < get_active_pokemon( *self ).hp ) ) <
+               get_remaining_pokemon( self )
+             );
 
     case SHIELD:
       return ( battle->phase == SUSPEND_CHARGED_ATTACK ) &&
