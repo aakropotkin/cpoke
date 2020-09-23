@@ -52,9 +52,11 @@ test_is_valid_action( void )
   expect( is_valid_action( false, SWITCH1, & battle ) == false );
   expect( is_valid_action( true, SWITCH2, & battle ) == false );
   expect( is_valid_action( false, SWITCH2, & battle ) == false );
-  /* Phase is not `SUSPEND_CHARGED_ATTACK' so shielding is not allowed */
+  /* Phase is not `SUSPEND_CHARGED' so shielding is not allowed */
   expect( is_valid_action( true, SHIELD, & battle ) == false );
   expect( is_valid_action( false, SHIELD, & battle ) == false );
+
+
 
   return true;
 }

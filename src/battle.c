@@ -59,7 +59,7 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              );
 
     case SHIELD:
-      return ( battle->phase == SUSPEND_CHARGED_ATTACK ) &&
+      return ( battle->phase == SUSPEND_CHARGED ) &&
              ( 0 < self->shields );
     }
 
