@@ -64,12 +64,86 @@ test_is_valid_action( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_is_battle_over( void )
+{
+  pvp_player_t p1     = PVP_PLAYER_NULL;
+  pvp_player_t p2     = PVP_PLAYER_NULL;
+  pvp_battle_t battle = PVP_BATTLE_NULL;
+
+  battle.p1 = & p1;
+  battle.p2 = & p2;
+  battle.phase = NEUTRAL;
+
+  assert( battle.p1->team[0].hp == 0 );
+  assert( battle.p1->team[1].hp == 0 );
+  assert( battle.p1->team[2].hp == 0 );
+  assert( battle.p2->team[0].hp == 0 );
+  assert( battle.p2->team[1].hp == 0 );
+  assert( battle.p2->team[2].hp == 0 );
+
+  expect( is_battle_over( & battle ) == true );
+
+  battle.p1->team[0].hp = 1;
+  expect( is_battle_over( & battle ) == true );
+
+  battle.p2->team[0].hp = 1;
+  expect( is_battle_over( & battle ) == false );
+
+  battle.phase = GAME_OVER;
+  expect( is_battle_over( & battle ) == true );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  static bool
+test_is_p1_winner( void )
+{
+  pvp_player_t p1     = PVP_PLAYER_NULL;
+  pvp_player_t p2     = PVP_PLAYER_NULL;
+  pvp_battle_t battle = PVP_BATTLE_NULL;
+
+  battle.p1 = & p1;
+  battle.p2 = & p2;
+  battle.phase = NEUTRAL;
+
+  assert( battle.p1->team[0].hp == 0 );
+  assert( battle.p1->team[1].hp == 0 );
+  assert( battle.p1->team[2].hp == 0 );
+  assert( battle.p2->team[0].hp == 0 );
+  assert( battle.p2->team[1].hp == 0 );
+  assert( battle.p2->team[2].hp == 0 );
+
+  /**
+   * P2 is said to win ties, because GBL counts ties as losses for both
+   * players, and we assume that the user is P1.
+   */
+  expect( is_p1_winner( & battle ) == false );
+
+  battle.p1->team[0].hp = 1;
+  expect( is_p1_winner( & battle ) == true );
+
+  battle.p1->team[0].hp = 0;
+  battle.p2->team[0].hp = 1;
+  expect( is_p1_winner( & battle ) == false );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_battle( void )
 {
   bool rsl = true;
 
   rsl &= do_test( is_valid_action );
+  rsl &= do_test( is_battle_over );
+  rsl &= do_test( is_p1_winner );
 
   return rsl;
 }

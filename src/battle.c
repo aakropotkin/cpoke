@@ -27,7 +27,8 @@ is_p1_winner( pvp_battle_t * battle )
 {
   assert( battle != NULL );
   assert( is_battle_over( battle ) == true );
-  return get_remaining_pokemon( battle->p2 ) <= 0;
+  return ( get_remaining_pokemon( battle->p2 ) <= 0 ) &&
+         ( 0 < get_remaining_pokemon( battle->p1 ) );
 }
 
 
@@ -37,6 +38,10 @@ is_p1_winner( pvp_battle_t * battle )
 get_battle_winner( pvp_battle_t * battle )
 {
   assert( battle != NULL );
+  /* Detect a tie */
+  if ( ( get_remaining_pokemon( battle->p1 ) == 0 ) &&
+       ( get_remaining_pokemon( battle->p2 ) == 0 )
+     ) return NULL;
   return is_p1_winner( battle ) ? battle->p1 : battle->p2;
 }
 
