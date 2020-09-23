@@ -136,6 +136,40 @@ test_is_p1_winner( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_get_battle_winner( void )
+{
+  pvp_player_t p1     = PVP_PLAYER_NULL;
+  pvp_player_t p2     = PVP_PLAYER_NULL;
+  pvp_battle_t battle = PVP_BATTLE_NULL;
+
+  battle.p1 = & p1;
+  battle.p2 = & p2;
+  battle.phase = NEUTRAL;
+
+  assert( battle.p1->team[0].hp == 0 );
+  assert( battle.p1->team[1].hp == 0 );
+  assert( battle.p1->team[2].hp == 0 );
+  assert( battle.p2->team[0].hp == 0 );
+  assert( battle.p2->team[1].hp == 0 );
+  assert( battle.p2->team[2].hp == 0 );
+
+  /* Ties return `NULL' */
+  expect( get_battle_winner( & battle ) == NULL );
+
+  battle.p1->team[0].hp = 1;
+  expect( get_battle_winner( & battle ) == ( & p1 ) );
+
+  battle.p1->team[0].hp = 0;
+  battle.p2->team[0].hp = 1;
+  expect( get_battle_winner( & battle ) == ( & p2 ) );
+
+  return true;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_battle( void )
 {
@@ -144,6 +178,7 @@ test_battle( void )
   rsl &= do_test( is_valid_action );
   rsl &= do_test( is_battle_over );
   rsl &= do_test( is_p1_winner );
+  rsl &= do_test( get_battle_winner );
 
   return rsl;
 }
