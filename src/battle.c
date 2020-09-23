@@ -10,6 +10,48 @@
 
 /* ------------------------------------------------------------------------- */
 
+  bool
+is_battle_over( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+  return ( battle->phase == GAME_OVER )               ||
+         ( get_remaining_pokemon( battle->p1 ) <= 0 ) ||
+         ( get_remaining_pokemon( battle->p2 ) <= 0 );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+is_p1_winner( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+  assert( is_battle_over( battle ) == true );
+  return get_remaining_pokemon( battle->p2 ) <= 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  pvp_player_t *
+get_battle_winner( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+  return is_p1_winner( battle ) ? battle->p1 : battle->p2;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+eval_turn( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+  assert( battle->p1_action != ACT_NULL );
+  assert( battle->p2_action != ACT_NULL );
+}
+
+
 
 /* ------------------------------------------------------------------------- */
 

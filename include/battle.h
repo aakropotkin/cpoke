@@ -15,9 +15,18 @@ struct pvp_player_s;
 
 /* ------------------------------------------------------------------------- */
 
-static const float   PVP_FAST_BONUS_MOD   = 1.3;
-static const float   PVP_CHARGE_BONUS_MOD = 1.3;
+/**
+ * I believe that these are the modifiers that were originally used to set
+ * the power of PvP moves.
+ * We don't currently use them for anything.
+ */
+//static const float   PVP_FAST_BONUS_MOD   = 1.3;
+//static const float   PVP_CHARGE_BONUS_MOD = 1.3;
 
+/**
+ * There is still argument about whether there is a sliding scale "between"
+ * these levels, this isn't super relevant to the simulator though.
+ */
 static const float   CHARGE_BASE_MOD      = 0.25;
 static const float   CHARGE_NICE_MOD      = 0.5;
 static const float   CHARGE_GREAT_MOD     = 0.75;
@@ -61,13 +70,25 @@ typedef enum packed {
 /* ------------------------------------------------------------------------- */
 
 /**
- * I'm pretty sure these are only used for UI animations during
- * interactive battles.
+ * Some of these are only relevant for interactive battles.
+ * Simulated battles only use `NEUTRAL', `SUSPEND_CHARGED' when determining
+ * if the defender will shield, and `SUSPEND_SWITCH_TIE' when both pokemon
+ * faint and AIs may want to play chicken for lead advantage.
+ * <p>
+ * During simulation the battle handler only requests actions from one player
+ * in suspend states.
  */
 typedef enum packed {
-  NEUTRAL, COUNTDOWN, SUSPEND_CHARGED, SUSPEND_CHARGED_ATTACK,
-  SUSPEND_CHARGED_SHIELD, SUSPEND_CHARGED_NO_SHIELD, SUSPEND_SWITCH_P1,
-  SUSPEND_SWITCH_P2, ANIMATING, GAME_OVER
+  COUNTDOWN,                  /* Waiting for a battle to start */
+  NEUTRAL,                    /* Normal battle phase */
+  SUSPEND_CHARGED,            /* Minigame in progress */
+  SUSPEND_CHARGED_ATTACK,     /* Attack animation playing */
+  SUSPEND_CHARGED_SHIELD,     /* Shield used, waiting for attack */
+  SUSPEND_CHARGED_NO_SHIELD,  /* Skipped shield, waiting for attack */
+  SUSPEND_SWITCH_P1,          /* P1 fainted, waiting to pick switch */
+  SUSPEND_SWITCH_P2,          /* P2 fainted, waiting to pick switch */
+  SUSPEND_SWITCH_TIE,         /* Both fainted, play chicken */
+  GAME_OVER
 } battle_phase_t;
 
 
