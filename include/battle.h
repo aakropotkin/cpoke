@@ -44,6 +44,7 @@ static const float   CHARGE_DECAY_RATE    = 0.5;
 static const uint16_t TURN_TIME           = 500;    /* ms */
 static const uint16_t CHARGED_TIME        = 4000;   /* ms */
 static const uint16_t SWITCH_TIME         = 13000;  /* ms */
+static const uint16_t SWITCH_TIMEOUT      = 10 * 1000;
 
 static const uint8_t CHARGED_TURNS        = 8;
 static const uint8_t SWITCH_TURNS         = 26;
@@ -136,16 +137,20 @@ struct pvp_battle_s {
   pvp_action_t          p2_action;
   uint32_t              turn;
   battle_phase_t        phase;
+  cmp_rule_t            cmp_rule;
+  uint8_t               cmp_alt_state : 1;
 } packed;
 typedef struct pvp_battle_s pvp_battle_t;
 
 static const pvp_battle_t PVP_BATTLE_NULL = {
-  .p1        = NULL,
-  .p2        = NULL,
-  .p1_action = ACT_NULL,
-  .p2_action = ACT_NULL,
-  .turn      = 0,
-  .phase     = COUNTDOWN
+  .p1            = NULL,
+  .p2            = NULL,
+  .p1_action     = ACT_NULL,
+  .p2_action     = ACT_NULL,
+  .turn          = 0,
+  .phase         = COUNTDOWN,
+  .cmp_rule      = CMP_IDEAL,
+  .cmp_alt_state = false
 };
 
 
@@ -158,6 +163,8 @@ void pvp_battle_free( pvp_battle_t * battle );
 /* ------------------------------------------------------------------------- */
 
 pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
+
+uint32_t     simulate_battle( pvp_battle_t * battle );
 
 /**
  * Returns <code>true</code> when the battle is over.
@@ -182,6 +189,8 @@ bool              is_valid_action( bool           decide_p1,
                                    pvp_battle_t * battle
                                  );
 
+
+bool is_p1_cmp_winner( pvp_battle_t * battle );
 
 
 /* ------------------------------------------------------------------------- */
