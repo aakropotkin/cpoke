@@ -234,7 +234,6 @@ bool              is_valid_action( bool           decide_p1,
                                    pvp_battle_t * battle
                                  );
 
-
 bool is_p1_cmp_winner( pvp_battle_t * battle );
 
 

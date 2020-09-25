@@ -55,6 +55,26 @@ decr_switch_timer( pvp_player_t * player, uint8_t delta_turns )
 
 /* ------------------------------------------------------------------------- */
 
+  void
+decr_cooldown( pvp_player_t * player, uint8_t delta_turns )
+{
+  assert( player != NULL );
+  uint_minus( get_active_pokemon( player ).cooldown, delta_turns );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+is_active_alive( pvp_player_t * player )
+{
+  assert( player != NULL );
+  return 0 < get_active_pokemon( player ).hp;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 
 
 /* ========================================================================= */
