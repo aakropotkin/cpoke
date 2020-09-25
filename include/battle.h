@@ -69,6 +69,8 @@ static const float   CHARGE_EXCELLENT_MOD = 1.0;
 #define CHARGE_DEFAULT_MOD  CHARGE_EXCELLENT_MOD
 #endif
 static const float   STAB_BONUS = 1.25;
+static const float   SHADOW_ATTACK_MOD = 1.2;
+static const float   SHADOW_DEFENSE_MOD = 0.8333333;
 
 /* Energy cap */
 static const uint8_t MAX_CHARGE = 100;

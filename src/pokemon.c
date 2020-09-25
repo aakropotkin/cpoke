@@ -8,6 +8,63 @@
 #include "ptypes.h"
 #include "util/macros.h"
 #include <stdint.h>
+#include "store.h"
+
+/* ------------------------------------------------------------------------- */
+
+  void
+pvp_pokemon_init( pvp_pokemon_t    * mon,
+                  roster_pokemon_t * rmon,
+                  store_t          * store
+                )
+{
+  assert( mon != NULL );
+  assert( rmon != NULL );
+  assert( store != NULL );
+
+  int rsl = 0;
+
+  mon->level = rmon->base->level;
+
+  mon->stats.attack  = rmon->base->pdex_mon->base_stats.attack +
+                       rmon->base->ivs.attack;
+  mon->stats.stamina = rmon->base->pdex_mon->base_stats.stamina +
+                       rmon->base->ivs.stamina;
+  mon->stats.defense = rmon->base->pdex_mon->base_stats.defense +
+                       rmon->base->ivs.defense;
+
+  /* Apply Shadow stat modifier */
+  if ( !!( rmon->base->pdex_mon->tags & TAG_SHADOW_M ) )
+    {
+      mon->stats.attack  *= SHADOW_ATTACK_MOD;
+      mon->stats.defense *= SHADOW_DEFENSE_MOD;
+    }
+
+  mon->types     = rmon->base->pdex_mon->types;
+  mon->hp        = get_hp_from_stam_lv( mon->stats.stamina, mon->level );
+  mon->cooldown  = 0;
+  mon->energy    = 0;
+  mon->buffs     = NO_BUFF_STATE;
+
+  rsl = pvp_fast_move_from_store( store, rmon->fast_move_id, & mon->fast_move );
+  assert( rsl == STORE_SUCCESS );
+
+  rsl = pvp_charged_move_from_store( store,
+                                     rmon->charged_move_ids[0],
+                                     mon->charged_moves
+                                   );
+  assert( rsl == STORE_SUCCESS );
+
+  if ( rmon->charged_move_ids[1] != 0 )
+    {
+      rsl = pvp_charged_move_from_store( store,
+                                         rmon->charged_move_ids[1],
+                                         mon->charged_moves + 1
+                                       );
+      assert( rsl == STORE_SUCCESS );
+    }
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -23,6 +80,15 @@ get_cp_from_stats( stats_t base, stats_t ivs, float level )
                      ),
               10
               );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  const_fn uint16_t
+get_hp_from_stam_lv( uint16_t stam, float lv )
+{
+  return max( (uint16_t) ( get_cpm_for_level( lv ) * stam ), 10 );
 }
 
 

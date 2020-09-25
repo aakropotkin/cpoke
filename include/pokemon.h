@@ -129,7 +129,10 @@ static const pvp_pokemon_t PVP_MON_NULL = {
   .charged_moves = { NO_MOVE_PVP_CHARGED, NO_MOVE_PVP_CHARGED }
 };
 
-void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
+void pvp_pokemon_init( pvp_pokemon_t    * mon,
+                       roster_pokemon_t * rmon,
+                       store_t          * store
+                     );
 
 
 /* ------------------------------------------------------------------------- */
@@ -163,6 +166,7 @@ void pvp_pokemon_init( roster_pokemon_t *, pvp_pokemon_t * );
 
 const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
 const_fn stats_t  get_effective_stats( stats_t base, stats_t ivs, float level );
+const_fn uint16_t get_hp_from_stam_lv( uint16_t stam, float lv );
 
 const_fn uint16_t get_pvp_damage( pmove_idx_t     attack_idx,
                                   pvp_pokemon_t * attacker,

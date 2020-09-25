@@ -234,7 +234,7 @@ move_id_store_key( uint16_t move_id )
   return (store_key_t) {
     .key_type = STORE_NUM,
     .val_type = STORE_MOVE,
-    .data_h0  = move_id,
+    .data_h0  = max( move_id, - move_id ),  /* Catch negatives from legacy */
     .data_h1  = 0
   };
 }
