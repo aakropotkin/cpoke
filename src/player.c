@@ -9,17 +9,6 @@
 
 /* ------------------------------------------------------------------------- */
 
-  uint8_t
-get_remaining_pokemon( pvp_player_t * player )
-{
-  assert( player != NULL );
-  return ( !! player->team[0].hp ) + ( !! player->team[1].hp ) +
-         ( !! player->team[2].hp );
-}
-
-
-/* ------------------------------------------------------------------------- */
-
   bool
 use_shield( pvp_player_t * player )
 {

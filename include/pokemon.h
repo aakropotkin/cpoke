@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "store.h"
 #include <string.h>
+#include "pvp_action.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -76,6 +77,10 @@ static const roster_pokemon_t ROSTER_MON_NULL = {
 
 typedef enum { M_CHARGED1, M_CHARGED2, M_FAST } pmove_idx_t;
 
+#define acttomidx( ACT )                                                      \
+  ( ( ACT ) == FAST )     ? M_FAST :                                          \
+  ( ( ACT ) == CHARGED1 ) ? M_CHARGED1 : M_CHARGED2
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -137,29 +142,29 @@ void pvp_pokemon_init( pvp_pokemon_t    * mon,
 
 /* ------------------------------------------------------------------------- */
 
-#define _apply_to_pvp_mon_move( mon, idx, fn )                                \
-  ( ( ( idx ) == M_FAST ) ? fn( ( mon ).fast_move )                           \
-                          : fn( ( mon ).charged_moves[( idx )] ) )
+#define _apply_to_pvp_mon_move( MON, IDX, FN )                                \
+  ( ( ( IDX ) == M_FAST ) ? FN( ( MON ).fast_move )                           \
+                          : FN( ( MON ).charged_moves[( IDX )] ) )
 
-#define get_pvp_mon_move( mon, idx )                                          \
-  _apply_to_pvp_mon_move( ( mon ), ( idx ), as_base_move )
+#define get_pvp_mon_move( MON, IDX )                                          \
+  _apply_to_pvp_mon_move( ( MON ), ( IDX ), as_base_move )
 
-#define _get_pvp_mon_move_id( mv )   ( mv ).move_id
-#define get_pvp_mon_move_id( mon, idx )                                       \
-  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_id )
+#define _get_pvp_mon_move_id( MV )   ( MV ).move_id
+#define get_pvp_mon_move_id( MON, IDX )                                       \
+  _apply_to_pvp_mon_move( ( MON ), ( IDX ), _get_pvp_mon_move_id )
 
-#define _get_pvp_mon_move_power( mv )   ( mv ).power
-#define get_pvp_mon_move_power( mon, idx )                                    \
-  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_power )
+#define _get_pvp_mon_move_power( MV )   ( MV ).power
+#define get_pvp_mon_move_power( MON, IDX )                                    \
+  _apply_to_pvp_mon_move( ( MON ), ( IDX ), _get_pvp_mon_move_power )
 
 
-#define _get_pvp_mon_move_type( mv )    ( mv ).type
-#define get_pvp_mon_move_type( mon, idx )                                     \
-  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_type )
+#define _get_pvp_mon_move_type( MV )  ( MV ).type
+#define get_pvp_mon_move_type( MON, IDX )                                     \
+  _apply_to_pvp_mon_move( ( MON ), ( IDX ), _get_pvp_mon_move_type )
 
-#define _get_pvp_mon_move_energy( mv )  ( mv ).energy
-#define get_pvp_mon_move_energy( mon, idx )                                   \
-  _apply_to_pvp_mon_move( ( mon ), ( idx ), _get_pvp_mon_move_energy )
+#define _get_pvp_mon_move_energy( MV )  ( MV ).energy
+#define get_pvp_mon_move_energy( MON, IDX )                                   \
+  _apply_to_pvp_mon_move( ( MON ), ( IDX ), _get_pvp_mon_move_energy )
 
 
 /* ------------------------------------------------------------------------- */
@@ -172,6 +177,16 @@ const_fn uint16_t get_pvp_damage( pmove_idx_t     attack_idx,
                                   pvp_pokemon_t * attacker,
                                   pvp_pokemon_t * defender
                                 );
+
+
+/* ------------------------------------------------------------------------- */
+
+static inline bool _is_alive_ptr( pvp_pokemon_t * mon ) { return !! mon->hp; }
+static inline bool _is_alive_raw( pvp_pokemon_t mon )   { return !! mon.hp;  }
+#define is_alive( MON )  ( _Generic( ( MON ),                                 \
+                                     pvp_pokemon_t *: _is_alive_ptr,          \
+                                     pvp_pokemon_t:   _is_alive_raw           \
+                                   )( MON ) )
 
 
 /* ------------------------------------------------------------------------- */

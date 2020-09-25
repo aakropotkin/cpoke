@@ -47,8 +47,14 @@ static const pvp_player_t PVP_PLAYER_NULL = {
 #define get_active_pokemon( PLAYER )                                          \
   ( PLAYER )->team[( PLAYER )->active_pokemon]
 
-#define is_active_alive( PLAYER )                                             \
-  ( 0 < get_active_pokemon( PLAYER ).hp )
+#define _apply_active_mon( PLAYER, FN )  FN( get_active_pokemon( PLAYER ) )
+
+#define is_active_alive( PLAYER )  _apply_active_mon( ( PLAYER ), is_alive )
+#define get_active_energy( PLAYER )  get_active_pokemon( PLAYER ).energy
+#define get_active_move_energy( PLAYER, MIDX )                                \
+  get_pvp_mon_move_energy( get_active_pokemon( PLAYER ), MIDX )
+#define get_active_move_power( PLAYER, MIDX )                                 \
+  get_pvp_mon_move_power( get_active_pokemon( PLAYER ), MIDX )
 
 #define start_switch_timer( PLAYER )  ( PLAYER )->switch_turns = SWITCH_TURNS
 
@@ -58,11 +64,39 @@ static const pvp_player_t PVP_PLAYER_NULL = {
 #define decr_cooldown( PLAYER, DELTA_TURNS )                                  \
   uint_minus( get_active_pokemon( PLAYER ).cooldown, ( DELTA_TURNS ) )
 
+#define decr_energy( PLAYER, DELTA )                                          \
+  uint_minus( get_active_pokemon( PLAYER ).energy, ( DELTA ) )
+
 
 /* ------------------------------------------------------------------------- */
 
-uint8_t get_remaining_pokemon( pvp_player_t * player );
-bool    use_shield( pvp_player_t * player );
+  static inline uint8_t
+_get_rem_mons_ptr( pvp_player_t * player )
+{
+  return ( ( !! player->team[0].hp ) + ( !! player->team[1].hp ) +
+           ( !! player->team[2].hp ) );
+}
+
+  static inline uint8_t
+_get_rem_mons_raw( pvp_player_t player )
+{
+  return ( ( !! player.team[0].hp ) + ( !! player.team[1].hp ) +
+           ( !! player.team[2].hp ) );
+}
+
+#define get_remaining_pokemon( PLAYER )                                       \
+  ( _Generic( ( PLAYER ),                                                     \
+              pvp_player_t *: _get_rem_mons_ptr,                              \
+              pvp_player_t:   _get_rem_mons_raw                               \
+            )( PLAYER ) )
+
+
+/* ------------------------------------------------------------------------- */
+
+
+/* ------------------------------------------------------------------------- */
+
+bool use_shield( pvp_player_t * player );
 
 
 /* ------------------------------------------------------------------------- */

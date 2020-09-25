@@ -27,7 +27,17 @@ DEFINE_ENUM_WITH_FLAGS( pvp_action,
     ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2, SHIELD
   );
 static const uint8_t NUM_PVP_ACTIONS = SHIELD + 1;
-#define get_pvp_act_mask( ACTION )  ( (pvp_action_mask_t) to_mask( ACTION ) )
+#define get_pvp_act_mask( ACT )  ( (pvp_action_mask_t) to_mask( ACT ) )
+
+
+/* ------------------------------------------------------------------------- */
+
+#define is_charged( ACT )  ( ( ( ACT ) == CHARGED1 ) ||                       \
+                             ( ( ACT ) == CHARGED2 ) )
+
+#define is_attack( ACT )  ( ( ( ACT ) == FAST ) || is_charged( ACT ) )
+
+#define is_switch( ACT )  ( ( ( ACT ) == SWITCH1 ) || ( ( ACT ) == SWITCH2 ) )
 
 
 /* ------------------------------------------------------------------------- */

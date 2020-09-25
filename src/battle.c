@@ -95,20 +95,18 @@ do_charged( bool is_attacker1, pvp_battle_t * battle )
     {
       attacker = battle->p1;
       defender = battle->p2;
-      if ( battle->p1_action == CHARGED2 ) move_idx = M_CHARGED2;
+      move_idx = acttomidx( battle->p1_action );
     }
   else
     {
       attacker = battle->p2;
       defender = battle->p1;
-      if ( battle->p2_action == CHARGED2 ) move_idx = M_CHARGED2;
+      move_idx = acttomidx( battle->p2_action );
     }
 
-  energy = get_pvp_mon_move_energy( get_active_pokemon( attacker ),
-                                    move_idx
-                                  );
-  assert( energy <= get_active_pokemon( attacker ).energy );
-  get_active_pokemon( attacker ).energy -= energy;
+  energy = get_active_move_energy( attacker, move_idx );
+  assert( energy <= get_active_energy( attacker ) );
+  decr_energy( attacker, energy );
 
   if ( 0 < defender->shields )
     {
@@ -127,14 +125,7 @@ do_charged( bool is_attacker1, pvp_battle_t * battle )
                            & get_active_pokemon( attacker ),
                            & get_active_pokemon( defender )
                          );
-  if ( get_active_pokemon( defender ).hp <= damage )
-    {
-      get_active_pokemon( defender ).hp = 0;
-    }
-  else
-    {
-      get_active_pokemon( defender ).hp -= damage;
-    }
+  uint_minus( get_active_pokemon( defender ).hp, damage );
 
   /* FIXME: If CMP loser is alive, allow them to swap to
    *        cancel charged attack                        */
