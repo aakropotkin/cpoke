@@ -84,7 +84,7 @@ static const uint16_t TURN_TIME   = 500;
 /* Time for Charged Attack Animation */
 static const uint16_t CHARGED_ANIM_TIME = 4000;
 /* Time for Charged Attack Minigame */
-static const uint16_t CHARGED_MG_TIME = 7000;
+static const uint16_t CHARGED_MG_TIME = 10000;
 //static const uint16_t CHARGED_MG_RESULT_TIME =
 /* Time for switch animation */
 static const uint16_t SWITCH_TIME    = 13000;
