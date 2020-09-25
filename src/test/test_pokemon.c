@@ -334,7 +334,7 @@ test_get_pvp_damage( void )
                               };
   vaporeon.types = WATER_M;
 
-  expect( get_pvp_damage( M_CHARGED1, & venusaur, & vaporeon ) == 182 );
+  expect( get_pvp_damage( M_CHARGED1, & venusaur, & vaporeon ) == 236 );
 
   return true;
 }

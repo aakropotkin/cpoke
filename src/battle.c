@@ -10,6 +10,16 @@
 
 /* ------------------------------------------------------------------------- */
 
+  pvp_action_t
+decide_action( bool decide_p1, pvp_battle_t * battle )
+{
+  return ACT_NULL;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 is_battle_over( pvp_battle_t * battle )
 {
@@ -48,7 +58,7 @@ get_battle_winner( pvp_battle_t * battle )
 
 /* ------------------------------------------------------------------------- */
 
-  inline void
+  void
 do_switch( bool is_switch1, pvp_player_t * player )
 {
   for ( uint8_t i = 0; i < 3; i++ )
@@ -57,7 +67,7 @@ do_switch( bool is_switch1, pvp_player_t * player )
       if ( player->team[i].hp <= 0 )     continue;
       if ( is_switch1 )
         {
-          battle->p1.active_pokemon = i;
+          player->active_pokemon = i;
           break;
         }
       else
@@ -70,7 +80,7 @@ do_switch( bool is_switch1, pvp_player_t * player )
 
 /* ------------------------------------------------------------------------- */
 
-  inline void
+  void
 do_charged( bool is_attacker1, pvp_battle_t * battle )
 {
   assert( battle != NULL );
@@ -94,9 +104,11 @@ do_charged( bool is_attacker1, pvp_battle_t * battle )
       if ( battle->p2_action == CHARGED2 ) move_idx = M_CHARGED2;
     }
 
-  energy = get_pvp_mon_move_energy( attacker, move_idx );
-  assert( energy <= attacker->energy );
-  attacker->energy -= energy;
+  energy = get_pvp_mon_move_energy( get_active_pokemon( * attacker ),
+                                    move_idx
+                                  );
+  assert( energy <= get_active_pokemon( * attacker ).energy );
+  get_active_pokemon( * attacker ).energy -= energy;
 
   if ( 0 < defender->shields )
     {
@@ -111,9 +123,18 @@ do_charged( bool is_attacker1, pvp_battle_t * battle )
         }
     }
 
-  damage = get_pvp_damage( move_idx, attacker, defender );
-  if ( defender->hp <= damage ) defender->hp = 0;
-  else                          defender->hp -= damage;
+  damage = get_pvp_damage( move_idx,
+                           & get_active_pokemon( * attacker ),
+                           & get_active_pokemon( * defender )
+                         );
+  if ( get_active_pokemon( * defender ).hp <= damage )
+    {
+      get_active_pokemon( * defender ).hp = 0;
+    }
+  else
+    {
+      get_active_pokemon( * defender ).hp -= damage;
+    }
 
   /* FIXME: If CMP loser is alive, allow them to swap to
    *        cancel charged attack                        */
@@ -129,8 +150,8 @@ is_p1_cmp_winner( pvp_battle_t * battle )
   switch ( battle->cmp_rule )
     {
     case CMP_IDEAL:
-      return get_active_pokemon( *battle->p2 ).stats.attack <=
-             get_active_pokemon( *battle->p1 ).stats.attack;
+      return get_active_pokemon( * battle->p2 ).stats.attack <=
+             get_active_pokemon( * battle->p1 ).stats.attack;
 
     case CMP_ALTERNATE:
       battle->cmp_alt_state = ! battle->cmp_alt_state;
@@ -157,7 +178,7 @@ is_p1_cmp_winner( pvp_battle_t * battle )
  * However, you'll only encounter a `SUSPEND_CHARGED' phase from within the AI
  * when a reaction is being decided, it should never be used as an input here.
  */
-  inline bool
+  bool
 eval_turn_simulated( pvp_battle_t * battle )
 {
   assert( battle->phase != COUNTDOWN );
@@ -188,7 +209,7 @@ eval_turn_simulated( pvp_battle_t * battle )
         }
       else
         {
-          decr_switch_timer( battle->p1 );
+          decr_switch_timer( battle->p1, 1 );
         }
       if ( ( a2 == SWITCH1 ) || ( a2 == SWITCH2 ) )
         {
@@ -198,7 +219,7 @@ eval_turn_simulated( pvp_battle_t * battle )
         }
       else
         {
-          decr_switch_timer( battle->p2 );
+          decr_switch_timer( battle->p2, 1 );
         }
 
       /* Do fast attacks. These always go before charged attacks. */
@@ -285,8 +306,8 @@ eval_turn( pvp_battle_t * battle )
   assert( battle->p1_action != ACT_NULL );
   assert( battle->p2_action != ACT_NULL );
 
-  assert( is_valid_action( true, battle.p1_action, & battle ) );
-  assert( is_valid_action( false, battle.p2_action, & battle ) );
+  assert( is_valid_action( true, battle->p1_action, battle ) );
+  assert( is_valid_action( false, battle->p2_action, battle ) );
 
   /* Currently only `SIMULATE' battle mode is supported. */
   return eval_turn_simulated( battle );
@@ -319,7 +340,7 @@ simulate_battle( pvp_battle_t * battle )
       if ( !( p1_mon_alive || p2_mon_alive ) )
         {
           swap_timeout  = SWITCH_TIMEOUT;
-          battle->phase = SUSPEND_SWAP_TIE;
+          battle->phase = SUSPEND_SWITCH_TIE;
           battle->p1_action = decide_action( true, battle );
           battle->p2_action = decide_action( false, battle );
           /* Wait for both to pick */
@@ -342,7 +363,7 @@ simulate_battle( pvp_battle_t * battle )
         }
     }
 
-  return battle->turns;
+  return battle->turn;
 }
 
 
@@ -370,7 +391,7 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              ( get_pvp_mon_move_energy( get_active_pokemon( *self ),
                                         M_CHARGED1
                                       ) <=
-               get_active_pokemon( *self ).stored_energy
+               get_active_pokemon( *self ).energy
              );
 
     case CHARGED2:
@@ -380,7 +401,7 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              ( get_pvp_mon_move_energy( get_active_pokemon( *self ),
                                         M_CHARGED2
                                       ) <=
-               get_active_pokemon( *self ).stored_energy
+               get_active_pokemon( *self ).energy
              );
 
     case SWITCH1:

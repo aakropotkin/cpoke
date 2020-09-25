@@ -110,7 +110,7 @@ struct pvp_pokemon_s {
   ptype_mask_t       types;
   uint16_t           hp;
   uint8_t            cooldown;     /* # Turns until next action */
-  uint8_t            stored_energy;
+  uint8_t            energy;
   buff_state_t       buffs;
   pvp_fast_move_t    fast_move;
   pvp_charged_move_t charged_moves[2];
@@ -123,7 +123,7 @@ static const pvp_pokemon_t PVP_MON_NULL = {
   .types         = PT_NONE_M,
   .hp            = 0,
   .cooldown      = 0,
-  .stored_energy = 0,
+  .energy = 0,
   .buffs         = NO_BUFF_STATE,
   .fast_move     = NO_MOVE_PVP_FAST,
   .charged_moves = { NO_MOVE_PVP_CHARGED, NO_MOVE_PVP_CHARGED }

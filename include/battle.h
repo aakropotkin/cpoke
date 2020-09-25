@@ -16,12 +16,45 @@ struct pvp_player_s;
 /* ------------------------------------------------------------------------- */
 
 /**
- * I believe that these are the modifiers that were originally used to set
- * the power of PvP moves.
- * We don't currently use them for anything.
+ * PvP settings were collected manually from `GAME_MASTER.json' entry with
+ * `templateId' = "COMBAT_SETTINGS"
+ *
+ *    "blockedFlyoutDurationTurns": 5,
+ *    "changePokemonDurationSeconds": 12.0,
+ *
+ *    "chargeAttackBonusMultiplier": 1.3,
+ *    "chargeScoreBase": 0.25,
+ *    "chargeScoreExcellent": 1.0,
+ *    "chargeScoreGreat": 0.75,
+ *    "chargeScoreNice": 0.5,
+ *    "defenderMinigameMultiplier": 1.0,
+ *    "defenseBonusMultiplier": 1.0,
+ *    "fastAttackBonusMultiplier": 1.3,
+ *    "maxEnergy": 100,
+ *    "minigameBonusBaseMultiplier": 1.0E-4,
+ *    "minigameBonusVariableMultiplier": 1.0,
+ *
+ *    "minigameDurationSeconds": 7.0,
+ *    "minigameSubmitScoreDurationSeconds": 10.0,
+ *
+ *    "normalEffectiveFlyoutDurationTurns": 5,
+ *    "notVeryEffectiveFlyoutDurationTurns": 5,
+ *
+ *    "purifiedPokemonAttackMultiplierVsShadow": 1.0,
+ *
+ *    "quickSwapCooldownDurationSeconds": 60.0,
+ *    "roundDurationSeconds": 270.0,
+ *
+ *    "sameTypeAttackBonusMultiplier": 1.2,
+ *    "shadowPokemonAttackBonusMultiplier": 1.2,
+ *    "shadowPokemonDefenseBonusMultiplier": 0.8333333,
+ *
+ *    "superEffectiveFlyoutDurationTurns": 5,
+ *    "turnDurationSeconds": 0.5,
  */
-//static const float   PVP_FAST_BONUS_MOD   = 1.3;
-//static const float   PVP_CHARGE_BONUS_MOD = 1.3;
+
+static const float   PVP_FAST_BONUS_MOD   = 1.3;
+static const float   PVP_CHARGE_BONUS_MOD = 1.3;
 
 /**
  * There is still argument about whether there is a sliding scale "between"
@@ -32,19 +65,29 @@ static const float   CHARGE_NICE_MOD      = 0.5;
 static const float   CHARGE_GREAT_MOD     = 0.75;
 static const float   CHARGE_EXCELLENT_MOD = 1.0;
 #ifndef CHARGE_DEFAULT_MOD
+/* Assumes that players hit "Excellent" in all Charged Move Minigames */
 #define CHARGE_DEFAULT_MOD  CHARGE_EXCELLENT_MOD
 #endif
+static const float   STAB_BONUS = 1.25;
 
-static const float   STAB_BONUS           = 1.25;
+/* Energy cap */
+static const uint8_t MAX_CHARGE = 100;
+/* I have no idea what these two are */
+static const uint8_t CHARGE_RATE       = 20;
+static const float   CHARGE_DECAY_RATE = 0.5;
 
-static const uint8_t MAX_CHARGE           = 100;
-static const uint8_t CHARGE_RATE          = 20;
-static const float   CHARGE_DECAY_RATE    = 0.5;
-
-static const uint16_t TURN_TIME           = 500;    /* ms */
-static const uint16_t CHARGED_TIME        = 4000;   /* ms */
-static const uint16_t SWITCH_TIME         = 13000;  /* ms */
-static const uint16_t SWITCH_TIMEOUT      = 10 * 1000;
+/** Time in ms of various battle phases/actions */
+static const uint32_t BATTLE_TIME = 270 * 1000;
+static const uint16_t TURN_TIME   = 500;
+/* Time for Charged Attack Animation */
+static const uint16_t CHARGED_ANIM_TIME = 4000;
+/* Time for Charged Attack Minigame */
+static const uint16_t CHARGED_MG_TIME = 7000;
+//static const uint16_t CHARGED_MG_RESULT_TIME =
+/* Time for switch animation */
+static const uint16_t SWITCH_TIME    = 13000;
+/* Timeout to select next pokemon after a faint */
+static const uint16_t SWITCH_TIMEOUT = 12 * 1000;
 
 static const uint8_t CHARGED_TURNS        = 8;
 static const uint8_t SWITCH_TURNS         = 26;
