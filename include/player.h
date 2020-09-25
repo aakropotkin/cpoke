@@ -47,15 +47,22 @@ static const pvp_player_t PVP_PLAYER_NULL = {
 #define get_active_pokemon( PLAYER )                                          \
   ( PLAYER )->team[( PLAYER )->active_pokemon]
 
+#define is_active_alive( PLAYER )                                             \
+  ( 0 < get_active_pokemon( PLAYER ).hp )
+
+#define start_switch_timer( PLAYER )  ( PLAYER )->switch_turns = SWITCH_TURNS
+
+#define decr_switch_timer( PLAYER, DELTA_TURNS )                              \
+  uint_minus( ( PLAYER )->switch_turns, ( DELTA_TURNS ) )
+
+#define decr_cooldown( PLAYER, DELTA_TURNS )                                  \
+  uint_minus( get_active_pokemon( PLAYER ).cooldown, ( DELTA_TURNS ) )
+
 
 /* ------------------------------------------------------------------------- */
 
 uint8_t get_remaining_pokemon( pvp_player_t * player );
 bool    use_shield( pvp_player_t * player );
-void    start_switch_timer( pvp_player_t * player );
-void    decr_switch_timer( pvp_player_t * player, uint8_t delta_turns );
-void    decr_cooldown( pvp_player_t * player, uint8_t delta_turns );
-bool    is_active_alive( pvp_player_t * player );
 
 
 /* ------------------------------------------------------------------------- */
