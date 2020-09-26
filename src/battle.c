@@ -218,13 +218,13 @@ eval_turn_simulated( pvp_battle_t * battle )
     {
     case NEUTRAL:
       /* Handle Switches first. These are not switches resulting from faints. */
-      if ( ( a1 == SWITCH1 ) || ( a1 == SWITCH2 ) )
+      if ( is_switch( a1 ) )
         {
           assert( battle->p1->switch_turns <= 0 );
           do_switch( ( battle->p1_action == SWITCH1 ), battle->p1 );
           start_switch_timer( battle->p1 );
         }
-      if ( ( a2 == SWITCH1 ) || ( a2 == SWITCH2 ) )
+      if ( is_switch( a2 ) )
         {
           assert( battle->p2->switch_turns <= 0 );
           do_switch( ( battle->p2_action == SWITCH1 ), battle->p2 );
@@ -236,9 +236,7 @@ eval_turn_simulated( pvp_battle_t * battle )
       if ( a2 == FAST ) do_fast( false, battle );
 
       /* Handle charged moves */
-      if ( ( ( a1 == CHARGED1 ) || ( a1 == CHARGED2 ) ) &&
-           ( ( a2 == CHARGED1 ) || ( a2 == CHARGED2 ) )
-         )
+      if ( is_charged( a1 ) && is_charged( a2 ) )
         {
           /* Find CMP winner */
           if ( is_p1_cmp_winner( battle ) )
@@ -252,11 +250,11 @@ eval_turn_simulated( pvp_battle_t * battle )
               if ( is_active_alive( battle->p1 ) ) do_charged( true, battle );
             }
         }
-      else if ( ( a1 == CHARGED1 ) || ( a1 == CHARGED2 ) )
+      else if ( is_charged( a1 ) )
         {
           do_charged( true, battle );
         }
-      else if ( ( a2 == CHARGED1 ) || ( a2 == CHARGED2 ) )
+      else if ( is_charged( a2 ) )
         {
           do_charged( false, battle );
         }
@@ -264,11 +262,11 @@ eval_turn_simulated( pvp_battle_t * battle )
 
     case SUSPEND_SWITCH_TIE:
       /* AIs are free to wait during this period, so loop until it's done. */
-      if ( ( a1 == SWITCH1 ) || ( a1 == SWITCH2 ) )
+      if ( is_switch( a1 ) )
         {
           do_switch( ( battle->p1_action == SWITCH1 ), battle->p1 );
         }
-      if ( ( a2 == SWITCH1 ) || ( a2 == SWITCH2 ) )
+      if ( is_switch( a2 ) )
         {
           do_switch( ( battle->p2_action == SWITCH1 ), battle->p2 );
         }
@@ -311,9 +309,10 @@ simulate_battle( pvp_battle_t * battle )
   battle->p1_action = decide_action( true, battle );
   battle->p2_action = decide_action( false, battle );
 
-  bool    p1_mon_alive = true;
-  bool    p2_mon_alive = true;
-  uint8_t swap_timeout = 0;
+  bool           p1_mon_alive = true;
+  bool           p2_mon_alive = true;
+  uint8_t        swap_timeout = 0;
+  pvp_player_t * target = NULL;
 
   while( eval_turn( battle ) == false )
     {
@@ -329,7 +328,7 @@ simulate_battle( pvp_battle_t * battle )
       /* Check for fainted pokemon */
       p1_mon_alive = is_active_alive( battle->p1 );
       p2_mon_alive = is_active_alive( battle->p2 );
-      if ( !( p1_mon_alive || p2_mon_alive ) )
+      if ( !( p1_mon_alive || p2_mon_alive ) ) /* Both fainted. Wait for swap */
         {
           swap_timeout  = SWITCH_TIMEOUT;
           battle->phase = SUSPEND_SWITCH_TIE;
@@ -342,6 +341,10 @@ simulate_battle( pvp_battle_t * battle )
                 )
             {
               eval_turn( battle );
+              decr_switch_timer( battle->p1, 1 );
+              decr_switch_timer( battle->p2, 1 );
+              battle->p1_action = ACT_NULL;
+              battle->p2_action = ACT_NULL;
               battle->p1_action = decide_action( true, battle );
               battle->p2_action = decide_action( false, battle );
             }
@@ -349,10 +352,37 @@ simulate_battle( pvp_battle_t * battle )
           if ( battle->p1_action == WAIT ) battle->p1_action = SWITCH1;
           if ( battle->p2_action == WAIT ) battle->p2_action = SWITCH1;
         }
-      else if ( ! p1_mon_alive )
-        {
+      else if ( ! ( p1_mon_alive && p2_mon_alive ) )
+        { /* Only 1 fainted. No playing chicken. But player can eat the clock */
           swap_timeout = SWITCH_TIMEOUT;
+          while ( ( 0 < swap_timeout-- ) &&
+                  ( ( p1_mon_alive && ( battle->p2_action == WAIT ) ) ||
+                    ( p2_mon_alive && ( battle->p1_action == WAIT ) )
+                  )
+                )
+            {
+              eval_turn( battle );
+              decr_switch_timer( battle->p1, 1 );
+              decr_switch_timer( battle->p2, 1 );
+              /* Decrement cooldown for living pokemon */
+              if ( p1_mon_alive ) decr_cooldown( battle->p1, 1 );
+              else                decr_cooldown( battle->p2, 1 );
+              battle->p1_action = ACT_NULL;
+              battle->p2_action = ACT_NULL;
+              battle->p1_action = decide_action( true, battle );
+              battle->p2_action = decide_action( false, battle );
+            }
+          /* Force a swap if they ran out the clock */
+          if ( p1_mon_alive && ( battle->p2_action == WAIT ) )
+            {
+              battle->p2_action = SWITCH1;
+            }
+          else if ( p2_mon_alive && ( battle->p1_action == WAIT ) )
+            {
+              battle->p1_action = SWITCH1;
+            }
         }
+      swap_timeout = 0;
     }
 
   return battle->turn;
