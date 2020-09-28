@@ -210,6 +210,7 @@ test_eval_turn( void )
   p1.team[0].charged_moves[0].is_fast = false;
   p1.team[0].charged_moves[0].power   = 100;
   p1.team[0].charged_moves[0].energy  = 50;
+  p2.team[0].charged_moves[0]         = p1.team[0].charged_moves[0];
 
   /* Decisions must be set before `eval_turn' is called */
   battle.p1_action = FAST;
@@ -264,15 +265,29 @@ test_eval_turn( void )
   expect( ohp1 == p1.team[1].hp );
   expect( p1.active_pokemon == 1 );
   expect( has_switch_timer( & p1 ) );
-  expect( ! can_switch( & p1 ) );
+  expect( can_switch( & p1 ) == false );
 
   /* Test Charged move that kills opponent. */
   battle.p1_action = CHARGED1;
   p1.team[1].energy = p1.team[1].charged_moves[0].energy;
   over = eval_turn( & battle );
   expect( over == true );
-  expect( ! is_active_alive( & p2 ) );
+  expect( is_active_alive( & p2 ) == false );
   expect( p1.team[1].energy == 0 );
+  expect( ohp1 == p1.team[1].hp );  /* Shouldn't have been hit */
+
+  /* Try a CMP tie where one faints. */
+  battle.p2_action        = CHARGED1;
+  p1.team[1].energy       = p1.team[1].charged_moves[0].energy;
+  p2.team[0].energy       = p2.team[0].charged_moves[0].energy;
+  p1.team[1].stats.attack = p2.team[0].stats.attack + 1;
+  p2.team[0].hp           = ohp2;
+  assert( battle.cmp_rule == CMP_IDEAL );
+  over = eval_turn( & battle );
+  expect( over == true );
+  expect( is_active_alive( & p2 ) == false );
+  expect( p1.team[1].energy == 0 );
+  expect( ohp1 == p1.team[1].hp );  /* Shouldn't have been hit */
 
   return true;
 }

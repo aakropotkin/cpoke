@@ -6,6 +6,7 @@
 #include "battle.h"
 #include "player.h"
 #include "pvp_action.h"
+#include <time.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -288,11 +289,23 @@ do_fast( bool is_attacker1, pvp_battle_t * battle )
 is_p1_cmp_winner( pvp_battle_t * battle )
 {
   assert( battle != NULL );
+  uint16_t a1 = 0;
+  uint16_t a2 = 0;
   switch ( battle->cmp_rule )
     {
     case CMP_IDEAL:
-      return get_active_pokemon( battle->p2 ).stats.attack <=
-             get_active_pokemon( battle->p1 ).stats.attack;
+      a1 = get_active_pokemon( battle->p2 ).stats.attack;
+      a2 = get_active_pokemon( battle->p1 ).stats.attack;
+      /* In a perfect tie randomize */
+      if ( a1 == a2 )
+        {
+          srand( time( 0 ) );
+          return ( rand() % 1 );
+        }
+      else
+        {
+          return a2 < a1;
+        }
 
     case CMP_ALTERNATE:
       battle->cmp_alt_state = ! battle->cmp_alt_state;
