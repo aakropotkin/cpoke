@@ -56,8 +56,6 @@ test_is_valid_action( void )
   expect( is_valid_action( true, SHIELD, & battle ) == false );
   expect( is_valid_action( false, SHIELD, & battle ) == false );
 
-
-
   return true;
 }
 
@@ -170,6 +168,76 @@ test_get_battle_winner( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_eval_turn( void )
+{
+  pvp_player_t p1     = PVP_PLAYER_NULL;
+  pvp_player_t p2     = PVP_PLAYER_NULL;
+  pvp_battle_t battle = PVP_BATTLE_NULL;
+  bool         over   = false;
+  uint16_t     ohp1   = 0;
+  uint16_t     ohp2   = 0;
+  uint16_t     oen1   = 0;
+  uint16_t     oen2   = 0;
+
+  assert( p1.active_pokemon == 0 );
+  assert( p2.active_pokemon == 0 );
+
+  battle.p1    = & p1;
+  battle.p2    = & p2;
+  battle.phase = NEUTRAL;
+
+  /* Make some fake pokemon */
+  p1.team[0].hp            = 100;
+  p2.team[0].hp            = 100;
+  p1.team[0].level         = 20;
+  p2.team[0].level         = 20;
+  p1.team[0].stats.attack  = 200;
+  p2.team[0].stats.attack  = 200;
+  p1.team[0].stats.stamina = 100;
+  p2.team[0].stats.stamina = 100;
+  p1.team[0].stats.defense = 100;
+  p2.team[0].stats.defense = 100;
+  p1.team[0].types         = NORMAL_M;
+  p2.team[0].types         = FIRE_M;
+
+  p1.team[0].fast_move.move_id  = 1; /* Fake */
+  p1.team[0].fast_move.turns    = 1;
+  p1.team[0].fast_move.type     = NORMAL;
+  p1.team[0].fast_move.is_fast  = true;
+  p1.team[0].fast_move.power    = 10;
+  p1.team[0].fast_move.energy   = 3;
+
+  p2.team[0].fast_move.move_id  = 1; /* Fake */
+  p2.team[0].fast_move.turns    = 1;
+  p2.team[0].fast_move.type     = NORMAL;
+  p2.team[0].fast_move.is_fast  = true;
+  p2.team[0].fast_move.power    = 10;
+  p2.team[0].fast_move.energy   = 3;
+
+  /* Decisions must be set before `eval_turn' is called */
+  battle.p1_action = FAST;
+  battle.p2_action = FAST;
+  /* Backup current hp and energy */
+  ohp1 = p1.team[0].hp;
+  ohp2 = p2.team[0].hp;
+  oen1 = p1.team[0].energy;
+  oen2 = p2.team[0].energy;
+
+  over = eval_turn( & battle );
+  expect( over == false );
+  expect( oen1 < p1.team[0].energy );
+  expect( oen2 < p2.team[0].energy );
+  expect( p1.team[0].hp < ohp1 );
+  expect( p2.team[0].hp < ohp2 );
+
+  return true;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_battle( void )
 {
@@ -179,6 +247,7 @@ test_battle( void )
   rsl &= do_test( is_battle_over );
   rsl &= do_test( is_p1_winner );
   rsl &= do_test( get_battle_winner );
+  rsl &= do_test( eval_turn );
 
   return rsl;
 }

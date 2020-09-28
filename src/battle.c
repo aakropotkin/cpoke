@@ -17,6 +17,7 @@ decide_action( bool decide_p1, const pvp_battle_t * battle )
 
   pvp_action_t action = ACT_NULL;
   ai_status_t  rsl    = AI_NULL_STATUS;
+
   /* If cooldown from previous fast move is still unsatisfied, player
    * must wait. */
   if ( decide_p1 && ( 0 < get_active_pokemon( battle->p1 ).cooldown ) )
@@ -28,6 +29,7 @@ decide_action( bool decide_p1, const pvp_battle_t * battle )
       return WAIT;
     }
 
+  /* Use AI's Decide Action function */
   if ( decide_p1 )
     {
       rsl = battle->p1->ai->decide_action( decide_p1,
@@ -257,6 +259,7 @@ do_fast( bool is_attacker1, pvp_battle_t * battle )
 
   pvp_pokemon_t * attacker = NULL;
   pvp_pokemon_t * defender = NULL;
+  uint16_t        damage   = 0;
 
   if ( is_attacker1 )
     {
@@ -269,8 +272,13 @@ do_fast( bool is_attacker1, pvp_battle_t * battle )
       defender = & get_active_pokemon( battle->p1 );
     }
 
-  uint_minus( defender->hp, get_pvp_damage( M_FAST, attacker, defender ) );
+  damage = get_pvp_damage( M_FAST, attacker, defender );
+
+  if ( damage <= defender->hp ) defender->hp -= damage;
+  else                          defender->hp = 0;
+
   attacker->cooldown += attacker->fast_move.turns;
+  attacker->energy   += attacker->fast_move.energy;
 }
 
 
@@ -392,11 +400,6 @@ eval_turn_simulated( pvp_battle_t * battle )
   return is_battle_over( battle );
 }
 
-/* ------------------------------------------------------------------------- */
-
-
-
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -433,7 +436,7 @@ simulate_battle( pvp_battle_t * battle )
 
   while( eval_turn( battle ) == false )
     {
-      /* Decrement switch timer and cooldowns */
+      /* Decrement turn counter, switch timer, and cooldowns */
       decr_switch_timer( battle->p1, 1 );
       decr_switch_timer( battle->p2, 1 );
       decr_cooldown( battle->p1, 1 );
