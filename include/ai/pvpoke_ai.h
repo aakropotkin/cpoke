@@ -163,9 +163,9 @@ ai_status_t pvpoke_ai_select_team( roster_t   * our_roster,
                                    void       *
                                  );
 
-ai_status_t pvpoke_ai_decide_action( bool                  decide_p1,
-                                     struct pvp_battle_s * battle,
-                                     pvp_action_t        * choice
+ai_status_t pvpoke_ai_decide_action( bool                        decide_p1,
+                                     const struct pvp_battle_s * battle,
+                                     pvp_action_t              * choice
                                    );
 
 ai_status_t pvpoke_ai_init( ai_t * ai, void * init_aux );

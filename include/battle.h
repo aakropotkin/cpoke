@@ -207,7 +207,7 @@ void pvp_battle_free( pvp_battle_t * battle );
 
 /* ------------------------------------------------------------------------- */
 
-pvp_action_t decide_action( bool decide_p1, pvp_battle_t * battle );
+pvp_action_t decide_action( bool decide_p1, const pvp_battle_t * battle );
 
 uint32_t     simulate_battle( pvp_battle_t * battle );
 

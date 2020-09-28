@@ -11,9 +11,42 @@
 /* ------------------------------------------------------------------------- */
 
   pvp_action_t
-decide_action( bool decide_p1, pvp_battle_t * battle )
+decide_action( bool decide_p1, const pvp_battle_t * battle )
 {
-  return ACT_NULL;
+  assert( battle != NULL );
+
+  pvp_action_t action = ACT_NULL;
+  ai_status_t  rsl    = AI_NULL_STATUS;
+  /* If cooldown from previous fast move is still unsatisfied, player
+   * must wait. */
+  if ( decide_p1 && ( 0 < get_active_pokemon( battle->p1 ).cooldown ) )
+    {
+      return WAIT;
+    }
+  if ( ( ! decide_p1 ) && ( 0 < get_active_pokemon( battle->p2 ).cooldown ) )
+    {
+      return WAIT;
+    }
+
+  if ( decide_p1 )
+    {
+      rsl = battle->p1->ai->decide_action( decide_p1,
+                                           battle,
+                                           & action,
+                                           battle->p1->ai->aux
+                                         );
+    }
+  else
+    {
+      rsl = battle->p2->ai->decide_action( decide_p1,
+                                           battle,
+                                           & action,
+                                           battle->p2->ai->aux
+                                         );
+    }
+  assert( rsl == AI_SUCCESS );
+
+  return action;
 }
 
 
@@ -75,6 +108,89 @@ do_switch( bool is_switch1, pvp_player_t * player )
           is_switch1 = true;
         }
     }
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * When a pokemon faints the battle manager can process turns much more
+ * efficiently by skipping many of the usual checks that are performed during
+ * a `NEUTRAL' phase.
+ * This handler is optional, but takes advantage of those skipped checks,
+ * returning once both players have pokemon back on the field.
+ * <p>
+ * This function does not check to see if a battle is over, because the aim here
+ * is to cut down on unneccesary checks, we assume the caller has checked to
+ * ensure that both players still have remaining pokemon.
+ */
+  void
+handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
+{
+  uint8_t        swap_timeout = 0;
+  pvp_player_t * target       = NULL;
+
+  if ( !( p1_mon_alive || p2_mon_alive ) ) /* Both fainted. Wait for swap */
+    {
+      swap_timeout  = SWITCH_TIMEOUT;
+      battle->phase = SUSPEND_SWITCH_TIE;
+      battle->p1_action = decide_action( true, battle );
+      battle->p2_action = decide_action( false, battle );
+      /* Wait for both to pick */
+      while ( ( 0 < swap_timeout-- )        &&
+              ( battle->p1_action == WAIT ) ||
+              ( battle->p2_action == WAIT )
+            )
+        {
+          eval_turn( battle );
+          battle->turn++;
+          decr_switch_timer( battle->p1, 1 );
+          decr_switch_timer( battle->p2, 1 );
+
+          battle->p1_action = ACT_NULL;
+          battle->p2_action = ACT_NULL;
+          battle->p1_action = decide_action( true, battle );
+          battle->p2_action = decide_action( false, battle );
+        }
+      /* Force swap if they ran out the clock playing chicken */
+      if ( battle->p1_action == WAIT ) battle->p1_action = SWITCH1;
+      if ( battle->p2_action == WAIT ) battle->p2_action = SWITCH1;
+    }
+  else if ( ! ( p1_mon_alive && p2_mon_alive ) )
+    { /* Only 1 fainted. No playing chicken. But player can eat the clock */
+      swap_timeout = SWITCH_TIMEOUT;
+      while ( ( 0 < swap_timeout-- ) &&
+              ( ( p1_mon_alive && ( battle->p2_action == WAIT ) ) ||
+                ( p2_mon_alive && ( battle->p1_action == WAIT ) )
+              )
+            )
+        {
+          eval_turn( battle );
+          battle->turn++;
+          decr_switch_timer( battle->p1, 1 );
+          decr_switch_timer( battle->p2, 1 );
+          /* Decrement cooldown for living pokemon */
+          if ( p1_mon_alive ) decr_cooldown( battle->p1, 1 );
+          else                decr_cooldown( battle->p2, 1 );
+
+          battle->p1_action = ACT_NULL;
+          battle->p2_action = ACT_NULL;
+          battle->p1_action = decide_action( true, battle );
+          battle->p2_action = decide_action( false, battle );
+        }
+      /* Force a swap if they ran out the clock */
+      if ( p1_mon_alive && ( battle->p2_action == WAIT ) )
+        {
+          battle->p2_action = SWITCH1;
+        }
+      else if ( p2_mon_alive && ( battle->p1_action == WAIT ) )
+        {
+          battle->p1_action = SWITCH1;
+        }
+    }
+
+  assert( is_active_alive( battle->p1 ) );
+  assert( is_active_alive( battle->p2 ) );
 }
 
 
@@ -273,10 +389,13 @@ eval_turn_simulated( pvp_battle_t * battle )
       break;
     }
 
-  battle->turn++;
-
   return is_battle_over( battle );
 }
+
+/* ------------------------------------------------------------------------- */
+
+
+
 
 
 /* ------------------------------------------------------------------------- */
@@ -311,8 +430,6 @@ simulate_battle( pvp_battle_t * battle )
 
   bool           p1_mon_alive = true;
   bool           p2_mon_alive = true;
-  uint8_t        swap_timeout = 0;
-  pvp_player_t * target = NULL;
 
   while( eval_turn( battle ) == false )
     {
@@ -321,6 +438,7 @@ simulate_battle( pvp_battle_t * battle )
       decr_switch_timer( battle->p2, 1 );
       decr_cooldown( battle->p1, 1 );
       decr_cooldown( battle->p2, 1 );
+      battle->turn++;
 
       battle->p1_action = ACT_NULL;
       battle->p2_action = ACT_NULL;
@@ -328,61 +446,13 @@ simulate_battle( pvp_battle_t * battle )
       /* Check for fainted pokemon */
       p1_mon_alive = is_active_alive( battle->p1 );
       p2_mon_alive = is_active_alive( battle->p2 );
-      if ( !( p1_mon_alive || p2_mon_alive ) ) /* Both fainted. Wait for swap */
+      if ( !( p1_mon_alive && p2_mon_alive ) )
         {
-          swap_timeout  = SWITCH_TIMEOUT;
-          battle->phase = SUSPEND_SWITCH_TIE;
-          battle->p1_action = decide_action( true, battle );
-          battle->p2_action = decide_action( false, battle );
-          /* Wait for both to pick */
-          while ( ( 0 < swap_timeout-- )        &&
-                  ( battle->p1_action == WAIT ) ||
-                  ( battle->p2_action == WAIT )
-                )
-            {
-              eval_turn( battle );
-              decr_switch_timer( battle->p1, 1 );
-              decr_switch_timer( battle->p2, 1 );
-              battle->p1_action = ACT_NULL;
-              battle->p2_action = ACT_NULL;
-              battle->p1_action = decide_action( true, battle );
-              battle->p2_action = decide_action( false, battle );
-            }
-          /* Force swap if they ran out the clock playing chicken */
-          if ( battle->p1_action == WAIT ) battle->p1_action = SWITCH1;
-          if ( battle->p2_action == WAIT ) battle->p2_action = SWITCH1;
+          handle_faints( p1_mon_alive, p2_mon_alive, battle );
+          p1_mon_alive = true;
+          p2_mon_alive = true;
         }
-      else if ( ! ( p1_mon_alive && p2_mon_alive ) )
-        { /* Only 1 fainted. No playing chicken. But player can eat the clock */
-          swap_timeout = SWITCH_TIMEOUT;
-          while ( ( 0 < swap_timeout-- ) &&
-                  ( ( p1_mon_alive && ( battle->p2_action == WAIT ) ) ||
-                    ( p2_mon_alive && ( battle->p1_action == WAIT ) )
-                  )
-                )
-            {
-              eval_turn( battle );
-              decr_switch_timer( battle->p1, 1 );
-              decr_switch_timer( battle->p2, 1 );
-              /* Decrement cooldown for living pokemon */
-              if ( p1_mon_alive ) decr_cooldown( battle->p1, 1 );
-              else                decr_cooldown( battle->p2, 1 );
-              battle->p1_action = ACT_NULL;
-              battle->p2_action = ACT_NULL;
-              battle->p1_action = decide_action( true, battle );
-              battle->p2_action = decide_action( false, battle );
-            }
-          /* Force a swap if they ran out the clock */
-          if ( p1_mon_alive && ( battle->p2_action == WAIT ) )
-            {
-              battle->p2_action = SWITCH1;
-            }
-          else if ( p2_mon_alive && ( battle->p1_action == WAIT ) )
-            {
-              battle->p1_action = SWITCH1;
-            }
-        }
-      swap_timeout = 0;
+
     }
 
   return battle->turn;

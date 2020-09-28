@@ -21,10 +21,10 @@ ai_status_t naive_ai_select_team( roster_t   * our_roster,
                                   void       * aux
                                 );
 
-ai_status_t naive_ai_decide_action( bool                  decide_p1,
-                                    struct pvp_battle_s * battle,
-                                    pvp_action_t        * choice,
-                                    void                * aux
+ai_status_t naive_ai_decide_action( bool                        decide_p1,
+                                    const struct pvp_battle_s * battle,
+                                    pvp_action_t              * choice,
+                                    void                      * aux
                                   );
 
 ai_status_t naive_ai_init( ai_t * ai, void * init_aux );

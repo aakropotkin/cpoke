@@ -40,7 +40,7 @@ struct ai_s;
  *                     function for the chosen player.
  */
 typedef ai_status_t ( * decide_action_fn ) ( bool,
-                                             struct pvp_battle_s *,
+                                             const struct pvp_battle_s *,
                                              pvp_action_t *,
                                              void *
                                            );
