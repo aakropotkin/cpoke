@@ -338,19 +338,34 @@ eval_turn_simulated( pvp_battle_t * battle )
   uint16_t        damage   = 0;
   uint16_t        energy   = 0;
 
+  /* Force pokemon with cooldowns to wait, regardless of their decided action */
+  if ( ( a1 != WAIT ) && ( has_cooldown( battle->p1 ) ) )
+    {
+      battle->p1_action = WAIT;
+      a1 = WAIT;
+    }
+  if ( ( a2 != WAIT ) && ( has_cooldown( battle->p2 ) ) )
+    {
+      battle->p2_action = WAIT;
+      a2 = WAIT;
+    }
+
+  /* Shortcut to skip evaluation when both players waited */
+  if ( ( a1 == WAIT ) && ( a2 == WAIT ) ) return false;
+
   switch ( battle->phase )
     {
     case NEUTRAL:
       /* Handle Switches first. These are not switches resulting from faints. */
       if ( is_switch( a1 ) )
         {
-          assert( battle->p1->switch_turns <= 0 );
+          assert( can_switch( battle->p1 ) );
           do_switch( ( battle->p1_action == SWITCH1 ), battle->p1 );
           start_switch_timer( battle->p1 );
         }
       if ( is_switch( a2 ) )
         {
-          assert( battle->p2->switch_turns <= 0 );
+          assert( can_switch( battle->p2 ) );
           do_switch( ( battle->p2_action == SWITCH1 ), battle->p2 );
           start_switch_timer( battle->p2 );
         }

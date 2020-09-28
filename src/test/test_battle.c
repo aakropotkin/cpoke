@@ -189,16 +189,12 @@ test_eval_turn( void )
 
   /* Make some fake pokemon */
   p1.team[0].hp            = 100;
-  p2.team[0].hp            = 100;
   p1.team[0].level         = 20;
-  p2.team[0].level         = 20;
   p1.team[0].stats.attack  = 200;
-  p2.team[0].stats.attack  = 200;
   p1.team[0].stats.stamina = 100;
-  p2.team[0].stats.stamina = 100;
   p1.team[0].stats.defense = 100;
-  p2.team[0].stats.defense = 100;
   p1.team[0].types         = NORMAL_M;
+  p2.team[0]               = p1.team[0];
   p2.team[0].types         = FIRE_M;
 
   p1.team[0].fast_move.move_id  = 1; /* Fake */
@@ -207,13 +203,13 @@ test_eval_turn( void )
   p1.team[0].fast_move.is_fast  = true;
   p1.team[0].fast_move.power    = 10;
   p1.team[0].fast_move.energy   = 3;
+  p2.team[0].fast_move          = p1.team[0].fast_move;
 
-  p2.team[0].fast_move.move_id  = 1; /* Fake */
-  p2.team[0].fast_move.turns    = 1;
-  p2.team[0].fast_move.type     = NORMAL;
-  p2.team[0].fast_move.is_fast  = true;
-  p2.team[0].fast_move.power    = 10;
-  p2.team[0].fast_move.energy   = 3;
+  p1.team[0].charged_moves[0].move_id = 2;
+  p1.team[0].charged_moves[0].type    = NORMAL;
+  p1.team[0].charged_moves[0].is_fast = false;
+  p1.team[0].charged_moves[0].power   = 100;
+  p1.team[0].charged_moves[0].energy  = 50;
 
   /* Decisions must be set before `eval_turn' is called */
   battle.p1_action = FAST;
@@ -223,13 +219,60 @@ test_eval_turn( void )
   ohp2 = p2.team[0].hp;
   oen1 = p1.team[0].energy;
   oen2 = p2.team[0].energy;
-
+  /* Evaluate */
   over = eval_turn( & battle );
   expect( over == false );
   expect( oen1 < p1.team[0].energy );
   expect( oen2 < p2.team[0].energy );
   expect( p1.team[0].hp < ohp1 );
   expect( p2.team[0].hp < ohp2 );
+
+  /* Make sure both players are unable to attack because of cooldown */
+  assert( has_cooldown( & p1 ) );
+  assert( has_cooldown( & p2 ) );
+  assert( battle.p1_action == FAST );
+  assert( battle.p2_action == FAST );
+  /* Backup current hp and energy */
+  ohp1 = p1.team[0].hp;
+  ohp2 = p2.team[0].hp;
+  oen1 = p1.team[0].energy;
+  oen2 = p2.team[0].energy;
+  over = eval_turn( & battle );
+  expect( over == false );
+  expect( oen1 == p1.team[0].energy );
+  expect( oen2 == p2.team[0].energy );
+  expect( ohp1 == p1.team[0].hp );
+  expect( ohp2 == p2.team[0].hp );
+  expect( battle.p1_action == WAIT );
+  expect( battle.p2_action == WAIT );
+
+  /* Decrement cooldowns to allow for actions to occur again */
+  decr_cooldown( battle.p1, 1 );
+  decr_cooldown( battle.p2, 1 );
+  /* Clone pokemon to try switching, and confirm damage application */
+  p1.team[1]       = p1.team[0];
+  p1.team[1].hp    = 100;
+  battle.p1_action = SWITCH1;
+  battle.p2_action = FAST;
+  over             = eval_turn( & battle );
+  expect( over == false );
+  expect( oen1 == p1.team[0].energy );
+  expect( oen1 == p1.team[1].energy );
+  expect( oen2 <  p2.team[0].energy );
+  expect( ohp1 == p1.team[0].hp );
+  /* Pokemon which was switched to should have taken the hit */
+  expect( ohp1 == p1.team[1].hp );
+  expect( p1.active_pokemon == 1 );
+  expect( has_switch_timer( & p1 ) );
+  expect( ! can_switch( & p1 ) );
+
+  /* Test Charged move that kills opponent. */
+  battle.p1_action = CHARGED1;
+  p1.team[1].energy = p1.team[1].charged_moves[0].energy;
+  over = eval_turn( & battle );
+  expect( over == true );
+  expect( ! is_active_alive( & p2 ) );
+  expect( p1.team[1].energy == 0 );
 
   return true;
 }

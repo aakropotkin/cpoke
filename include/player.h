@@ -50,22 +50,36 @@ static const pvp_player_t PVP_PLAYER_NULL = {
 #define _apply_active_mon( PLAYER, FN )  FN( get_active_pokemon( PLAYER ) )
 
 #define is_active_alive( PLAYER )  _apply_active_mon( ( PLAYER ), is_alive )
-#define get_active_energy( PLAYER )  get_active_pokemon( PLAYER ).energy
+
 #define get_active_move_energy( PLAYER, MIDX )                                \
   get_pvp_mon_move_energy( get_active_pokemon( PLAYER ), MIDX )
 #define get_active_move_power( PLAYER, MIDX )                                 \
   get_pvp_mon_move_power( get_active_pokemon( PLAYER ), MIDX )
 
-#define start_switch_timer( PLAYER )  ( PLAYER )->switch_turns = SWITCH_TURNS
-
-#define decr_switch_timer( PLAYER, DELTA_TURNS )                              \
+#define get_switch_timer( PLAYER )    ( ( PLAYER )->switch_turns )
+#define has_switch_timer( PLAYER )    ( !! get_switch_timer( PLAYER ) )
+#define can_switch( PLAYER )                                                  \
+  ( ( ! is_active_alive( PLAYER ) ) || ( ! has_switch_timer( PLAYER ) ) )
+#define decr_switch_timer( PLAYER, DELTA_TURNS )          \
   uint_minus( ( PLAYER )->switch_turns, ( DELTA_TURNS ) )
+#define start_switch_timer( PLAYER )  ( PLAYER )->switch_turns = SWITCH_TURNS
 
 #define decr_cooldown( PLAYER, DELTA_TURNS )                                  \
   uint_minus( get_active_pokemon( PLAYER ).cooldown, ( DELTA_TURNS ) )
+#define incr_cooldown( PLAYER, DELTA_TURNS )                                  \
+  ( get_active_pokemon( PLAYER ).cooldown += ( DELTA_TURNS ) )
+#define get_cooldown( PLAYER )  get_active_pokemon( PLAYER ).cooldown
+#define has_cooldown( PLAYER )  ( !! get_cooldown( PLAYER ) )
 
+#define get_active_energy( PLAYER )  get_active_pokemon( PLAYER ).energy
+#define incr_energy( PLAYER, DELTA )                                          \
+  ( get_active_pokemon( PLAYER ).energy += ( DELTA ) )
 #define decr_energy( PLAYER, DELTA )                                          \
   uint_minus( get_active_pokemon( PLAYER ).energy, ( DELTA ) )
+
+#define deal_damage( PLAYER, DMG )                                            \
+  get_active_pokemon( PLAYER ).hp -= min( get_active_pokemon( PLAYER ).hp,    \
+                                          ( DMG ) )
 
 
 /* ------------------------------------------------------------------------- */
@@ -89,9 +103,6 @@ _get_rem_mons_raw( pvp_player_t player )
               pvp_player_t *: _get_rem_mons_ptr,                              \
               pvp_player_t:   _get_rem_mons_raw                               \
             )( PLAYER ) )
-
-
-/* ------------------------------------------------------------------------- */
 
 
 /* ------------------------------------------------------------------------- */
