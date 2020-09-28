@@ -352,12 +352,16 @@ eval_turn_simulated( pvp_battle_t * battle )
   uint16_t        energy   = 0;
 
   /* Force pokemon with cooldowns to wait, regardless of their decided action */
-  if ( ( a1 != WAIT ) && ( has_cooldown( battle->p1 ) ) )
+  if ( ( a1 != WAIT ) && ( has_cooldown( battle->p1 ) )       &&
+       ( ! ( is_switch( a1 ) && can_switch( battle->p1 ) ) )
+     )
     {
       battle->p1_action = WAIT;
       a1 = WAIT;
     }
-  if ( ( a2 != WAIT ) && ( has_cooldown( battle->p2 ) ) )
+  if ( ( a2 != WAIT ) && ( has_cooldown( battle->p2 ) )       &&
+       ( ! ( is_switch( a2 ) && can_switch( battle->p2 ) ) )
+     )
     {
       battle->p2_action = WAIT;
       a2 = WAIT;

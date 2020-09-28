@@ -264,13 +264,14 @@ test_eval_turn( void )
   /* Pokemon which was switched to should have taken the hit */
   expect( ohp1 == p1.team[1].hp );
   expect( p1.active_pokemon == 1 );
-  expect( has_switch_timer( & p1 ) );
+  expect( has_switch_timer( & p1 ) == true );
   expect( can_switch( & p1 ) == false );
 
   /* Test Charged move that kills opponent. */
   battle.p1_action = CHARGED1;
   p1.team[1].energy = p1.team[1].charged_moves[0].energy;
   over = eval_turn( & battle );
+  assert( p1.active_pokemon == 1 );
   expect( over == true );
   expect( is_active_alive( & p2 ) == false );
   expect( p1.team[1].energy == 0 );
@@ -280,14 +281,41 @@ test_eval_turn( void )
   battle.p2_action        = CHARGED1;
   p1.team[1].energy       = p1.team[1].charged_moves[0].energy;
   p2.team[0].energy       = p2.team[0].charged_moves[0].energy;
-  p1.team[1].stats.attack = p2.team[0].stats.attack + 1;
-  p2.team[0].hp           = ohp2;
+  /* Make sure P1 wins tie */
   assert( battle.cmp_rule == CMP_IDEAL );
+  p1.team[1].stats.attack = p2.team[0].stats.attack + 1;
+  p2.team[0].hp           = ohp2;     /* Revive P2 */
+  assert( is_active_alive( & p2 ) );
   over = eval_turn( & battle );
   expect( over == true );
   expect( is_active_alive( & p2 ) == false );
   expect( p1.team[1].energy == 0 );
   expect( ohp1 == p1.team[1].hp );  /* Shouldn't have been hit */
+
+  /* Do a switch tie */
+  battle.phase      = SUSPEND_SWITCH_TIE;
+  p1.team[1].hp     = 0;                    /*  Kill P1's active pokemon */
+  p2.team[1]        = p2.team[0];
+  p2.team[1].hp     = 100;                  /* Revive P2 */
+  battle.p1_action  = WAIT;
+  battle.p2_action  = WAIT;
+  assert( p1.active_pokemon == 1 );
+  assert( p2.active_pokemon == 0 );
+  over = eval_turn( & battle );
+  expect( over == false );
+  expect( can_switch( & p1 ) == true );
+  expect( can_switch( & p2 ) == true );
+  battle.p1_action = SWITCH1;
+  over = eval_turn( & battle );
+  expect( over == false );
+  expect( p1.active_pokemon == 0 );
+  expect( p2.active_pokemon == 0 );
+  battle.p1_action = WAIT;
+  battle.p2_action = SWITCH1;
+  over = eval_turn( & battle );
+  expect( over == false );
+  expect( p1.active_pokemon == 0 );
+  expect( p2.active_pokemon == 1 );
 
   return true;
 }
