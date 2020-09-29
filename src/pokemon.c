@@ -9,6 +9,8 @@
 #include "util/macros.h"
 #include <stdint.h>
 #include "store.h"
+#include <math.h>
+
 
 /* ------------------------------------------------------------------------- */
 
