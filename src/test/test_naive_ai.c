@@ -3,19 +3,18 @@
 /* ========================================================================= */
 
 #include "ai/ai.h"
+#include "ai/naive_ai.h"
 #include "battle.h"
+#define CSTORE_GLOBAL_STORE
+#include "cstore.h"
 #include "player.h"
 #include "pokemon.h"
 #include "pvp_action.h"
 #include "util/test_util.h"
-#define CSTORE_GLOBAL_STORE
-#include "cstore.h"
-#include "ai/naive_ai.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -63,14 +62,35 @@ test_decide_action( void )
   /* Ensure AIs to not try to swap, given that they have only 1 pokemon */
   a1 = decide_action( true, & battle );
   expect( a1 == WAIT );
-  a2 = decide_action( true, & battle );
+  a2 = decide_action( false, & battle );
   expect( a2 == WAIT );
 
+  /* There isn't enough energy for charged moves so they should use `FAST' */
   battle.phase = NEUTRAL;
   a1 = decide_action( true, & battle );
   expect( a1 == FAST );
-  a2 = decide_action( true, & battle );
+  a2 = decide_action( false, & battle );
   expect( a2 == FAST );
+
+  /* Expect a charged move from P1 */
+  incr_energy( & p1, get_active_move_energy( & p1, M_CHARGED1 ) );
+  a1 = decide_action( true, & battle );
+  expect( a1 == CHARGED1 );
+  a2 = decide_action( false, & battle );
+  expect( a2 == FAST );
+
+  /* Expect a charged move from P2 */
+  incr_energy( & p2, get_active_move_energy( & p2, M_CHARGED1 ) );
+  a1 = decide_action( true, & battle );
+  expect( a1 == CHARGED1 );
+  a2 = decide_action( false, & battle );
+  expect( a2 == CHARGED1 );
+
+  /* Expecta shield from P2 */
+  battle.p1_action = CHARGED1;
+  battle.phase = SUSPEND_CHARGED;
+  a2 = decide_action( false, & battle );
+  expect( a2 == SHIELD );
 
   return true;
 }

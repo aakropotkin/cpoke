@@ -2,7 +2,11 @@
 
 /* ========================================================================= */
 
+#include "ai/ai.h"
+#include "ai/naive_ai.h"
 #include "battle.h"
+#define CSTORE_GLOBAL_STORE
+#include "cstore.h"
 #include "player.h"
 #include "ptypes.h"
 #include "pvp_action.h"
@@ -321,6 +325,58 @@ test_eval_turn( void )
 }
 
 
+/* ------------------------------------------------------------------------- */
+
+/* This depends on `naive_ai' working */
+  static bool
+test_simulate_battle( void )
+{
+  pvp_player_t     p1       = PVP_PLAYER_NULL;
+  pvp_player_t     p2       = PVP_PLAYER_NULL;
+  pvp_action_t     a1       = ACT_NULL;
+  pvp_action_t     a2       = ACT_NULL;
+  pvp_battle_t     battle   = PVP_BATTLE_NULL;
+  int              rsl      = 0;
+  uint32_t         turns    = 0;
+  base_pokemon_t   base_ven = BASE_MON_NULL;
+  base_pokemon_t   base_vap = BASE_MON_NULL;
+  roster_pokemon_t rost_ven = {
+    .base             = & base_ven,
+    .fast_move_id     = 214,         /* Vine Whip */
+    .charged_move_ids = { 296, 90 }  /* Frenzy Plant, Sludge Bomb */
+  };
+  roster_pokemon_t rost_vap = {
+    .base             = & base_vap,
+    .fast_move_id     = 230,
+    .charged_move_ids = { 58, 300 }  /* Aqua Tail , Last Resort */
+  };
+  /* There is no reason to initialize Naive AIs */
+  ai_t p1_ai = def_naive_ai();
+  ai_t p2_ai = def_naive_ai();
+
+  /* Vaporeon vs Venusaur */
+  rsl = base_mon_from_store( & CSTORE, 1, 0, 20.0, 15, 15, 15, & base_ven );
+  assert( rsl == STORE_SUCCESS );
+  rsl = base_mon_from_store( & CSTORE, 134, 0, 20.0, 15, 15, 15, & base_vap );
+  assert( rsl == STORE_SUCCESS );
+  pvp_pokemon_init( & p1.team[0], & rost_ven, & CSTORE );
+  pvp_pokemon_init( & p2.team[0], & rost_vap, & CSTORE );
+  assert( p1.team[0].fast_move.move_id == 214 );
+
+  battle.p1    = & p1;
+  p1.ai        = & p1_ai;
+  battle.p2    = & p2;
+  p2.ai        = & p2_ai;
+  battle.phase = COUNTDOWN;
+
+  turns = simulate_battle( & battle );
+  expect( 0 < turns );
+  expect( is_p1_winner( & battle ) == true );
+
+
+  return true;
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -334,6 +390,10 @@ test_battle( void )
   rsl &= do_test( is_p1_winner );
   rsl &= do_test( get_battle_winner );
   rsl &= do_test( eval_turn );
+
+  rsl &= CS_init() == STORE_SUCCESS;
+  rsl &= do_test( simulate_battle );
+  CS_free();
 
   return rsl;
 }

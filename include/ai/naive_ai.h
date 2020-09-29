@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include "pvp_action.h"
 #include "ai/ai.h"
+#include "store.h"
+#include "pokemon.h"
 
 struct pvp_battle_s;
 

@@ -464,8 +464,10 @@ simulate_battle( pvp_battle_t * battle )
   battle->p1_action = decide_action( true, battle );
   battle->p2_action = decide_action( false, battle );
 
-  bool           p1_mon_alive = true;
-  bool           p2_mon_alive = true;
+  battle->phase = NEUTRAL;
+
+  bool p1_mon_alive = true;
+  bool p2_mon_alive = true;
 
   while( eval_turn( battle ) == false )
     {
@@ -478,6 +480,8 @@ simulate_battle( pvp_battle_t * battle )
 
       battle->p1_action = ACT_NULL;
       battle->p2_action = ACT_NULL;
+      battle->p1_action = decide_action( true, battle );
+      battle->p2_action = decide_action( false, battle );
 
       /* Check for fainted pokemon */
       p1_mon_alive = is_active_alive( battle->p1 );
@@ -490,6 +494,7 @@ simulate_battle( pvp_battle_t * battle )
         }
 
     }
+  battle->phase = GAME_OVER;
 
   return battle->turn;
 }
