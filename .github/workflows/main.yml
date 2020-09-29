@@ -24,6 +24,7 @@ jobs:
 
       - name: Build/execute test binary
         run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
           gcc -v
           cd $GITHUB_WORKSPACE
           make test
