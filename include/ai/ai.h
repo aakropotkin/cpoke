@@ -12,6 +12,7 @@
 struct pvp_battle_s;
 struct roster_s;
 struct pvp_pokemon_s;
+struct store_s;
 
 
 /* ------------------------------------------------------------------------- */
@@ -48,6 +49,7 @@ typedef ai_status_t ( * decide_action_fn ) ( bool,
 typedef ai_status_t ( * select_team_fn ) ( struct roster_s *,
                                            struct roster_s *,
                                            struct pvp_pokemon_s *, /* team  */
+                                           struct store_s *, /* store */
                                            void *
                                          );
 
@@ -57,14 +59,15 @@ typedef void ( * ai_free_fn ) ( struct ai_s * );
 
 /* ------------------------------------------------------------------------- */
 
-typedef struct {
+struct ai_s {
   char *           name;
   select_team_fn   select_team;
   decide_action_fn decide_action;
   ai_init_fn       init;
   ai_free_fn       free;
   void *           aux;
-} ai_t;
+};
+typedef struct ai_s  ai_t;
 
 
 /* ------------------------------------------------------------------------- */

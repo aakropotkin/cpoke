@@ -12,6 +12,7 @@ bool test_parse_gm( void );
 bool test_cstore( void );
 bool test_player( void );
 bool test_battle( void );
+bool test_naive_ai( void );
 bool test_all( void );
 
 

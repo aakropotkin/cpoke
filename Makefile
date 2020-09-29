@@ -29,11 +29,14 @@ CSTORE_OBJECTS := cstore.o cstore_data.o
 SIM_OBJECTS := battle.o player.o
 
 TEST_OBJECTS := test_json.o test_pokemon.o test_ptypes.o test_parse_gm.o
-TEST_OBJECTS += test_cstore.o test_battle.o test_player.o
+TEST_OBJECTS += test_cstore.o test_battle.o test_player.o test_naive_ai.o
 
 GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
 
 NAIVE_AI_OBJECTS := naive_ai.o
+
+TEST_DEPS := ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o gm_store.o
+TEST_DEPS += ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
 
 # -------------------------------------------------------------------------- #
@@ -143,6 +146,9 @@ test_cstore.o: ${SRCPATH}/test/test_cstore.c ${HEADERS}
 test_battle.o: ${SRCPATH}/test/test_battle.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
+test_naive_ai.o: ${SRCPATH}/test/test_naive_ai.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
 test_player.o: ${SRCPATH}/test/test_player.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
@@ -152,7 +158,7 @@ test.o: ${SRCPATH}/test/test.c ${HEADERS}
 test_main.o: ${SRCPATH}/test/test.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_TEST_BINARY -c $< -o test_main.o
 
-test: test_main.o ${CORE_OBJECTS} ${TEST_OBJECTS} parse_gm.o gm_store.o ${CSTORE_OBJECTS} ${SIM_OBJECTS}
+test: test_main.o ${TEST_DEPS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
 

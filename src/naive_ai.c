@@ -2,15 +2,15 @@
 
 /* ========================================================================= */
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include "ai/ai.h"
-#include "pvp_action.h"
-#include "pokemon.h"
 #include "battle.h"
 #include "player.h"
+#include "pokemon.h"
+#include "pvp_action.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -24,6 +24,7 @@
 naive_ai_select_team( roster_t      * our_roster,
                       roster_t      * their_roser,
                       pvp_pokemon_t * team, /* EXACTLY 3 ELEMENTS */
+                      store_t       * store,
                       void          * aux
                     )
 {
@@ -33,7 +34,7 @@ naive_ai_select_team( roster_t      * our_roster,
   /* Take the first 3, or as many as possible */
   for ( size_t i = 0; i < min( 3, our_roster->roster_length ); i++ )
     {
-      pvp_pokemon_init( our_roster->roster_pokemon + i, team );
+      pvp_pokemon_init( team + i, our_roster->roster_pokemon + i, store );
     }
   return AI_SUCCESS;
 }

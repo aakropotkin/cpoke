@@ -110,7 +110,7 @@ test_cstore_base_mon_from_store( void )
 {
   store_t cstore = CSTORE;
 
-  base_pokemon_t mon;
+  base_pokemon_t mon = BASE_MON_NULL;
 
   int rsl = base_mon_from_store( & cstore, 1, 0, 15.0, 10, 11, 12, & mon );
   expect( mon.pdex_mon != NULL );

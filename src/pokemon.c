@@ -51,7 +51,7 @@ pvp_pokemon_init( pvp_pokemon_t    * mon,
 
   rsl = pvp_charged_move_from_store( store,
                                      rmon->charged_move_ids[0],
-                                     mon->charged_moves
+                                     & mon->charged_moves[0]
                                    );
   assert( rsl == STORE_SUCCESS );
 
@@ -59,7 +59,7 @@ pvp_pokemon_init( pvp_pokemon_t    * mon,
     {
       rsl = pvp_charged_move_from_store( store,
                                          rmon->charged_move_ids[1],
-                                         mon->charged_moves + 1
+                                         & mon->charged_moves[1]
                                        );
       assert( rsl == STORE_SUCCESS );
     }

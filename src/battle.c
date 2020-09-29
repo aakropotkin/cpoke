@@ -351,7 +351,8 @@ eval_turn_simulated( pvp_battle_t * battle )
   uint16_t        damage   = 0;
   uint16_t        energy   = 0;
 
-  /* Force pokemon with cooldowns to wait, regardless of their decided action */
+  /* Force pokemon with cooldowns to wait, regardless of their decided action.
+   * An exception is for forced swaps */
   if ( ( a1 != WAIT ) && ( has_cooldown( battle->p1 ) )       &&
        ( ! ( is_switch( a1 ) && can_switch( battle->p1 ) ) )
      )

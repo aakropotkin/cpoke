@@ -15,10 +15,11 @@ struct pvp_battle_s;
 
 /* ------------------------------------------------------------------------- */
 
-ai_status_t naive_ai_select_team( roster_t   * our_roster,
-                                  roster_t   * their_roser,
-                                  pvp_team_t * team,
-                                  void       * aux
+ai_status_t naive_ai_select_team( roster_t      * our_roster,
+                                  roster_t      * their_roser,
+                                  pvp_pokemon_t * team,
+                                  store_t       * store,
+                                  void          * aux
                                 );
 
 ai_status_t naive_ai_decide_action( bool                        decide_p1,
@@ -33,9 +34,9 @@ void        naive_ai_free( ai_t * ai );
 
 /* ------------------------------------------------------------------------- */
 
-#define def_naive_ai()                                                        \
+#define def_naive_ai()  (ai_t)                                                \
   {                                                                           \
-    .name          = "Naive AI",                                              \
+      .name          = "Naive AI",                                            \
       .select_team   = naive_ai_select_team,                                  \
       .decide_action = naive_ai_decide_action,                                \
       .init          = naive_ai_init,                                         \

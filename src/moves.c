@@ -38,7 +38,7 @@ apply_buff( buff_state_t * buff_state, buff_t buff )
 /* ------------------------------------------------------------------------- */
 
   static inline int
-_move_from_store( store_t * store, uint16_t move_id, store_move_t * move )
+_move_from_store( store_t * store, uint16_t move_id, store_move_t ** move )
 {
   assert( move != NULL );
   if ( store == NULL )                         return STORE_ERROR_BAD_VALUE;
@@ -49,11 +49,11 @@ _move_from_store( store_t * store, uint16_t move_id, store_move_t * move )
   assert( key.val_type == STORE_MOVE );
   assert( key.data_h0 == move_id );
 
-  move = NULL;
+  *move = NULL;
 
-  int rsl = store->get( store, key, (void **) & move );
+  int rsl = store->get( store, key, (void **) move );
   if ( rsl != STORE_SUCCESS ) return rsl;
-  assert( move->move_id == move_id );
+  assert( ( * move )->move_id == move_id );
   return rsl;
 }
 
@@ -68,8 +68,9 @@ pvp_charged_move_from_store( store_t            * store,
                            )
 {
   store_move_t * smove = NULL;
-  int rsl = _move_from_store( store, move_id, smove );
+  int rsl = _move_from_store( store, move_id, & smove );
   if ( rsl != STORE_SUCCESS ) return rsl;
+  if ( smove->move_id != move_id ) return STORE_ERROR_FAIL;
   *move = pvp_charged_move_from_store_move( smove );
   return rsl;
 }
@@ -84,8 +85,9 @@ pvp_fast_move_from_store( store_t         * store,
                         )
 {
   store_move_t * smove = NULL;
-  int rsl = _move_from_store( store, move_id, smove );
+  int rsl = _move_from_store( store, move_id, & smove );
   if ( rsl != STORE_SUCCESS ) return rsl;
+  if ( smove->move_id != move_id ) return STORE_ERROR_FAIL;
   *move = pvp_fast_move_from_store_move( smove );
   return rsl;
 }

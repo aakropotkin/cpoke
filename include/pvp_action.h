@@ -28,6 +28,11 @@ DEFINE_ENUM_WITH_FLAGS( pvp_action,
   );
 static const uint8_t NUM_PVP_ACTIONS = SHIELD + 1;
 #define get_pvp_act_mask( ACT )  ( (pvp_action_mask_t) to_mask( ACT ) )
+static const char * PVP_ACTION_NAMES[] = {
+  "ACT_NULL", "FAST", "WAIT", "CHARGED1", "CHARGED2", "SWITCH1", "SWITCH2",
+  "SHIELD"
+};
+#define get_pvp_act_name( ACT )  ( PVP_ACTION_NAMES[( ACT )] )
 
 
 /* ------------------------------------------------------------------------- */
