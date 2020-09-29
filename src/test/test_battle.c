@@ -329,7 +329,7 @@ test_eval_turn( void )
 
 /* This depends on `naive_ai' working */
   static bool
-test_simulate_battle( void )
+test_simulate_battle_simple( void )
 {
   pvp_player_t     p1       = PVP_PLAYER_NULL;
   pvp_player_t     p2       = PVP_PLAYER_NULL;
@@ -392,7 +392,7 @@ test_battle( void )
   rsl &= do_test( eval_turn );
 
   rsl &= CS_init() == STORE_SUCCESS;
-  rsl &= do_test( simulate_battle );
+  rsl &= do_test( simulate_battle_simple );
   CS_free();
 
   return rsl;
