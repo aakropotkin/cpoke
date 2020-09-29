@@ -1202,7 +1202,7 @@ main( int argc, char * argv[], char ** envp )
             }
           else
             {
-              fprintf( stderr, "Unknown option character `\\x%x'.\n" );
+              fprintf( stderr, "Unknown option character `\\x%x'.\n", optopt );
             }
           fprintf( stderr, USAGE_STR );
           return EXIT_FAILURE;
