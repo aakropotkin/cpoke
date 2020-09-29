@@ -24,6 +24,7 @@ jobs:
 
       - name: Build/execute test binary
         run: |
+          gcc -v
           cd $GITHUB_WORKSPACE
           make test
           ./test
