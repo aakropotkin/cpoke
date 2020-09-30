@@ -19,6 +19,8 @@
 
 /* ------------------------------------------------------------------------- */
 
+static const float MAX_LEVEL = 40.0;
+
 #define get_cpm_for_level( lvl )  CPMS[( (int) ( ( ( lvl ) - 1 ) * 2 ) )]
 
 
@@ -187,6 +189,53 @@ static inline bool _is_alive_raw( pvp_pokemon_t mon )   { return !! mon.hp;  }
                                      pvp_pokemon_t *: _is_alive_ptr,          \
                                      pvp_pokemon_t:   _is_alive_raw           \
                                    )( MON ) )
+
+
+/* ------------------------------------------------------------------------- */
+
+/* Tries Sum, then prefers Attack, then Defense, then Stamina */
+  static inline int
+cmp_stats( stats_t a, stats_t b )
+{
+  uint32_t sa = a.attack + a.stamina + a.defense;
+  uint32_t sb = b.attack + b.stamina + b.defense;
+  if ( sa != sb )
+    {
+      return ( sa > sb ) - ( sa < sb );
+    }
+  if ( a.attack != b.attack )
+    {
+      return ( a.attack > b.attack ) - ( a.attack > b.attack );
+    }
+  if ( a.defense != b.defense )
+    {
+      return ( a.defense > b.defense ) - ( a.defense > b.defense );
+    }
+  return ( a.stamina > b.stamina ) - ( a.stamina > b.stamina );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+bool brute_maximize_ivs( uint16_t  cp_cap,
+                         stats_t   base,
+                         stats_t * ivs,
+                         float   * lv
+                       );
+
+
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Aims to have the highest sum of "effective stats".
+ * In the rare event of a perfect tie, priorities are:
+ *   Attack, Defense, then Stamina
+ */
+  static inline bool
+maximize_ivs( uint16_t cp_cap, stats_t base, stats_t * ivs, float * lv )
+{
+  return brute_maximize_ivs( cp_cap, base, ivs, lv );
+}
 
 
 /* ------------------------------------------------------------------------- */

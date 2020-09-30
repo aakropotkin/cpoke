@@ -156,8 +156,7 @@ test_cstore_roster( void )
     .fast_move_id = (uint16_t) USER1_BASE_MONS[2].pdex_mon->fast_move_ids[0],
     .charged_move_ids = {
       (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[0],
-      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[1]
-    }
+      (uint16_t) USER1_BASE_MONS[2].pdex_mon->charged_move_ids[1]}
   };
 
   roster_pokemon_t user1_rmons[] = { bulbasaur, charmander, squirtle };
@@ -342,6 +341,30 @@ test_get_pvp_damage( void )
 
 /* ------------------------------------------------------------------------- */
 
+  static bool
+test_brute_maximize_ivs( void )
+{
+  stats_t ven_base = { .stamina = 190, .attack = 198, .defense = 189 };
+  stats_t ivs      = { 0, 0, 0 };
+  float   lv       = 0.0;
+  bool    rsl      = false;
+
+  rsl = brute_maximize_ivs( 1500, ven_base, & ivs, & lv );
+
+  expect( rsl == true );
+  expect( lv == 21 );
+  expect( ivs.attack  ==  0 );
+  expect( ivs.defense == 14 );
+  expect( ivs.stamina == 11 );
+  expect( get_cp_from_stats( ven_base, ivs, lv ) == 1498 );
+
+  return true;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
   bool
 test_pokemon( void )
 {
@@ -357,6 +380,7 @@ test_pokemon( void )
   rsl &= do_test( get_cp_from_stats );
   rsl &= do_test( get_effective_stats );
   rsl &= do_test( get_pvp_damage );
+  rsl &= do_test( brute_maximize_ivs );
 
   CS_free();
   return rsl;

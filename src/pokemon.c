@@ -78,10 +78,10 @@ get_cp_from_stats( stats_t base, stats_t ivs, float level )
                      ( base.attack + ivs.attack )         *
                      sqrt( ( base.defense + ivs.defense ) *
                            ( base.stamina + ivs.stamina )
-                           )
-                     ),
+                         )
+                   ),
               10
-              );
+            );
 }
 
 
@@ -202,6 +202,53 @@ base_mon_from_store( store_t        * store,
   assert( mon->pdex_mon->dex_number == dex_num );
   assert( mon->pdex_mon->form_idx == form_idx );
   return rsl;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+brute_maximize_ivs( uint16_t cp_cap, stats_t base, stats_t * ivs, float * lv )
+{
+  stats_t  eff_best   = { 0, 0, 0 };
+  stats_t  peff       = { 0, 0, 0 };
+  stats_t  pivs       = { 0, 0, 0 };
+  float    plv        = 1.0;
+  bool     keep_going = true;
+  uint16_t cp         = 0;
+
+  /* Pointers store current "best" */
+  ivs->attack  = 0;
+  ivs->stamina = 0;
+  ivs->defense = 0;
+  *lv          = 0.0;
+
+  for ( plv = 1.0; ( plv <= MAX_LEVEL ) && keep_going; plv += 0.5 )
+    {
+      keep_going = false;
+      for ( pivs.attack = 0; pivs.attack <= 15; pivs.attack++ )
+        {
+          for ( pivs.stamina = 0; pivs.stamina <= 15; pivs.stamina++ )
+            {
+              for ( pivs.defense = 0; pivs.defense <= 15; pivs.defense++ )
+                {
+                  cp = get_cp_from_stats( base, pivs, plv );
+                  if ( cp <= cp_cap )
+                    {
+                      keep_going = true;
+                      peff = get_effective_stats( base, pivs, plv );
+                      if ( 0 < cmp_stats( peff, eff_best ) )
+                        {
+                          eff_best = peff;
+                          *lv      = plv;
+                          *ivs     = pivs;
+                        }
+                    }
+                }
+            }
+        }
+    }
+  return 0 < ( *lv );
 }
 
 

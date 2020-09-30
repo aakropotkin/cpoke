@@ -159,7 +159,7 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
       /* Force swap if they ran out the clock playing chicken */
       if ( ( ! is_active_alive( battle->p1 ) ) &&
            ( battle->p1_action == WAIT )
-         )battle->p1_action = SWITCH1;
+         ) battle->p1_action = SWITCH1;
       if ( ( ! is_active_alive( battle->p2 ) ) &&
            ( battle->p2_action == WAIT )
          ) battle->p2_action = SWITCH1;
@@ -195,10 +195,11 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
         {
           battle->p2_action = SWITCH1;
         }
-      else if ( p2_mon_alive && ( battle->p1_action == WAIT ) )
+      if ( p2_mon_alive && ( battle->p1_action == WAIT ) )
         {
           battle->p1_action = SWITCH1;
         }
+      /* Evaluate the ( possibly ) forced swap */
       eval_turn( battle );
       battle->turn++;
       decr_switch_timer( battle->p1, 1 );
