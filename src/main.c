@@ -3,21 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "ptypes.h"
-#include "moves.h"
-#include "pokedex.h"
-#include "pokemon.h"
-#include "pvp_action.h"
-#include "battle.h"
-#include <curl/curl.h>
-
-#include "ai/pvpoke_ai.h"
-/* Must come after AI implementation */
-#include "ai/ai.h"
-/* Must come after AI */
-#include "player.h"
-
-#include "util/json_util.h"
+#include "iv_rank.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -26,23 +12,13 @@
   int
 main( int argc, char * argv[], char ** envp )
 {
-  const char json_str3[] =
-    "[ \"name\", \"Suzy\", \"age\", 23" ", \"occupation\", "
-      "\"mechanic\", [ 1, 2, 3 ]"
-    "]";
-  const size_t json_str3_len = array_size( json_str3 );
-  jsmntok_t tokens[11];
-  jsmn_parser json_str3_parser;
-  jsmn_init( & json_str3_parser );
-  int r = jsmn_parse( & json_str3_parser,
-                      json_str3,
-                      json_str3_len,
-                      tokens,
-                      11
-                    );
-  int i = json_find( json_str3, tokens, jsoneq_int_p, (void *) 23, 11, 0 );
-  printf( "%d\n", i );
-
+  stats_t         ven_base = { .attack = 198, .stamina = 190, .defense = 189 };
+  stats_combo_t * rankings = rank_ivs( ven_base, 10, 1500 );
+  for ( int i = 0; i < 10; i++ )
+    {
+      printf( "# %d\tCP: %u\n", i + 1, rankings[i].cp );
+    }
+  free( rankings );
 
   return EXIT_SUCCESS;
 }
