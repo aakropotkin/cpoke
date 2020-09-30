@@ -104,6 +104,7 @@ do_switch( bool is_switch1, pvp_player_t * player )
       if ( is_switch1 )
         {
           player->active_pokemon = i;
+          get_active_pokemon( player ).buffs = NO_BUFF_STATE;
           break;
         }
       else
@@ -156,8 +157,16 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
           battle->p2_action = decide_action( false, battle );
         }
       /* Force swap if they ran out the clock playing chicken */
-      if ( battle->p1_action == WAIT ) battle->p1_action = SWITCH1;
-      if ( battle->p2_action == WAIT ) battle->p2_action = SWITCH1;
+      if ( ( ! is_active_alive( battle->p1 ) ) &&
+           ( battle->p1_action == WAIT )
+         )battle->p1_action = SWITCH1;
+      if ( ( ! is_active_alive( battle->p2 ) ) &&
+           ( battle->p2_action == WAIT )
+         ) battle->p2_action = SWITCH1;
+      eval_turn( battle );
+      battle->turn++;
+      decr_switch_timer( battle->p1, 1 );
+      decr_switch_timer( battle->p2, 1 );
     }
   else if ( ! ( p1_mon_alive && p2_mon_alive ) )
     { /* Only 1 fainted. No playing chicken. But player can eat the clock */
@@ -190,10 +199,23 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
         {
           battle->p1_action = SWITCH1;
         }
+      eval_turn( battle );
+      battle->turn++;
+      decr_switch_timer( battle->p1, 1 );
+      decr_switch_timer( battle->p2, 1 );
+      /* Decrement cooldown for living pokemon */
+      if ( p1_mon_alive ) decr_cooldown( battle->p1, 1 );
+      else                decr_cooldown( battle->p2, 1 );
     }
 
   assert( is_active_alive( battle->p1 ) );
   assert( is_active_alive( battle->p2 ) );
+
+  battle->phase     = NEUTRAL;
+  battle->p1_action = ACT_NULL;
+  battle->p2_action = ACT_NULL;
+  battle->p1_action = decide_action( true, battle );
+  battle->p2_action = decide_action( false, battle );
 }
 
 
@@ -564,6 +586,77 @@ valid_actions( bool decide_p1, pvp_battle_t * battle )
          }
      }
   return valids;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+pvp_battle_init( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+pvp_battle_free( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  void
+pvp_battle_reset( pvp_battle_t * battle )
+{
+  assert( battle != NULL );
+
+  battle->turn          = 0;
+  battle->phase         = COUNTDOWN;
+  battle->cmp_alt_state = false;
+  battle->p1_action     = ACT_NULL;
+  battle->p2_action     = ACT_NULL;
+
+  battle->p1->active_pokemon = 0;
+  battle->p2->active_pokemon = 0;
+  battle->p1->shields        = 2;
+  battle->p2->shields        = 2;
+  battle->p1->switch_turns   = 0;
+  battle->p2->switch_turns   = 0;
+
+  /* Reset AIs */
+  battle->p1->ai->free( battle->p1->ai );
+  battle->p1->ai->init( battle->p1->ai, battle->p1->ai->aux );
+  battle->p2->ai->free( battle->p2->ai );
+  battle->p2->ai->init( battle->p2->ai, battle->p2->ai->aux );
+
+  /* Reset Pokemon */
+  for ( int i = 0; i < 3; i++ )
+    {
+      if ( 0 < battle->p1->team[i].level )
+        {
+          battle->p1->team[i].hp =
+            get_hp_from_stam_lv( battle->p1->team[i].stats.stamina,
+                                 battle->p1->team[i].level
+                               );
+          battle->p1->team[i].energy   = 0;
+          battle->p1->team[i].buffs    = NO_BUFF_STATE;
+          battle->p1->team[i].cooldown = 0;
+        }
+      if ( 0 < battle->p2->team[i].level )
+        {
+          battle->p2->team[i].hp =
+            get_hp_from_stam_lv( battle->p2->team[i].stats.stamina,
+                                 battle->p2->team[i].level
+                                 );
+          battle->p2->team[i].energy   = 0;
+          battle->p2->team[i].buffs    = NO_BUFF_STATE;
+          battle->p2->team[i].cooldown = 0;
+        }
+    }
 }
 
 

@@ -203,6 +203,7 @@ static const pvp_battle_t PVP_BATTLE_NULL = {
 
 void pvp_battle_init( pvp_battle_t * battle );
 void pvp_battle_free( pvp_battle_t * battle );
+void pvp_battle_reset( pvp_battle_t * battle );
 
 
 /* ------------------------------------------------------------------------- */

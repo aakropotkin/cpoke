@@ -374,6 +374,18 @@ test_simulate_battle_simple( void )
   expect( is_p1_winner( & battle ) == true );
 
 
+  /* Lets run again with teams of 3 */
+  pvp_battle_reset( & battle );
+  p1.team[1] = p1.team[0];
+  p1.team[2] = p1.team[0];
+  p2.team[1] = p2.team[0];
+  p2.team[2] = p2.team[0];
+
+  turns = simulate_battle( & battle );
+  expect( 0 < turns );
+  expect( is_p1_winner( & battle ) == true );
+
+
   return true;
 }
 
