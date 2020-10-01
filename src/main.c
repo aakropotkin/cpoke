@@ -16,8 +16,16 @@ main( int argc, char * argv[], char ** envp )
   stats_combo_t * rankings = rank_ivs( ven_base, 10, 1500 );
   for ( int i = 0; i < 10; i++ )
     {
-      printf( "# %d\tCP: %u\n", i + 1, rankings[i].cp );
+      printf( "# %d\t", i );
+      print_stats_combo( rankings + i );
     }
+
+  LIST_HEAD( head );
+  for ( int i = 9; 0 <= i ; i-- ) list_add( & rankings[i].elem, & head );
+  list_sort( NULL, & head, _cmp_stats_combo_priv );
+  stats_combo_t * curr = NULL;
+  list_for_each_entry( curr, & head, elem ) print_stats_combo( curr );
+
   free( rankings );
 
   return EXIT_SUCCESS;

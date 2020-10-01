@@ -10,6 +10,7 @@
 #include "util/list.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -23,6 +24,20 @@ struct stats_combo_s {
   list_t   elem;
 };
 typedef struct stats_combo_s  stats_combo_t;
+
+/* ------------------------------------------------------------------------- */
+
+  static inline void
+fprint_stats_combo( FILE * fd, stats_combo_t * stats )
+{
+  fprintf( fd,
+           "CP: %u, LV: %.1f, IVs: %u/%u/%u\n",
+           stats->cp, stats->lv,
+           stats->ivs.attack,  stats->ivs.stamina,  stats->ivs.defense
+         );
+}
+#define print_stats_combo( STATS )  fprint_stats_combo( stdout, ( STATS ) )
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -40,6 +55,14 @@ _cmp_stats_combo( const void * a, const void * b )
                         );
 }
 
+  static inline int
+_cmp_stats_combo_priv( void * _unused_,  list_t * a, list_t * b )
+{
+  return cmp_stats_combo( (const stats_combo_t *) list_entry( a, stats_combo_t, elem ),
+                          (const stats_combo_t *) list_entry( b, stats_combo_t, elem )
+                        );
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -51,8 +74,10 @@ stats_combo_sorted_insert( stats_combo_t ** head, stats_combo_t * new )
   if ( ( * head ) == NULL )
     {
       *head = new;
+      new->elem.next = NULL;
+      new->elem.prev = & new->elem;
     }
-  else if ( cmp_stats_combo( *head, new ) < 0 ) /* head < new */
+  else if ( cmp_stats_combo( *head, new ) > 0 ) /* head < new */
     {
       new->elem.next = & ( * head )->elem;
       new->elem.prev = & new->elem;
@@ -62,7 +87,7 @@ stats_combo_sorted_insert( stats_combo_t ** head, stats_combo_t * new )
     {
       curr = * head;
       while ( ( curr->elem.next != NULL ) &&
-              ( 0 < cmp_stats_combo( *head, new ) )
+              ( 0 > cmp_stats_combo( *head, new ) )
             ) curr = list_entry( curr->elem.next, stats_combo_t, elem );
       /* Insert */
       new->elem.next = curr->elem.next;
@@ -85,6 +110,7 @@ rank_ivs( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
   size_t num_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   stats_combo_t * rankings =
     (stats_combo_t *) malloc( sizeof( stats_combo_t ) * num_elems );
+  stats_combo_t * ranking = NULL;
   stats_t  ivs        = { 0, 0, 0 };
   float    lv         = 1.0;
   uint16_t cp         = 0;
@@ -105,35 +131,17 @@ rank_ivs( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
                   if ( cp <= cp_cap )
                     {
                       keep_going = true;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].cp = cp;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].lv = lv;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].base = base;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].ivs.attack = ivs.attack;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].ivs.stamina = ivs.stamina;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].ivs.defense = ivs.defense;
-                      rankings[(int) ( lv * 2 - 2 ) +
-                               ivs.attack           +
-                               ivs.stamina          +
-                               ivs.defense].eff =
-                                get_effective_stats( base, ivs, lv );
+
+                      ranking = & rankings[(int) ( lv * 2 - 2 ) +
+                                           ivs.attack           +
+                                           ivs.stamina          +
+                                           ivs.defense];
+                      ranking->cp   = cp;
+                      ranking->lv   = lv;
+                      ranking->base = base;
+                      ranking->ivs  = ivs;
+                      ranking->eff  = get_effective_stats( base, ivs, lv );
+                      INIT_LIST_HEAD( & ranking->elem );
                     }
                 }
             }
