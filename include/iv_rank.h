@@ -142,7 +142,7 @@ rank_ivs_all( stats_t base, uint16_t cp_cap )
   static inline stats_combo_t *
 rank_ivs_array( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
 {
-  stats_combo_t * rankings  = rank_ivs_all( base, cp_cap, false );
+  stats_combo_t * rankings  = rank_ivs_all( base, cp_cap );
   uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   if ( rankings == NULL ) return NULL;
 
@@ -175,15 +175,15 @@ rank_ivs_array( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
   static inline stats_combo_t *
 rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
 {
-  stats_combo_t * rankings  = rank_ivs_array( base, cp_cap );
+  stats_combo_t * rankings  = rank_ivs_array( base, cp_cap, cp_cap );
   uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   if ( rankings == NULL ) return NULL;
   if ( max_rsl == 0 ) max_rsl = max_elems;
   else                max_rsl = min( max_elems, max_rsl );
   for ( uint16_t i = 0; i < max_rsl; i++ )
     {
-      INIT_LIST_HEAD( & rankings[i].elems );
-      list_add_tail( & rankings[i].elems, & rankings[0].elems );
+      INIT_LIST_HEAD( & rankings[i].elem );
+      list_add_tail( & rankings[i].elem, & rankings[0].elem );
     }
   return rankings;
 }
@@ -212,7 +212,7 @@ fprint_iv_db_c( FILE          * fd,
   for ( uint16_t i = 0; i < num_elems; i++ )
     {
       if ( first ) first = false;
-      else         putc( fd, ',' );
+      else         putc( ',', fd );
       fprintf( fd, "\n  " );
       fprintf( fd,
                "{ .lvi = %u, "
@@ -223,7 +223,7 @@ fprint_iv_db_c( FILE          * fd,
                rankings[i].ivs.defense
              );
     }
-  fprintf( fd, "\n};" )
+  fprintf( fd, "\n};" );
 }
 
 
