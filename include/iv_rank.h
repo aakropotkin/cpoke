@@ -107,7 +107,7 @@ rank_ivs_all( stats_t base, uint16_t cp_cap )
 
   for ( lv = 1.0; ( lv <= MAX_LEVEL ) && keep_going; lv += 0.5 )
     {
-      keep_going = false;
+      //keep_going = false;
       for ( ivs.attack = 0; ivs.attack <= 15; ivs.attack++ )
         {
           for ( ivs.stamina = 0; ivs.stamina <= 15; ivs.stamina++ )

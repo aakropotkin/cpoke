@@ -205,13 +205,13 @@ cmp_stats( stats_t a, stats_t b )
     }
   if ( a.attack != b.attack )
     {
-      return ( a.attack > b.attack ) - ( a.attack > b.attack );
+      return ( a.attack > b.attack ) - ( a.attack < b.attack );
     }
   if ( a.defense != b.defense )
     {
-      return ( a.defense > b.defense ) - ( a.defense > b.defense );
+      return ( a.defense > b.defense ) - ( a.defense < b.defense );
     }
-  return ( a.stamina > b.stamina ) - ( a.stamina > b.stamina );
+  return ( a.stamina > b.stamina ) - ( a.stamina < b.stamina );
 }
 
 
