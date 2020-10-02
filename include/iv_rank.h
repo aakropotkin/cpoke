@@ -6,6 +6,7 @@
 
 /* ========================================================================= */
 
+#include "battle.h"
 #include "pokemon.h"
 #include "util/list.h"
 #include <math.h>
@@ -25,6 +26,15 @@ struct stats_combo_s {
 };
 typedef struct stats_combo_s  stats_combo_t;
 
+
+/* Minimal information to dump in ranking list */
+struct iv_lv_s {
+  uint8_t lvi;
+  stats_t ivs;
+} packed;
+typedef struct iv_lv_s  iv_lv_t;
+
+
 /* ------------------------------------------------------------------------- */
 
   static inline void
@@ -43,7 +53,6 @@ fprint_stats_combo( FILE * fd, stats_combo_t * stats )
 
 #define stats_combo_for_each( CURR, HEAD )                                    \
   list_for_each_entry( ( CURR ), & ( HEAD )->elem, elem )
-
 
 
 /* ------------------------------------------------------------------------- */
@@ -178,6 +187,45 @@ rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
     }
   return rankings;
 }
+
+
+/* ------------------------------------------------------------------------- */
+
+  static inline void
+fprint_iv_db_c( FILE          * fd,
+                stats_combo_t * rankings,
+                uint16_t        num_elems,
+                league_t        league,
+                uint16_t        dex_num,
+                uint8_t         form_idx
+              )
+{
+  assert( rankings != NULL );
+  assert( league != MASTER_LEAGUE );
+  bool first = true;
+  fprintf( fd,
+           "static const iv_lv_t IVS_%s_%u_%u[] = {",
+           get_league_name( league ),
+           dex_num,
+           form_idx
+         );
+  for ( uint16_t i = 0; i < num_elems; i++ )
+    {
+      if ( first ) first = false;
+      else         putc( fd, ',' );
+      fprintf( fd, "\n  " );
+      fprintf( fd,
+               "{ .lvi = %u, "
+               ".ivs = { .attack = %u, .stamina = %u, .defense = %u } }",
+               (int) ( rankings[i].lv * 2 ),
+               rankings[i].ivs.attack,
+               rankings[i].ivs.stamina,
+               rankings[i].ivs.defense
+             );
+    }
+  fprintf( fd, "\n};" )
+}
+
 
 
 /* ------------------------------------------------------------------------- */

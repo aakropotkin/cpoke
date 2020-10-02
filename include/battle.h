@@ -97,6 +97,22 @@ static const uint8_t SWITCH_TURNS         = 26;
 
 /* ------------------------------------------------------------------------- */
 
+typedef enum {
+  GREAT_LEAGUE  = 1500,
+  ULTRA_LEAGUE  = 2500,
+  MASTER_LEAGUE = 10000
+} league_t;
+static const char * LEAGUE_NAMES[] = {
+    "GREAT_LEAGUE", "ULTRA_LEAGUE", "MASTER_LEAGUE"
+  };
+#define get_league_name( LEAGUE )                                             \
+  ( ( LEAGUE ) == GREAT_LEAGUE ) ? LEAGUE_NAMES[0] :                          \
+  ( ( LEAGUE ) == ULTRA_LEAGUE ) ? LEAGUE_NAMES[1] : LEAGUE_NAMES[2]
+
+
+
+/* ------------------------------------------------------------------------- */
+
 typedef enum packed { SIMULATE, EMULATE } battle_mode_t;
 typedef enum packed { FIRST_FAINT, BOTH_FAINT } battle_end_cond_t;
 
