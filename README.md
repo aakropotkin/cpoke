@@ -15,8 +15,9 @@ API/headers should operate in such a generalized that data sources ( whether by 
 The battle simulator was very recently completed, and you will notice that `main.c` is nearly empty at this point, instead I suggest building the following:
 
 ```sh
+# In the root of the project
 make test;
-./test
+./test;
 # Check for "FAIL" in the output
 ```
 
