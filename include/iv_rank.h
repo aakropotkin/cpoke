@@ -1,4 +1,3 @@
-
 /* -*- mode: c; -*- */
 
 #ifndef _IV_RANK_H
@@ -192,7 +191,7 @@ rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
 /* ------------------------------------------------------------------------- */
 
   static inline void
-fprint_iv_db_c( FILE          * fd,
+fprint_iv_rankings_c( FILE          * fd,
                 stats_combo_t * rankings,
                 uint16_t        num_elems,
                 league_t        league,
@@ -213,9 +212,8 @@ fprint_iv_db_c( FILE          * fd,
     {
       if ( first ) first = false;
       else         putc( ',', fd );
-      fprintf( fd, "\n  " );
       fprintf( fd,
-               "{ .lvi = %u, "
+               "\n  { .lvi = %u, "
                ".ivs = { .attack = %u, .stamina = %u, .defense = %u } }",
                (int) ( rankings[i].lv * 2 ),
                rankings[i].ivs.attack,
@@ -223,8 +221,14 @@ fprint_iv_db_c( FILE          * fd,
                rankings[i].ivs.defense
              );
     }
-  fprintf( fd, "\n};" );
+  fprintf( fd, "\n};\n" );
 }
+
+/**
+ * This would be nicer if it accepted a `store_t', but I honestly don't think
+ * it's going to be rerun frequently enough to justify using the abstraction.
+ */
+void iv_store_export_c( FILE * fd, uint16_t max_rsl );
 
 
 

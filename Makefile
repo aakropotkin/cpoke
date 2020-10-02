@@ -17,7 +17,7 @@ CURL_LINKERFLAGS = $(shell curl-config --libs)
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
-BINS    := cpoke parse_gm fetch_gm test
+BINS    := cpoke parse_gm fetch_gm test iv_store_build
 
 EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
@@ -72,6 +72,16 @@ parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 parse_gm: parse_gm_main.o gm_store.o ${CORE_OBJECTS}
 	${CC} ${LINKERFLAGS} $^ -o $@
 
+# -------------------------------------------------------------------------- #
+
+iv_store_build.o: ${SRCPATH}/iv_store_build.c ${HEADERS}
+	${CC} ${CFLAGS} -c $<
+
+iv_store_build_main.o: ${SRCPATH}/iv_store_build.c ${HEADERS}
+	${CC} ${CFLAGS} -DMK_IV_STORE_BUILD_BINARY -c $< -o iv_store_build_main.o
+
+iv_store_build: iv_store_build_main.o cstore_data.o ${CORE_OBJECTS}
+	${CC} ${LINKERFLAGS} $^ -o $@
 
 # -------------------------------------------------------------------------- #
 
