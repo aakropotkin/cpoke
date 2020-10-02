@@ -41,12 +41,21 @@ fprint_stats_combo( FILE * fd, stats_combo_t * stats )
 
 /* ------------------------------------------------------------------------- */
 
+#define stats_combo_for_each( CURR, HEAD )                                    \
+  list_for_each_entry( ( CURR ), & ( HEAD )->elem, elem )
+
+
+
+/* ------------------------------------------------------------------------- */
+
+/* For internal use */
   static inline int
 cmp_stats_combo( const stats_combo_t * a, const stats_combo_t * b )
 {
   return - cmp_stats( a->eff, b->eff );
 }
 
+/* For `qsort' */
   static inline int
 _cmp_stats_combo( const void * a, const void * b )
 {
@@ -55,46 +64,15 @@ _cmp_stats_combo( const void * a, const void * b )
                         );
 }
 
+/* For `list_sort' */
   static inline int
 _cmp_stats_combo_priv( void * _unused_,  list_t * a, list_t * b )
 {
-  return cmp_stats_combo( (const stats_combo_t *) list_entry( a, stats_combo_t, elem ),
-                          (const stats_combo_t *) list_entry( b, stats_combo_t, elem )
+  return cmp_stats_combo( (const stats_combo_t *)
+                            list_entry( a, stats_combo_t, elem ),
+                          (const stats_combo_t *)
+                            list_entry( b, stats_combo_t, elem )
                         );
-}
-
-
-/* ------------------------------------------------------------------------- */
-
-  static inline void
-stats_combo_sorted_insert( stats_combo_t ** head, stats_combo_t * new )
-{
-  stats_combo_t * curr = NULL;
-
-  if ( ( * head ) == NULL )
-    {
-      *head = new;
-      new->elem.next = NULL;
-      new->elem.prev = & new->elem;
-    }
-  else if ( cmp_stats_combo( *head, new ) > 0 ) /* head < new */
-    {
-      new->elem.next = & ( * head )->elem;
-      new->elem.prev = & new->elem;
-      ( * head )->elem.prev = & new->elem;
-    }
-  else
-    {
-      curr = * head;
-      while ( ( curr->elem.next != NULL ) &&
-              ( 0 > cmp_stats_combo( *head, new ) )
-            ) curr = list_entry( curr->elem.next, stats_combo_t, elem );
-      /* Insert */
-      new->elem.next = curr->elem.next;
-      if ( curr->elem.next != NULL ) new->elem.next->prev = & new->elem;
-      curr->elem.next = & new->elem;
-      new->elem.prev  = & curr->elem;
-    }
 }
 
 
@@ -103,18 +81,19 @@ stats_combo_sorted_insert( stats_combo_t ** head, stats_combo_t * new )
 /**
  * This is naive and just uses `stdlib' `qsort'.
  * This should be improved to use insertion sort drafted above.
+ * `0' for `max_rsl' returns ALL.
  */
   static inline stats_combo_t *
-rank_ivs( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
+rank_ivs_all( stats_t base, uint16_t cp_cap )
 {
-  size_t num_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
-  stats_combo_t * rankings =
+  uint16_t        num_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
+  stats_combo_t * rankings  =
     (stats_combo_t *) malloc( sizeof( stats_combo_t ) * num_elems );
-  stats_combo_t * ranking = NULL;
-  stats_t  ivs        = { 0, 0, 0 };
-  float    lv         = 1.0;
-  uint16_t cp         = 0;
-  bool     keep_going = true;
+  stats_combo_t * ranking    = NULL;
+  stats_t         ivs        = { 0, 0, 0 };
+  float           lv         = 1.0;
+  uint16_t        cp         = 0;
+  bool            keep_going = true;
 
   if ( rankings == NULL ) return NULL;
 
@@ -141,22 +120,62 @@ rank_ivs( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
                       ranking->base = base;
                       ranking->ivs  = ivs;
                       ranking->eff  = get_effective_stats( base, ivs, lv );
-                      INIT_LIST_HEAD( & ranking->elem );
                     }
                 }
             }
         }
     }
 
+  return rankings;
+}
+
+
+  static inline stats_combo_t *
+rank_ivs_array( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
+{
+  stats_combo_t * rankings  = rank_ivs_all( base, cp_cap, false );
+  uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
+  if ( rankings == NULL ) return NULL;
+
   qsort( (void *) rankings,
-         num_elems,
+         max_elems,
          sizeof( stats_combo_t ),
          _cmp_stats_combo
        );
 
-  rankings =
-    (stats_combo_t *) realloc( rankings, sizeof( stats_combo_t ) * max_rsl );
+  if ( max_rsl < max_elems )
+    {
+      rankings =
+        (stats_combo_t *) realloc( rankings,
+                                   sizeof( stats_combo_t ) * max_rsl
+                                 );
+    }
+  return rankings;
+}
 
+
+/**
+ * This should be rewritten later.
+ * The issue is memory allocation.
+ * `rank_ivs_all' pulls a contiguous block, so there's no good way to free the
+ * linked list.
+ * <p>
+ * Realistically this should allocate individual elems.
+ * An insertion sort alongside `list_replace' would also be an improvement.
+ */
+  static inline stats_combo_t *
+rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
+{
+  stats_combo_t * rankings  = rank_ivs_array( base, cp_cap );
+  uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
+  if ( rankings == NULL ) return NULL;
+  if ( max_rsl == 0 ) max_rsl = max_elems;
+  else                max_rsl = min( max_elems, max_rsl );
+  for ( uint16_t i = 0; i < max_rsl; i++ )
+    {
+      INIT_LIST_HEAD( & rankings[i].elems );
+      list_add_tail( & rankings[i].elems, & rankings[0].elems );
+    }
   return rankings;
 }
 

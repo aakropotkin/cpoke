@@ -839,7 +839,7 @@ typedef int __attribute__(( nonnull( 2, 3 ) ))
                struct list_head const *
              );
 
-/*
+/**
  * Returns a list organized in an intermediate format suited
  * to chaining of merge() calls: null-terminated, no reserved or
  * sentinel head node, "prev" links not maintained.
@@ -879,6 +879,7 @@ merge( void             * priv,
     }
 	return head;
 }
+
 
 /**
  * Combine final list merge with restoration of standard doubly-linked
@@ -941,6 +942,7 @@ merge_final( void             * priv,
 	tail->next = head;
 	head->prev = tail;
 }
+
 
 /**
  * list_sort - sort a list
