@@ -12,7 +12,15 @@ API/headers should operate in such a generalized that data sources ( whether by 
 
 
 ## Getting Started
-The battle simulator was very recently completed, and you will notice that `main.c` is nearly empty at this point.
+The battle simulator was very recently completed, and you will notice that `main.c` is nearly empty at this point, instead I suggest building the following:
+
+```sh
+make test;
+./test
+# Check for "FAIL" in the output
+```
+
+
 If you're new to the repo, you will find the most useful examples under `src/test/`, `test_battle.c` is most likely the file most people will be interested in.
 The overview of how a battle simulations is first to define the pokemon which will be used, define the players' AI, and finally to run the simulation.
 
