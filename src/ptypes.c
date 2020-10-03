@@ -109,31 +109,49 @@ get_damage_modifier_TABLE( ptype_mask_t def_types, ptype_t atk_type )
  */
 #ifdef PTYPES_USE_TABLE
 
-const_fn float get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type )
-  __attribute__(( alias( "get_damage_modifier_mono_TABLE" ) ));
+  const_fn float
+get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type )
+{
+  return get_damage_modifier_mono_TABLE( def_type, atk_type );
+}
 
-const_fn float get_damage_modifier_duo( ptype_t def_type1,
-                                        ptype_t def_type2,
-                                        ptype_t atk_type
-                                      )
-  __attribute__(( alias( "get_damage_modifier_duo_TABLE" ) ));
+  const_fn float
+get_damage_modifier_duo( ptype_t def_type1,
+                         ptype_t def_type2,
+                         ptype_t atk_type
+                       )
+{
+  return get_damage_modifier_duo_TABLE( def_type1, def_type2, atk_type );
+}
 
-const_fn float get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type)
-  __attribute__(( alias( "get_damage_modifier_TABLE" ) ));
+  const_fn float
+get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type)
+{
+  return get_damage_modifier_TABLE( def_types, atk_type );
+}
 
 #else /* PTYPES_USE_TABLE */
 
-const_fn float get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type )
-  __attribute__(( alias( "get_damage_modifier_mono_MATRIX" ) ));
+  const_fn float
+get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type )
+{
+  return get_damage_modifier_mono_MATRIX( def_type, atk_type );
+}
 
-const_fn float get_damage_modifier_duo( ptype_t def_type1,
-                                        ptype_t def_type2,
-                                        ptype_t atk_type
-                                        )
-  __attribute__(( alias( "get_damage_modifier_duo_MATRIX" ) ));
+  const_fn float
+get_damage_modifier_duo( ptype_t def_type1,
+                         ptype_t def_type2,
+                         ptype_t atk_type
+                         )
+{
+  return get_damage_modifier_duo_MATRIX( def_type1, def_type2, atk_type );
+}
 
-const_fn float get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type)
-  __attribute__(( alias( "get_damage_modifier_MATRIX" ) ));
+  const_fn float
+get_damage_modifier( ptype_mask_t def_types, ptype_t atk_type)
+{
+  return get_damage_modifier_MATRIX( def_types, atk_type );
+}
 
 #endif /* PTYPES_USE_TABLE */
 
