@@ -43,7 +43,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_mon_pat
              );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_mon != NULL );
@@ -63,7 +63,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_shadow_pat
                );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_shadow != NULL );
@@ -83,7 +83,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_pure_pat
                );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_pure != NULL );
@@ -103,7 +103,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_norm_pat
                );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_norm != NULL );
@@ -123,7 +123,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_pvp_move_pat
                );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_pvp_move != NULL );
@@ -143,7 +143,7 @@ gm_regexes_init( gm_regexes_t * grs )
                erroroffset,
                tmpl_pvp_fast_pat
                );
-      fprintf( stderr, error );
+      fprintf( stderr, "\t%s\n", error );
       return errorcode;
     }
   assert( grs->tmpl_pvp_fast != NULL );
