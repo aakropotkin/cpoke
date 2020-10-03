@@ -2,7 +2,7 @@
 
 
 .DEFAULT_GOAL := cpoke
-.PHONY = all clean gamemaster
+.PHONY = all clean #gamemaster
 
 CC = gcc
 
@@ -175,10 +175,12 @@ test: test_main.o ${TEST_DEPS}
 
 # -------------------------------------------------------------------------- #
 
-data/GAME_MASTER.json: FORCE
-	wget -O $@ 'https://raw.githubusercontent.com/pokemongo-dev-contrib/pokemongo-game-master/master/versions/latest/V2_GAME_MASTER.json'
+# NOTE: `GAME_MASTER.json' files are currently broken since Niantic started
+#       encoding them. For now we are working off of an old un-encrypted copy!
+# data/GAME_MASTER.json: FORCE
+# 	wget -O $@ 'https://raw.githubusercontent.com/pokemongo-dev-contrib/pokemongo-game-master/master/versions/latest/V2_GAME_MASTER.json'
 
-gamemaster: data/GAME_MASTER.json
+# gamemaster: data/GAME_MASTER.json
 
 
 # -------------------------------------------------------------------------- #

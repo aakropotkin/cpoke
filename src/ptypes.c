@@ -142,7 +142,7 @@ get_damage_modifier_mono( ptype_t def_type, ptype_t atk_type )
 get_damage_modifier_duo( ptype_t def_type1,
                          ptype_t def_type2,
                          ptype_t atk_type
-                         )
+                       )
 {
   return get_damage_modifier_duo_MATRIX( def_type1, def_type2, atk_type );
 }
