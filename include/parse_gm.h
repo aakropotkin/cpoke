@@ -12,13 +12,14 @@
 #include "util/jsmn_iterator_stack.h"
 #include "util/json_util.h"
 #include <pokedex.h>
-#include <regex.h>
+#include <pcre.h>
 #include <stdint.h>
 #include <string.h>
 
 
 /* ------------------------------------------------------------------------- */
 
+#ifdef NO_PCRE
 static const char tmpl_mon_pat[]      = "^V[[:digit:]]\\{4\\}_POKEMON_";
 static const char tmpl_shadow_pat[]   = "^V[[:digit:]]\\{4\\}_POKEMON_"
                                         "[A-Z_0-9]\\+_SHADOW";
@@ -29,16 +30,28 @@ static const char tmpl_norm_pat[]     = "^V[[:digit:]]\\{4\\}_POKEMON_"
 static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
 static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_"
                                         "[A-Z_]\\+_FAST";
+#else
+static const char tmpl_mon_pat[]      = "^V[[:digit:]]{4}_POKEMON_";
+static const char tmpl_shadow_pat[]   = "^V[[:digit:]]{4}_POKEMON_"
+                                        "[A-Z_0-9]+_SHADOW";
+static const char tmpl_pure_pat[]     = "^V[[:digit:]]{4}_POKEMON_"
+                                        "[A-Z_0-9]+_PURIFIED";
+static const char tmpl_norm_pat[]     = "^V[[:digit:]]{4}_POKEMON_"
+                                        "[A-Z_0-9]+_NORMAL";
+static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]{4}_MOVE_";
+static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]{4}_MOVE_"
+                                        "[A-Z_]+_FAST";
+#endif /* NO_PCRE */
 
 struct gm_regexes_s {
-  regex_t tmpl_mon;
-  regex_t tmpl_shadow;
-  regex_t tmpl_pure;
-  regex_t tmpl_norm;
-  //regex_t tmpl_pve_move;
-  regex_t tmpl_pvp_move;
-  regex_t tmpl_pvp_fast;
-  //regex_t tmpl_forms;
+  pcre * tmpl_mon;
+  pcre * tmpl_shadow;
+  pcre * tmpl_pure;
+  pcre * tmpl_norm;
+  //pcre tmpl_pve_move;
+  pcre * tmpl_pvp_move;
+  pcre * tmpl_pvp_fast;
+  //pcre tmpl_forms;
 };
 typedef struct gm_regexes_s  gm_regexes_t;
 

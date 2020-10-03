@@ -1,6 +1,5 @@
 # ========================================================================== #
 
-
 .DEFAULT_GOAL := cpoke
 .PHONY = all clean #gamemaster
 
@@ -10,10 +9,15 @@ SRCPATH     = src
 INCLUDEPATH = include
 DEFSPATH    = data/defs
 
+CURL_CFLAGS      = $(shell curl-config --cflags)
+CURL_LINKERFLAGS = $(shell curl-config --libs)
+PCRE_CFLAGS      = $(shell pcre-config --cflags)
+PCRE_LINKERFLAGS = $(shell pcre-config --libs)
+
 # `-fms-extensions' enables struct inheritence
 CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions -DJSMN_STATIC
-LINKERFLAGS = -g -lm
-CURL_LINKERFLAGS = $(shell curl-config --libs)
+CFLAGS      += ${PCRE_CFLAGS}
+LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
 
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
@@ -86,7 +90,7 @@ iv_store_build: iv_store_build_main.o cstore_data.o ${CORE_OBJECTS}
 # -------------------------------------------------------------------------- #
 
 fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
-	${CC} ${CFLAGS} -c $<
+	${CC} ${CFLAGS} ${CURL_CFLAGS} -c $<
 
 fetch_gm: fetch_gm.o ${CORE_OBJECTS}
 	${CC} ${LINKERFLAGS} ${CURL_LINKERFLAGS} $^ -o $@

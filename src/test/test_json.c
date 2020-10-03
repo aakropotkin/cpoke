@@ -12,6 +12,7 @@
 #include <string.h>
 #include "util/test_util.h"
 #include <regex.h>
+#include <pcre.h>
 
 /* ------------------------------------------------------------------------- */
 

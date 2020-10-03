@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <math.h>
 #include <regex.h>
+#include <pcre.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -210,6 +211,19 @@ jsonmatch_str( const char * json, const jsmntok_t * token, regex_t * regex )
   memcpy( val, json + token->start, tok_len );
   val[tok_len] = '\0';
   return ( regexec( regex, val, 0, NULL, 0 ) == 0 );
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+  bool
+jsonmatch_str_pcre( const char * json, const jsmntok_t * token, pcre * regex )
+{
+  assert( json != NULL );
+  assert( token != NULL );
+  assert( regex != NULL );
+  if ( token->type != JSMN_STRING ) return false;
+  return ( pcre_exec( regex, NULL, json + token->start, toklen( token ), 0, 0, 0, 0 ) == 0 );
 }
 
 

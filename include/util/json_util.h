@@ -8,6 +8,7 @@
 #include "ext/jsmn.h"
 #include "ext/jsmn_iterator.h"
 #include <regex.h>
+#include <pcre.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -107,6 +108,10 @@ bool jsonmatch_str( const char      * json,
                     const jsmntok_t * token,
                     regex_t         * regex
                   );
+bool jsonmatch_str_pcre( const char      * json,
+                         const jsmntok_t * token,
+                         pcre            * regex
+                       );
 
 
 /* ------------------------------------------------------------------------- */
@@ -135,6 +140,10 @@ static bool jsoneq_int_p( const char * json, const jsmntok_t * token, void * i )
 static bool jsonmatch_str_p( const char * json, const jsmntok_t * token,
                              void * r )
 { return jsonmatch_str( json, token, (regex_t *) r ); }
+
+static bool jsonmatch_str_pcre_p( const char * json, const jsmntok_t * token,
+                                  void * r )
+{ return jsonmatch_str_pcre( json, token, (pcre *) r ); }
 
 /**
  * <code>jsmntok_predicate_fn</code> that unconditionally returns true.
@@ -302,6 +311,17 @@ jsmn_iterator_count_keys_pat( const char      *  json,
                               regex_t         *  regexp,
                               size_t             next_value_index
                             )
+{
+  return jsmn_iterator_count( json, iterator, jsonmatch_str_p, (void *) regexp,
+                              json_true_p, NULL, next_value_index );
+}
+
+  static size_t
+jsmn_iterator_count_keys_pat_pcre( const char      *  json,
+                                   jsmn_iterator_t *  iterator,
+                                   pcre            *  regexp,
+                                   size_t             next_value_index
+                                 )
 {
   return jsmn_iterator_count( json, iterator, jsonmatch_str_p, (void *) regexp,
                               json_true_p, NULL, next_value_index );

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ext/uthash.h"
+#include <pcre.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -23,30 +24,143 @@
 gm_regexes_init( gm_regexes_t * grs )
 {
   assert( grs != NULL );
-  int rsl = regcomp( &grs->tmpl_mon, tmpl_mon_pat, REG_NOSUB );
-  if ( rsl != 0 ) return rsl;
-  rsl = regcomp( &grs->tmpl_shadow, tmpl_shadow_pat, REG_NOSUB );
-  if ( rsl != 0 ) return rsl;
-  rsl = regcomp( &grs->tmpl_pure, tmpl_pure_pat, REG_NOSUB );
-  if ( rsl != 0 ) return rsl;
-  rsl = regcomp( &grs->tmpl_norm, tmpl_norm_pat, REG_NOSUB );
-  if ( rsl != 0 ) return rsl;
-  rsl = regcomp( &grs->tmpl_pvp_move, tmpl_pvp_move_pat, REG_NOSUB );
-  if ( rsl != 0 ) return rsl;
-  rsl = regcomp( &grs->tmpl_pvp_fast, tmpl_pvp_fast_pat, REG_NOSUB );
-  return rsl;
+  int          errorcode   = 0;
+  const char * error       = NULL;
+  int          erroroffset = 0;
+
+  grs->tmpl_mon = pcre_compile2( tmpl_mon_pat,
+                                 0, /* No Options */
+                                 & errorcode,
+                                 & error,
+                                 & erroroffset,
+                                 NULL
+                               );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_mon_pat
+             );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_mon != NULL );
+
+  grs->tmpl_shadow = pcre_compile2( tmpl_shadow_pat,
+                                    0,
+                                    & errorcode,
+                                    & error,
+                                    & erroroffset,
+                                    NULL
+                                  );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_shadow_pat
+               );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_shadow != NULL );
+
+  grs->tmpl_pure = pcre_compile2( tmpl_pure_pat,
+                                  0,
+                                  & errorcode,
+                                  & error,
+                                  & erroroffset,
+                                  NULL
+                                );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_pure_pat
+               );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_pure != NULL );
+
+  grs->tmpl_norm = pcre_compile2( tmpl_norm_pat,
+                                  0,
+                                  & errorcode,
+                                  & error,
+                                  & erroroffset,
+                                  NULL
+                                );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_norm_pat
+               );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_norm != NULL );
+
+  grs->tmpl_pvp_move = pcre_compile2( tmpl_pvp_move_pat,
+                                      0,
+                                      & errorcode,
+                                      & error,
+                                      & erroroffset,
+                                      NULL
+                                    );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_pvp_move_pat
+               );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_pvp_move != NULL );
+
+  grs->tmpl_pvp_fast = pcre_compile2( tmpl_pvp_fast_pat,
+                                      0,
+                                      & errorcode,
+                                      & error,
+                                      & erroroffset,
+                                      NULL
+                                    );
+  if( errorcode != 0 )
+    {
+      fprintf( stderr,
+               "ERROR: PCRE: Code %d at position %d of '%s'\n",
+               errorcode,
+               erroroffset,
+               tmpl_pvp_fast_pat
+               );
+      fprintf( stderr, error );
+      return errorcode;
+    }
+  assert( grs->tmpl_pvp_fast != NULL );
+
+  return errorcode;
 }
 
   void
 gm_regexes_free( gm_regexes_t * grs )
 {
   assert( grs != NULL );
-  regfree( &grs->tmpl_mon );
-  regfree( &grs->tmpl_shadow );
-  regfree( &grs->tmpl_pure );
-  regfree( &grs->tmpl_norm );
-  regfree( &grs->tmpl_pvp_move );
-  regfree( &grs->tmpl_pvp_fast );
+  pcre_free( grs->tmpl_mon );
+  pcre_free( grs->tmpl_shadow );
+  pcre_free( grs->tmpl_pure );
+  pcre_free( grs->tmpl_norm );
+  pcre_free( grs->tmpl_pvp_move );
+  pcre_free( grs->tmpl_pvp_fast );
 }
 
 
@@ -237,8 +351,8 @@ stris_pvp_charged_move( const char * str, gm_regexes_t * regs )
 {
   assert( regs != NULL );
   if ( str == NULL ) return false;
-  return ( ! regexec( &( regs->tmpl_pvp_move ), str, 0, NULL, 0 ) ) &&
-         ( !! regexec( &( regs->tmpl_pvp_fast ), str, 0, NULL, 0 ) );
+  return ( ! pcre_exec( regs->tmpl_pvp_move, NULL, str, strlen( str ), 0, 0, NULL, 0 ) ) &&
+    ( !! pcre_exec( regs->tmpl_pvp_fast, NULL, str, strlen( str ), 0, 0, NULL, 0 ) );
 }
 
 
@@ -977,8 +1091,8 @@ process_moves( gm_parser_t * gm_parser )
                                   jsoneq_str_p,
                                   (void *) "templateId",
                                   &val,
-                                  jsonmatch_str_p,
-                                  (void *) &( gm_parser->regs.tmpl_pvp_move ),
+                                  jsonmatch_str_pcre_p,
+                                  (void *) gm_parser->regs.tmpl_pvp_move,
                                   0
                                 );
       if ( jsmn_rsl <= 0 )
@@ -990,10 +1104,10 @@ process_moves( gm_parser_t * gm_parser )
       name = NULL;
 
       /* Fast Move */
-      if ( jsonmatch_str( gm_parser->buffer,
+      if ( jsonmatch_str_pcre( gm_parser->buffer,
                           gm_parser->tokens +
                             jsmnis_pos( &( gm_parser->iter_stack ) ),
-                          &( gm_parser->regs.tmpl_pvp_fast )
+                          gm_parser->regs.tmpl_pvp_fast
                         )
          )
         {
@@ -1041,9 +1155,9 @@ should_parse_mon( const char      * json,
   assert( json != NULL );
   assert( token != NULL );
   assert( regs != NULL );
-  if ( ! jsonmatch_str( json, token, &( regs->tmpl_mon ) ) )  return false;
-  if ( jsonmatch_str( json, token, &( regs->tmpl_shadow ) ) ) return false;
-  if ( jsonmatch_str( json, token, &( regs->tmpl_pure ) ) )   return false;
+  if ( ! jsonmatch_str_pcre( json, token, regs->tmpl_mon ) )  return false;
+  if ( jsonmatch_str_pcre( json, token, regs->tmpl_shadow ) ) return false;
+  if ( jsonmatch_str_pcre( json, token, regs->tmpl_pure ) )   return false;
   /* We still have to parse "NORMAL" forms because of Genesect */
   //if ( jsonmatch_str( json, token, &( regs->tmpl_norm ) ) )   return false;
   return true;
@@ -1083,8 +1197,8 @@ process_pokemon( gm_parser_t * gm_parser )
                                   jsoneq_str_p,
                                   (void *) "templateId",
                                   &val,
-                                  jsonmatch_str_p,
-                                  (void *) &( gm_parser->regs.tmpl_mon ),
+                                  jsonmatch_str_pcre_p,
+                                  (void *) gm_parser->regs.tmpl_mon,
                                   0
                                 );
       if ( jsmn_rsl <= 0 )

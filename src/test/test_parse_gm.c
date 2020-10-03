@@ -10,7 +10,7 @@
 #include "util/json_util.h"
 #include "util/macros.h"
 #include "util/test_util.h"
-#include <regex.h>
+#include <pcre.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -269,17 +269,17 @@ test_regex_patterns( void )
   char test_str2[] = "COMBAT_V0062_MOVE_ANCIENT_POWER";
   char test_str3[] = "COMBAT_V0200_MOVE_FURY_CUTTER_FAST";
 
-  expect( regexec( &regs.tmpl_pvp_move, test_str1, 0, NULL, 0 ) == 0 );
-  expect( regexec( &regs.tmpl_pvp_move, test_str2, 0, NULL, 0 ) == 0 );
-  expect( regexec( &regs.tmpl_pvp_move, test_str3, 0, NULL, 0 ) == 0 );
+  expect( pcre_exec( regs.tmpl_pvp_move, NULL, test_str1, strlen( test_str1 ), 0, 0, 0, 0 ) == 0 );
+  expect( pcre_exec( regs.tmpl_pvp_move, NULL, test_str2, strlen( test_str2 ), 0, 0, 0, 0 ) == 0 );
+  expect( pcre_exec( regs.tmpl_pvp_move, NULL, test_str3, strlen( test_str3 ), 0, 0, 0, 0 ) == 0 );
 
-  expect( regexec( &regs.tmpl_pvp_fast, test_str1, 0, NULL, 0 ) != 0 );
-  expect( regexec( &regs.tmpl_pvp_fast, test_str2, 0, NULL, 0 ) != 0 );
-  expect( regexec( &regs.tmpl_pvp_fast, test_str3, 0, NULL, 0 ) == 0 );
+  expect( pcre_exec( regs.tmpl_pvp_fast, NULL, test_str1, strlen( test_str1 ), 0, 0, 0, 0 ) != 0 );
+  expect( pcre_exec( regs.tmpl_pvp_fast, NULL, test_str2, strlen( test_str2 ), 0, 0, 0, 0 ) != 0 );
+  expect( pcre_exec( regs.tmpl_pvp_fast, NULL, test_str3, strlen( test_str3 ), 0, 0, 0, 0 ) == 0 );
 
-  expect( regexec( &regs.tmpl_mon, test_str1, 0, NULL, 0 ) != 0 );
-  expect( regexec( &regs.tmpl_mon, test_str2, 0, NULL, 0 ) != 0 );
-  expect( regexec( &regs.tmpl_mon, test_str3, 0, NULL, 0 ) != 0 );
+  expect( pcre_exec( regs.tmpl_mon, NULL, test_str1, strlen( test_str1 ), 0, 0, 0, 0 ) != 0 );
+  expect( pcre_exec( regs.tmpl_mon, NULL, test_str2, strlen( test_str2 ), 0, 0, 0, 0 ) != 0 );
+  expect( pcre_exec( regs.tmpl_mon, NULL, test_str3, strlen( test_str3 ), 0, 0, 0, 0 ) != 0 );
 
   gm_regexes_free( &regs );
 
