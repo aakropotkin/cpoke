@@ -78,21 +78,38 @@ static const uint8_t MAX_CHARGE = 100;
 static const uint8_t CHARGE_RATE       = 20;
 static const float   CHARGE_DECAY_RATE = 0.5;
 
-/** Time in ms of various battle phases/actions */
-static const uint32_t BATTLE_TIME = 270 * 1000;
-static const uint16_t TURN_TIME   = 500;
-/* Time for Charged Attack Animation */
-static const uint16_t CHARGED_ANIM_TIME = 4000;
-/* Time for Charged Attack Minigame */
-static const uint16_t CHARGED_MG_TIME = 10000;
-//static const uint16_t CHARGED_MG_RESULT_TIME =
-/* Time for switch animation */
-static const uint16_t SWITCH_TIME    = 13000;
-/* Timeout to select next pokemon after a faint */
-static const uint16_t SWITCH_TIMEOUT = 12 * 1000;
+#define MINS_SECS_TO_MS( MINS, SECS )                                         \
+  ( ( ( MINS ) * 60 + ( SECS ) ) * 1000 )
 
-static const uint8_t CHARGED_TURNS        = 8;
-static const uint8_t SWITCH_TURNS         = 26;
+/** Time in ms of various battle phases/actions */
+static const uint32_t BATTLE_TIME = MINS_SECS_TO_MS( 4.5, 0 );
+static const uint16_t TURN_TIME   = MINS_SECS_TO_MS( 0, 0.5 );
+
+/* Time for Charged Attack Animation */
+static const uint16_t CHARGED_ANIM_TIME = MINS_SECS_TO_MS( 0, 4 );
+/* Time for Charged Attack Minigame */
+static const uint16_t CHARGED_MG_TIME   = MINS_SECS_TO_MS( 0, 10 );
+//static const uint16_t CHARGED_MG_RESULT_TIME =
+/* Total time for a charged move to be used */
+static const uint16_t CHARGED_TIME = CHARGED_ANIM_TIME + CHARGED_MG_TIME;
+
+/* Time for switch animation */
+static const uint16_t SWITCH_ANIM_TIME = MINS_SECS_TO_MS( 0, 1 );
+/* Timeout to select next pokemon after a faint */
+static const uint16_t SWITCH_TIMEOUT = MINS_SECS_TO_MS( 0, 12 );
+/* Total time for a switch susped */
+static const uint16_t SWITCH_TIME = SWITCH_ANIM_TIME + SWITCH_TIMEOUT;
+
+/* Same times measured in turns */
+static const uint16_t BATTLE_TURNS         = BATTLE_TIME / TURN_TIME;
+
+static const uint8_t  CHARGED_ANIM_TURNS   = CHARGED_ANIM_TIME / TURN_TIME;
+static const uint8_t  CHARGED_MG_TURNS     = CHARGED_MG_TIME / TURN_TIME;
+static const uint8_t  CHARGED_TURNS        = CHARGED_TIME / TURN_TIME;
+
+static const uint8_t  SWITCH_ANIM_TURNS    = SWITCH_ANIM_TIME / TURN_TIME;
+static const uint8_t  SWITCH_TIMEOUT_TURNS = SWITCH_TIMEOUT / TURN_TIME;
+static const uint8_t  SWITCH_TURNS         = SWITCH_TIME / TURN_TIME;
 
 
 /* ------------------------------------------------------------------------- */

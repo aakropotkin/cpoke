@@ -15,7 +15,8 @@ PCRE_CFLAGS      = $(shell pcre-config --cflags)
 PCRE_LINKERFLAGS = $(shell pcre-config --libs)
 
 # `-fms-extensions' enables struct inheritence
-CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH} -fms-extensions -DJSMN_STATIC
+CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH}
+CFLAGS      += -fms-extensions -DJSMN_STATIC -std=gnu11
 CFLAGS      += ${PCRE_CFLAGS}
 LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
 

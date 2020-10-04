@@ -45,9 +45,12 @@ get_damage_modifier_MATRIX( ptype_mask_t def_types, ptype_t atk_type )
       break;
     default:
       fprintf( stderr,
-               "'get_damage_modifier' received a 'ptype_mask_t' with more than "
-               "two types! Returning '1.0'."
-               );
+               "'get_damage_modifier' received a 'ptype_mask_t' with more "
+               "than two types (%d)! Returning '1.0'\nTypes were: ",
+               popcount( def_types )
+             );
+      fprint_ptype_mask( stderr, ", ", def_types );
+      fprintf( stderr, "\n" );
       return 1.0;
       break;
     }
@@ -92,9 +95,11 @@ get_damage_modifier_TABLE( ptype_mask_t def_types, ptype_t atk_type )
       break;
     default:
       fprintf( stderr,
-               "'get_damage_modifier' received a 'ptype_mask_t' with more than "
-               "two types! Returning '1.0'."
+               "'get_damage_modifier' received a 'ptype_mask_t' with more "
+               "than two types! Returning '1.0'\nTypes were: "
              );
+      fprint_ptype_mask( stderr, ", ", def_types );
+      fprintf( stderr, "\n" );
     }
   return m;
 }
