@@ -20,135 +20,41 @@
 
 /* ------------------------------------------------------------------------- */
 
+struct reg_pat_pair_s { pcre ** reg; const char * pat; };
+
   int
 gm_regexes_init( gm_regexes_t * grs )
 {
   assert( grs != NULL );
-  int          errorcode   = 0;
-  const char * error       = NULL;
-  int          erroroffset = 0;
+  int          rsl     = 0;
+  const char * err_msg = NULL;
+  int          err_idx = 0;
 
-  grs->tmpl_mon = pcre_compile2( tmpl_mon_pat,
-                                 0, /* No Options */
-                                 & errorcode,
-                                 & error,
-                                 & erroroffset,
-                                 NULL
-                               );
-  if( errorcode != 0 )
+  struct reg_pat_pair_s rps[] = {
+    { & grs->tmpl_mon,      tmpl_mon_pat      },
+    { & grs->tmpl_shadow,   tmpl_shadow_pat   },
+    { & grs->tmpl_pure,     tmpl_pure_pat     },
+    { & grs->tmpl_norm,     tmpl_norm_pat     },
+    { & grs->tmpl_pvp_move, tmpl_pvp_move_pat },
+    { & grs->tmpl_pvp_fast, tmpl_pvp_fast_pat }
+  };
+
+  for ( uint8_t i = 0; i < array_size( rps ); i++ )
     {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_mon_pat
-             );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
+      ( * rps[i].reg ) =
+        pcre_compile2( rps[i].pat, 0, & rsl, & err_msg, & err_idx, NULL );
+      if ( rsl != 0 )
+        {
+          fprintf( stderr, "ERROR: PCRE: Code %d at pos %d of '%s'\n\t%s\n",
+                   rsl, err_idx, rps[i].pat, err_msg
+                 );
+          while ( i-- ) pcre_free( * rps[i].reg );
+          return rsl;
+        }
+      assert( *( rps[i].reg ) != NULL );
     }
-  assert( grs->tmpl_mon != NULL );
 
-  grs->tmpl_shadow = pcre_compile2( tmpl_shadow_pat,
-                                    0,
-                                    & errorcode,
-                                    & error,
-                                    & erroroffset,
-                                    NULL
-                                  );
-  if( errorcode != 0 )
-    {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_shadow_pat
-               );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
-    }
-  assert( grs->tmpl_shadow != NULL );
-
-  grs->tmpl_pure = pcre_compile2( tmpl_pure_pat,
-                                  0,
-                                  & errorcode,
-                                  & error,
-                                  & erroroffset,
-                                  NULL
-                                );
-  if( errorcode != 0 )
-    {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_pure_pat
-               );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
-    }
-  assert( grs->tmpl_pure != NULL );
-
-  grs->tmpl_norm = pcre_compile2( tmpl_norm_pat,
-                                  0,
-                                  & errorcode,
-                                  & error,
-                                  & erroroffset,
-                                  NULL
-                                );
-  if( errorcode != 0 )
-    {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_norm_pat
-               );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
-    }
-  assert( grs->tmpl_norm != NULL );
-
-  grs->tmpl_pvp_move = pcre_compile2( tmpl_pvp_move_pat,
-                                      0,
-                                      & errorcode,
-                                      & error,
-                                      & erroroffset,
-                                      NULL
-                                    );
-  if( errorcode != 0 )
-    {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_pvp_move_pat
-               );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
-    }
-  assert( grs->tmpl_pvp_move != NULL );
-
-  grs->tmpl_pvp_fast = pcre_compile2( tmpl_pvp_fast_pat,
-                                      0,
-                                      & errorcode,
-                                      & error,
-                                      & erroroffset,
-                                      NULL
-                                    );
-  if( errorcode != 0 )
-    {
-      fprintf( stderr,
-               "ERROR: PCRE: Code %d at position %d of '%s'\n",
-               errorcode,
-               erroroffset,
-               tmpl_pvp_fast_pat
-               );
-      fprintf( stderr, "\t%s\n", error );
-      return errorcode;
-    }
-  assert( grs->tmpl_pvp_fast != NULL );
-
-  return errorcode;
+  return rsl;
 }
 
   void
