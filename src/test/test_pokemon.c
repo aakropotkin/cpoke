@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "util/test_util.h"
-#include "data/test/roster.h"
+#include "../../data/test/roster.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -385,6 +385,17 @@ test_pokemon( void )
   CS_free();
   return rsl;
 }
+
+
+/* ------------------------------------------------------------------------- */
+
+#ifdef MK_TEST_BINARY
+int
+main( int argc, char * argv[], char ** envp )
+{
+  return test_pokemon() ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+#endif
 
 
 /* ------------------------------------------------------------------------- */

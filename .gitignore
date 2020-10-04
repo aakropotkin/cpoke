@@ -59,3 +59,4 @@ dkms.conf
 /test
 /data/cstore_data.c
 iv_store_build
+test_battle
