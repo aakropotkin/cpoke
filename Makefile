@@ -5,7 +5,7 @@
 .PHONY = clean check_gcc print_gcc_info #gamemaster
 
 BINS := cpoke parse_gm fetch_gm test iv_store_build
-all: check_gcc ${BINS}
+all: ${BINS}
 
 
 # --------------------------------------------------------------------------- #
@@ -27,7 +27,9 @@ check_gcc:
 
 # GCC version will be verified FOR ALL make targets.
 # If someone is trying to use Clang it should stop them.
+ifeq "${IS_OSX}" "1"
 *: check_gcc
+endif
 
 
 # --------------------------------------------------------------------------- #
