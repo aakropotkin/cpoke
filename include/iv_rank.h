@@ -187,51 +187,20 @@ rank_ivs_ll( stats_t base, uint32_t max_rsl, uint16_t cp_cap )
 
 /* ------------------------------------------------------------------------- */
 
-  static inline void
-fprint_iv_rankings_c( FILE          * fd,
-                stats_combo_t * rankings,
-                uint32_t        num_elems,
-                league_t        league,
-                uint16_t        dex_num,
-                uint8_t         form_idx
-              )
-{
-  assert( rankings != NULL );
-  assert( league != MASTER_LEAGUE );
-  bool first = true;
-  fprintf( fd,
-           "static const iv_lv_t IVS_%s_%u_%u[] = {",
-           get_league_name( league ),
-           dex_num,
-           form_idx
-         );
-  for ( uint32_t i = 0; i < num_elems; i++ )
-    {
-      if ( first ) first = false;
-      else         putc( ',', fd );
-      fprintf( fd,
-               "\n  { .cp = %u, .lvi = %u,\n"
-               "\n    .ivs = { .attack = %u, .stamina = %u, .defense = %u },"
-               "\n    .eff = { .attack = %u, .stamina = %u, .defense = %u }"
-               "\n  }",
-               rankings[i].cp,
-               (int) ( rankings[i].lv * 2 ),
-               rankings[i].ivs.attack,
-               rankings[i].ivs.stamina,
-               rankings[i].ivs.defense,
-               rankings[i].eff.attack,
-               rankings[i].eff.stamina,
-               rankings[i].eff.defense
-             );
-    }
-  fprintf( fd, "\n};\n" );
-}
+void fprint_iv_rankings_c( FILE          * fd,
+                           stats_combo_t * rankings,
+                           uint32_t        num_elems,
+                           league_t        league,
+                           uint16_t        dex_num,
+                           uint8_t         form_idx,
+                           bool            minimal
+                         );
 
 /**
  * This would be nicer if it accepted a `store_t', but I honestly don't think
  * it's going to be rerun frequently enough to justify using the abstraction.
  */
-void iv_store_export_c( FILE * fd, uint32_t max_rsl );
+void iv_store_export_c( FILE * fd, uint32_t max_rsl, bool minimal );
 
 
 

@@ -30,6 +30,63 @@ should_export( stats_t base_stats, league_t league )
 }
 
 
+/* ------------------------------------------------------------------------- */
+
+  void
+fprint_iv_rankings_c( FILE          * fd,
+                      stats_combo_t * rankings,
+                      uint32_t        num_elems,
+                      league_t        league,
+                      uint16_t        dex_num,
+                      uint8_t         form_idx,
+                      bool            minimal
+                    )
+{
+  assert( rankings != NULL );
+  assert( league != MASTER_LEAGUE );
+  bool first = true;
+  fprintf( fd,
+           "static const iv_lv_t IVS_%s_%u_%u[] = {",
+           get_league_name( league ),
+           dex_num,
+           form_idx
+         );
+  for ( uint32_t i = 0; i < num_elems; i++ )
+    {
+      if ( first ) first = false;
+      else         putc( ',', fd );
+      if ( minimal )
+        {
+          fprintf( fd,
+                   "\n  { .lvi = %u, "
+                   ".ivs = { .attack = %u, .stamina = %u, .defense = %u } }",
+                   (int) ( rankings[i].lv * 2 ),
+                   rankings[i].ivs.attack,
+                   rankings[i].ivs.stamina,
+                   rankings[i].ivs.defense
+                 );
+        }
+      else
+        {
+          fprintf( fd,
+                   "\n  { .cp = %u, .lvi = %u,\n\n"
+                   "    .ivs = { .attack = %u, .stamina = %u, .defense = %u },"
+                   "\n    .eff = { .attack = %u, .stamina = %u, .defense = %u }"
+                   "\n  }",
+                   rankings[i].cp,
+                   (int) ( rankings[i].lv * 2 ),
+                   rankings[i].ivs.attack,
+                   rankings[i].ivs.stamina,
+                   rankings[i].ivs.defense,
+                   rankings[i].eff.attack,
+                   rankings[i].eff.stamina,
+                   rankings[i].eff.defense
+                 );
+        }
+    }
+  fprintf( fd, "\n};\n" );
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -42,7 +99,7 @@ should_export( stats_t base_stats, league_t league )
  * If I turn out to be wrong, it is trivial to substitute a `store_t' here.
  */
   void
-iv_store_export_c( FILE * fd, uint32_t max_rsl )
+iv_store_export_c( FILE * fd, uint32_t max_rsl, bool minimal )
 {
   stats_combo_t * rankings = NULL;
   pdex_mon_t    * curr     = NULL;
@@ -77,7 +134,8 @@ iv_store_export_c( FILE * fd, uint32_t max_rsl )
                             max_rsl,
                             GREAT_LEAGUE,
                             POKEDEX[i]->dex_number,
-                            0
+                            0,
+                            minimal
                           );
       free( rankings );
 
@@ -93,7 +151,8 @@ iv_store_export_c( FILE * fd, uint32_t max_rsl )
                             max_rsl,
                             ULTRA_LEAGUE,
                             POKEDEX[i]->dex_number,
-                            0
+                            0,
+                            minimal
                           );
       free( rankings );
 
@@ -117,7 +176,8 @@ iv_store_export_c( FILE * fd, uint32_t max_rsl )
                                 max_rsl,
                                 GREAT_LEAGUE,
                                 curr->dex_number,
-                                curr->form_idx
+                                curr->form_idx,
+                                minimal
                               );
           free( rankings );
           rankings = rank_ivs_array( curr->base_stats, max_rsl, ULTRA_LEAGUE );
@@ -127,7 +187,8 @@ iv_store_export_c( FILE * fd, uint32_t max_rsl )
                                 max_rsl,
                                 ULTRA_LEAGUE,
                                 curr->dex_number,
-                                curr->form_idx
+                                curr->form_idx,
+                                minimal
                               );
           free( rankings );
         }
@@ -168,7 +229,7 @@ iv_store_export_c( FILE * fd, uint32_t max_rsl )
   int
 main( int argc, char * argv[], char ** envp )
 {
-  iv_store_export_c( stdout, 100 );
+  iv_store_export_c( stdout, 100, true );
   return EXIT_SUCCESS;
 }
 
