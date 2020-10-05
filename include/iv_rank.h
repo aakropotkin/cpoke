@@ -86,6 +86,8 @@ _cmp_stats_combo_priv( void * _unused_,  list_t * a, list_t * b )
 
 /* ------------------------------------------------------------------------- */
 
+static const uint32_t NUM_STAT_COMBOS = ( MAX_LEVEL * 2 - 1 ) * 16 * 16 * 16;
+
 /**
  * This is naive and just uses `stdlib' `qsort'.
  * This should be improved to use insertion sort drafted above.
@@ -94,14 +96,13 @@ _cmp_stats_combo_priv( void * _unused_,  list_t * a, list_t * b )
   static inline stats_combo_t *
 rank_ivs_all( stats_t base, uint16_t cp_cap )
 {
-  uint16_t        num_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   stats_combo_t * rankings  =
-    (stats_combo_t *) malloc( sizeof( stats_combo_t ) * num_elems );
-  stats_combo_t * ranking    = NULL;
+    (stats_combo_t *) malloc( sizeof( stats_combo_t ) * NUM_STAT_COMBOS );
   stats_t         ivs        = { 0, 0, 0 };
   float           lv         = 1.0;
   uint16_t        cp         = 0;
   bool            keep_going = true;
+  uint32_t        i          = 0;
 
   if ( rankings == NULL ) return NULL;
 
@@ -115,20 +116,18 @@ rank_ivs_all( stats_t base, uint16_t cp_cap )
               for ( ivs.defense = 0; ivs.defense <= 15; ivs.defense++ )
                 {
                   cp = get_cp_from_stats( base, ivs, lv );
+                  assert( i < NUM_STAT_COMBOS );
                   if ( cp <= cp_cap )
                     {
                       keep_going = true;
-
-                      ranking = & rankings[(int) ( lv * 2 - 2 ) +
-                                           ivs.attack           +
-                                           ivs.stamina          +
-                                           ivs.defense];
-                      ranking->cp   = cp;
-                      ranking->lv   = lv;
-                      ranking->base = base;
-                      ranking->ivs  = ivs;
-                      ranking->eff  = get_effective_stats( base, ivs, lv );
+                      /* printf( "%u\n", i ); */
+                      rankings[i].cp   = cp;
+                      rankings[i].lv   = lv;
+                      rankings[i].base = base;
+                      rankings[i].ivs  = ivs;
+                      rankings[i].eff  = get_effective_stats( base, ivs, lv );
                     }
+                  i++;
                 }
             }
         }
@@ -139,19 +138,18 @@ rank_ivs_all( stats_t base, uint16_t cp_cap )
 
 
   static inline stats_combo_t *
-rank_ivs_array( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
+rank_ivs_array( stats_t base, uint32_t max_rsl, uint16_t cp_cap )
 {
   stats_combo_t * rankings  = rank_ivs_all( base, cp_cap );
-  uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   if ( rankings == NULL ) return NULL;
 
   qsort( (void *) rankings,
-         max_elems,
+         NUM_STAT_COMBOS,
          sizeof( stats_combo_t ),
          _cmp_stats_combo
        );
 
-  if ( max_rsl < max_elems )
+  if ( max_rsl < NUM_STAT_COMBOS )
     {
       rankings =
         (stats_combo_t *) realloc( rankings,
@@ -172,14 +170,13 @@ rank_ivs_array( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
  * An insertion sort alongside `list_replace' would also be an improvement.
  */
   static inline stats_combo_t *
-rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
+rank_ivs_ll( stats_t base, uint32_t max_rsl, uint16_t cp_cap )
 {
   stats_combo_t * rankings  = rank_ivs_array( base, cp_cap, cp_cap );
-  uint16_t        max_elems = floor( MAX_LEVEL - 1.0 ) * 2 * 16 * 16 * 16;
   if ( rankings == NULL ) return NULL;
-  if ( max_rsl == 0 ) max_rsl = max_elems;
-  else                max_rsl = min( max_elems, max_rsl );
-  for ( uint16_t i = 0; i < max_rsl; i++ )
+  if ( max_rsl == 0 ) max_rsl = NUM_STAT_COMBOS;
+  else                max_rsl = min( NUM_STAT_COMBOS, max_rsl );
+  for ( uint32_t i = 0; i < max_rsl; i++ )
     {
       INIT_LIST_HEAD( & rankings[i].elem );
       list_add_tail( & rankings[i].elem, & rankings[0].elem );
@@ -193,7 +190,7 @@ rank_ivs_ll( stats_t base, uint16_t max_rsl, uint16_t cp_cap )
   static inline void
 fprint_iv_rankings_c( FILE          * fd,
                 stats_combo_t * rankings,
-                uint16_t        num_elems,
+                uint32_t        num_elems,
                 league_t        league,
                 uint16_t        dex_num,
                 uint8_t         form_idx
@@ -208,17 +205,23 @@ fprint_iv_rankings_c( FILE          * fd,
            dex_num,
            form_idx
          );
-  for ( uint16_t i = 0; i < num_elems; i++ )
+  for ( uint32_t i = 0; i < num_elems; i++ )
     {
       if ( first ) first = false;
       else         putc( ',', fd );
       fprintf( fd,
-               "\n  { .lvi = %u, "
-               ".ivs = { .attack = %u, .stamina = %u, .defense = %u } }",
+               "\n  { .cp = %u, .lvi = %u,\n"
+               "\n    .ivs = { .attack = %u, .stamina = %u, .defense = %u },"
+               "\n    .eff = { .attack = %u, .stamina = %u, .defense = %u }"
+               "\n  }",
+               rankings[i].cp,
                (int) ( rankings[i].lv * 2 ),
                rankings[i].ivs.attack,
                rankings[i].ivs.stamina,
-               rankings[i].ivs.defense
+               rankings[i].ivs.defense,
+               rankings[i].eff.attack,
+               rankings[i].eff.stamina,
+               rankings[i].eff.defense
              );
     }
   fprintf( fd, "\n};\n" );
@@ -228,7 +231,7 @@ fprint_iv_rankings_c( FILE          * fd,
  * This would be nicer if it accepted a `store_t', but I honestly don't think
  * it's going to be rerun frequently enough to justify using the abstraction.
  */
-void iv_store_export_c( FILE * fd, uint16_t max_rsl );
+void iv_store_export_c( FILE * fd, uint32_t max_rsl );
 
 
 

@@ -61,18 +61,16 @@ UTIL_OBJECTS := files.o json_util.o
 CORE_OBJECTS := pokemon.o ptypes.o pokedex.o moves.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
-CSTORE_OBJECTS := cstore.o cstore_data.o
-
 SIM_OBJECTS := battle.o player.o
+NAIVE_AI_OBJECTS := naive_ai.o
+
+GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
+CSTORE_OBJECTS := cstore.o cstore_data.o
 
 SUBTESTS := json pokemon ptypes parse_gm cstore battle player naive_ai
 SUBTEST_OBJECTS := $(patsubst %,test_%.o,${SUBTESTS})
 SUBTEST_MAIN_OBJECTS := $(patsubst %,test_%_main.o,${SUBTESTS})
 SUBTEST_BINS := $(patsubst %,test_%,${SUBTESTS})
-
-GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
-
-NAIVE_AI_OBJECTS := naive_ai.o
 
 
 # -------------------------------------------------------------------------- #

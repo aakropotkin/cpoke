@@ -4,14 +4,31 @@
 
 #include "iv_rank.h"
 #include "pokedex.h"
+#include "pokemon.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
 
 /* ------------------------------------------------------------------------- */
 
 extern pdex_mon_t * POKEDEX[];
 extern uint16_t     NUM_POKEMON;
+
+
+/* ------------------------------------------------------------------------- */
+
+/* Don't bother exporting a pokemon if it's under the league cap at max level */
+  static inline bool
+should_export( stats_t base_stats, league_t league )
+{
+  return league < get_cp_from_stats( base_stats,
+                                     (stats_t) { 15, 15, 15 },
+                                     MAX_LEVEL
+                                   );
+}
+
 
 
 /* ------------------------------------------------------------------------- */
@@ -25,11 +42,13 @@ extern uint16_t     NUM_POKEMON;
  * If I turn out to be wrong, it is trivial to substitute a `store_t' here.
  */
   void
-iv_store_export_c( FILE * fd, uint16_t max_rsl )
+iv_store_export_c( FILE * fd, uint32_t max_rsl )
 {
   stats_combo_t * rankings = NULL;
   pdex_mon_t    * curr     = NULL;
   bool            first    = true;
+  uint16_t        gl_cnt   = 0;
+  uint16_t        ul_cnt   = 0;
 
   if ( ( max_rsl == 0 ) || ( 1000 < max_rsl ) )
     {
@@ -41,11 +60,12 @@ iv_store_export_c( FILE * fd, uint16_t max_rsl )
     }
 
   fprintf( fd, "#include \"iv_rank.h\"\n#include <stdint.h>\n\n" );
-  fprintf( fd, "const uint16_t IVS_NUM_POKEMON = %u;\n", NUM_POKEMON );
-  fprintf( fd, "const uint16_t IVS_NUM_RANKS = %u;\n", max_rsl );
 
   for ( uint16_t i = 0; i < NUM_POKEMON; i++ )
     {
+      if ( ! should_export( POKEDEX[i]->base_stats, GREAT_LEAGUE ) ) continue;
+      gl_cnt++;
+
       /* Write the base form */
       rankings = rank_ivs_array( POKEDEX[i]->base_stats,
                                  max_rsl,
@@ -60,6 +80,9 @@ iv_store_export_c( FILE * fd, uint16_t max_rsl )
                             0
                           );
       free( rankings );
+
+      if ( ! should_export( POKEDEX[i]->base_stats, ULTRA_LEAGUE ) ) continue;
+      ul_cnt++;
       rankings = rank_ivs_array( POKEDEX[i]->base_stats,
                                  max_rsl,
                                  ULTRA_LEAGUE
@@ -115,6 +138,7 @@ iv_store_export_c( FILE * fd, uint16_t max_rsl )
 
   for ( uint8_t i = 0; i < NUM_POKEMON; i++ )
     {
+      if ( ! should_export( POKEDEX[i]->base_stats, GREAT_LEAGUE ) ) continue;
       if ( first ) first = false;
       else         putc( ',', fd );
       fprintf( fd, "\n  & IVS_GREAT_LEAGUE_%u_0", POKEDEX[i]->dex_number );
@@ -124,11 +148,16 @@ iv_store_export_c( FILE * fd, uint16_t max_rsl )
 
   for ( uint8_t i = 0; i < NUM_POKEMON; i++ )
     {
+      if ( ! should_export( POKEDEX[i]->base_stats, ULTRA_LEAGUE  ) ) continue;
       if ( first ) first = false;
       else         putc( ',', fd );
-      fprintf( fd, "\n  & IVS_GREAT_ULTRA_%u_0", POKEDEX[i]->dex_number );
+      fprintf( fd, "\n  & IVS_ULTRA_LEAGUE_%u_0", POKEDEX[i]->dex_number );
     }
   fprintf( fd, "\n};\n\n" );
+
+  fprintf( fd, "const uint16_t IVS_GL_COUNT= %u;\n", gl_cnt );
+  fprintf( fd, "const uint16_t IVS_UL_COUNT= %u;\n", ul_cnt );
+  fprintf( fd, "const uint16_t IVS_NUM_RANKS = %u;\n\n", max_rsl );
 }
 
 
