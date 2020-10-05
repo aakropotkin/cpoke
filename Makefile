@@ -1,13 +1,43 @@
-# ========================================================================== #
+# -*- mode: makefile-gmake -*-
+# =========================================================================== #
 
 .DEFAULT_GOAL := cpoke
-.PHONY = all clean #gamemaster
+.PHONY = clean check_gcc print_gcc_info #gamemaster
+
+BINS := cpoke parse_gm fetch_gm test iv_store_build
+all: check_gcc ${BINS}
+
+
+# --------------------------------------------------------------------------- #
 
 CC = gcc
+IS_OSX := $(shell ${CC} --version|grep -qi '\(apple\|llvm\|clang\)'           \
+                    && echo 1 || echo 0)
+CC_VERSION := $(shell ${CC} -dumpversion)
+CC_V_MAJOR := $(shell ${CC} -dumpversion|cut -d'.' -f1)
+CC_V_MINOR := $(shell ${CC} -dumpversion|cut -d'.' -f2)
+CC_V_PATCH := $(shell ${CC} -dumpversion|cut -d'.' -f3)
+
+check_gcc:
+	@if [[ ${IS_OSX} = 1 ]]; then                                               \
+		echo "You must use the REAL GCC, not Apple's Clang LLVM crap";            \
+		echo "Download GCC using 'brew' or 'port', and make sure GCC is in PATH"; \
+	  exit 1;                                                                   \
+	fi
+
+# GCC version will be verified FOR ALL make targets.
+# If someone is trying to use Clang it should stop them.
+*: check_gcc
+
+
+# --------------------------------------------------------------------------- #
 
 SRCPATH     = src
 INCLUDEPATH = include
 DEFSPATH    = data/defs
+
+HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
+SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 
 CURL_CFLAGS      = $(shell curl-config --cflags)
 CURL_LINKERFLAGS = $(shell curl-config --libs)
@@ -20,9 +50,8 @@ CFLAGS      += -fms-extensions -DJSMN_STATIC -std=gnu11
 CFLAGS      += ${PCRE_CFLAGS}
 LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
 
-HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
-SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
-BINS    := cpoke parse_gm fetch_gm test iv_store_build
+
+# --------------------------------------------------------------------------- #
 
 EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
@@ -125,6 +154,9 @@ test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
 # -------------------------------------------------------------------------- #
 
+# DO NOT DELETE GAME_MASTER.json or cstore_data.c
+# - GAME_MASTER.json cannot be updated until pokemongo-dev fixes their repo.
+# - cstore_data.c is time consuming to rebuild.
 clean:
 	@echo "Cleaning Up..."
 	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
@@ -132,4 +164,21 @@ clean:
 
 FORCE:
 
+
+# -------------------------------------------------------------------------- #
+
+print_gcc_info:
+	@echo "IS_OSX    : ${IS_OSX}"
+	@echo "CC        : ${CC}"
+	@echo "CC_VERSION: ${CC_VERSION}"
+	@echo "CC_V_MAJOR: ${CC_V_MAJOR}"
+	@echo "CC_V_MINOR: ${CC_V_MINOR}"
+	@echo "CC_V_PATCH: ${CC_V_PATCH}"
+
+
+# -------------------------------------------------------------------------- #
+
+
+
 # ========================================================================== #
+# vim: set filetype=make :
