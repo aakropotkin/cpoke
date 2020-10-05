@@ -178,7 +178,7 @@ rank_ivs_ll( stats_t base, uint32_t max_rsl, uint16_t cp_cap )
   else                max_rsl = min( NUM_STAT_COMBOS, max_rsl );
   for ( uint32_t i = 0; i < max_rsl; i++ )
     {
-      INIT_LIST_HEAD( & rankings[i].elem );
+      init_list( & rankings[i].elem );
       list_add_tail( & rankings[i].elem, & rankings[0].elem );
     }
   return rankings;

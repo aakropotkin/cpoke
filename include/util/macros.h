@@ -62,6 +62,10 @@
   #define nop()    asm volatile ( "nop" )
 #endif
 
+#ifndef noop
+  #define noop()  nop()
+#endif
+
 
 /* End Puns ----------------------------------------------------------- }}}1 */
 
