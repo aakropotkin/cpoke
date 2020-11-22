@@ -27,6 +27,8 @@ static const char tmpl_pure_pat[]     = "^V[[:digit:]]\\{4\\}_POKEMON_"
                                         "[A-Z_0-9]\\+_PURIFIED";
 static const char tmpl_norm_pat[]     = "^V[[:digit:]]\\{4\\}_POKEMON_"
                                         "[A-Z_0-9]\\+_NORMAL";
+static const char tmpl_home_pat[]     = "^V[[:digit:]]\\{4\\}_POKEMON_"
+                                        "[A-Z_0-9]\\+_HOME\(_FORM\)\?_REVERSION";
 static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_";
 static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]\\{4\\}_MOVE_"
                                         "[A-Z_]\\+_FAST";
@@ -38,6 +40,8 @@ static const char tmpl_pure_pat[]     = "^V[[:digit:]]{4}_POKEMON_"
                                         "[A-Z_0-9]+_PURIFIED";
 static const char tmpl_norm_pat[]     = "^V[[:digit:]]{4}_POKEMON_"
                                         "[A-Z_0-9]+_NORMAL";
+static const char tmpl_home_pat[]     = "^V[[:digit:]]{4}_POKEMON_"
+                                        "[A-Z_0-9]+_HOME(_FORM)?_REVERSION";
 static const char tmpl_pvp_move_pat[] = "^COMBAT_V[[:digit:]]{4}_MOVE_";
 static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]{4}_MOVE_"
                                         "[A-Z_]+_FAST";
@@ -48,6 +52,7 @@ struct gm_regexes_s {
   pcre * tmpl_shadow;
   pcre * tmpl_pure;
   pcre * tmpl_norm;
+  pcre * tmpl_home;
   //pcre tmpl_pve_move;
   pcre * tmpl_pvp_move;
   pcre * tmpl_pvp_fast;

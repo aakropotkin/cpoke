@@ -35,6 +35,7 @@ gm_regexes_init( gm_regexes_t * grs )
     { & grs->tmpl_shadow,   tmpl_shadow_pat   },
     { & grs->tmpl_pure,     tmpl_pure_pat     },
     { & grs->tmpl_norm,     tmpl_norm_pat     },
+    { & grs->tmpl_home,     tmpl_home_pat     },
     { & grs->tmpl_pvp_move, tmpl_pvp_move_pat },
     { & grs->tmpl_pvp_fast, tmpl_pvp_fast_pat }
   };
@@ -65,6 +66,7 @@ gm_regexes_free( gm_regexes_t * grs )
   pcre_free( grs->tmpl_shadow );
   pcre_free( grs->tmpl_pure );
   pcre_free( grs->tmpl_norm );
+  pcre_free( grs->tmpl_home );
   pcre_free( grs->tmpl_pvp_move );
   pcre_free( grs->tmpl_pvp_fast );
 }
@@ -139,7 +141,7 @@ seek_templates_start( gm_parser_t * gm_parser )
   /* Open the item template list */
   jsmn_rsl = jsmnis_open_key_seq( gm_parser->buffer,
                                   &( gm_parser->iter_stack ),
-                                  "itemTemplate",
+                                  "template",
                                   0
                                 );
   return jsmn_rsl;
@@ -395,6 +397,8 @@ parse_pdex_mon( const char   *  json,
   if ( is_regional( mon->dex_number ) ) mon->tags |= TAG_REGIONAL_M;
 
   /* Create iterator on `pokemon' value */
+  rsl = jsmnis_open_key_seq( json, iter_stack, "data", 0 );
+  assert( 0 == rsl );
   rsl = jsmnis_open_key_seq( json, iter_stack, "pokemon", 0 );
   assert( 0 == rsl );
 
@@ -545,6 +549,7 @@ parse_pdex_mon( const char   *  json,
         }
     }
   jsmnis_pop( iter_stack );
+  jsmnis_pop( iter_stack );
 
   if ( mon->form_name == NULL )
     {
@@ -689,7 +694,11 @@ parse_pvp_charged_move( const char         *  json,
   /* Parse Move ID */
   move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
 
+  rsl = jsmnis_open_key_seq( json, iter_stack, "data", 0 );
+  assert( 0 == rsl );
   rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
+  assert( 0 == rsl );
+
   while ( jsmni_next( jsmnis_curr( iter_stack ),
                       &key, &val, iter_stack->hint
                     ) > 0
@@ -719,6 +728,7 @@ parse_pvp_charged_move( const char         *  json,
           jsmnis_pop( iter_stack );
         }
     }
+  jsmnis_pop( iter_stack );
   jsmnis_pop( iter_stack );
 
   assert( iter_stack->stack_index == stack_idx );
@@ -764,7 +774,10 @@ parse_pvp_fast_move( const char      *  json,
   /* Parse Move ID */
   move->move_id = atouin( json + iter_stack->tokens[idx].start + 8, 4 );
 
+  rsl = jsmnis_open_key_seq( json, iter_stack, "data", 0 );
+  assert( 0 == rsl );
   rsl = jsmnis_open_key_seq( json, iter_stack, "combatMove", 0 );
+  assert( 0 == rsl );
 
   while ( jsmni_next( jsmnis_curr( iter_stack ),
                       &key, &val, iter_stack->hint
@@ -794,6 +807,7 @@ parse_pvp_fast_move( const char      *  json,
         }
     }
   jsmnis_pop( iter_stack );
+  jsmnis_pop( iter_stack );
 
   assert( iter_stack->stack_index == stack_idx );
   assert( *name != NULL );
@@ -802,7 +816,7 @@ parse_pvp_fast_move( const char      *  json,
   assert( move->type != PT_NONE );
   /* Splash has 0 power ... assert( 0 < move->power ); */
   /* Transform has 0 energy ... assert( 0 < move->energy ); */
-  assert( 0 < move->turns );
+  /* V2 has fucked up turn data ... assert( 0 < move->turns ); */
 
   return move->move_id;
 }
@@ -1064,6 +1078,7 @@ should_parse_mon( const char      * json,
   if ( ! jsonmatch_str_pcre( json, token, regs->tmpl_mon ) )  return false;
   if ( jsonmatch_str_pcre( json, token, regs->tmpl_shadow ) ) return false;
   if ( jsonmatch_str_pcre( json, token, regs->tmpl_pure ) )   return false;
+  if ( jsonmatch_str_pcre( json, token, regs->tmpl_home ) )   return false;
   /* We still have to parse "NORMAL" forms because of Genesect */
   //if ( jsonmatch_str( json, token, &( regs->tmpl_norm ) ) )   return false;
   return true;
@@ -1107,7 +1122,12 @@ process_pokemon( gm_parser_t * gm_parser )
                                   (void *) gm_parser->regs.tmpl_mon,
                                   0
                                 );
-      if ( jsmn_rsl <= 0 )
+      if ( ( jsmn_rsl <= 0 ) ||
+           jsonmatch_str_pcre( gm_parser->buffer,
+                               gm_parser->iter_stack.tokens + jsmnis_pos( & gm_parser->iter_stack ),
+                               gm_parser->regs.tmpl_home
+                             )
+         )
         {
           jsmnis_pop( &( gm_parser->iter_stack ) );
           continue;
