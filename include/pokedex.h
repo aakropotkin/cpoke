@@ -66,6 +66,7 @@ static const region_t REGIONS[] = {
   { "Hoenn",   252, 386 },
   { "Sinnoh",  387, 493 },
   { "Unova",   494, 649 },
+  { "Kalos",   650, 718 }, /* FIXME when legendaries are added */
   { "Unknown", 808, 809 }
 };
 #endif

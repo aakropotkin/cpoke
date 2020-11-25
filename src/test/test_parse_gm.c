@@ -19,9 +19,9 @@
 
 /* ------------------------------------------------------------------------- */
 
-#include "data/test/parse_gm_0.h"
-#include "data/test/parse_gm_1.h"
-#include "data/test/parse_gm_2.h"
+#include "../data/test/parse_gm_0.h"
+#include "../data/test/parse_gm_1.h"
+#include "../data/test/parse_gm_2.h"
 
 
 /* ------------------------------------------------------------------------- */
