@@ -55,4 +55,3 @@ See "Projects" tab for full details.
 - "ext" files are those which are not authored by devs here, but have been included to lock versions/ease build process.
 - Many "util" files are authored by alexameen for use across projects, and should not be explicitly targeted for `cpoke`. ( If you extend them, keep things genearalized for use in "any project" ).
 - I am particularly picky about code formatting; but don't let that stop you from putting in PRs. Just don't be surprised if I swoop in and reformat after the fact. <3
-- `fetch_gm` is currently broken! Sadly the release of `V2_GAME_MASTER.json` threw a wrench in things. Hopefully `pokemongodev`will decode those soon. For now we are working off an old V1 file. This is plenty to chew on at this stage, but it is missing Megas and any new changes that were released after the V2 encoding was cooked up.
