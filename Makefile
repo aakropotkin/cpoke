@@ -81,7 +81,8 @@ cpoke: main.o ${CORE_OBJECTS}
 
 # -------------------------------------------------------------------------- #
 
-data/cstore_data.c: parse_gm
+data/cstore_data.c: parse_gm fetch_gm
+	./fetch_gm
 	./parse_gm -f data/GAME_MASTER.json -e c > $@
 
 cstore_data.o: data/cstore_data.c ${HEADERS}
@@ -159,6 +160,7 @@ gamemaster: data/GAME_MASTER.json
 # - cstore_data.c is time consuming to rebuild.
 clean:
 	@echo "Cleaning Up..."
+	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
 	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
 
 
