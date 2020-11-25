@@ -19,117 +19,9 @@
 
 /* ------------------------------------------------------------------------- */
 
-/* This is normally nested in `.itemTemplate: [...]' */
-static const char JSON1[] = R"RAW_JSON(
-    [ { "templateId": "V0001_POKEMON_BULBASAUR_NORMAL",
-        "pokemon": {
-          "uniqueId": "BULBASAUR",
-          "modelScale": 1.09,
-          "type1": "POKEMON_TYPE_GRASS",
-          "type2": "POKEMON_TYPE_POISON",
-          "camera": {
-            "diskRadiusM": 0.5723,
-            "cylinderRadiusM": 0.5,
-            "cylinderHeightM": 0.763,
-            "shoulderModeScale": 0.5
-          },
-          "encounter": {
-            "baseCaptureRate": 0.2,
-            "baseFleeRate": 0.1,
-            "collisionRadiusM": 0.3815,
-            "collisionHeightM": 0.654,
-            "collisionHeadRadiusM": 0.2725,
-            "movementType": "MOVEMENT_JUMP",
-            "movementTimerS": 10.0,
-            "jumpTimeS": 1.15,
-            "attackTimerS": 29.0,
-            "attackProbability": 0.1,
-            "dodgeProbability": 0.15,
-            "dodgeDurationS": 1.0,
-            "dodgeDistance": 1.0,
-            "cameraDistance": 3.75,
-            "minPokemonActionFrequencyS": 0.2,
-            "maxPokemonActionFrequencyS": 1.6
-          },
-          "stats": {
-            "baseStamina": 128,
-            "baseAttack": 118,
-            "baseDefense": 111
-          },
-          "quickMoves": ["VINE_WHIP_FAST", "TACKLE_FAST"],
-          "cinematicMoves": ["SLUDGE_BOMB", "SEED_BOMB", "POWER_WHIP"],
-          "animTime": [1.6667, 0.6667, 1.6667, 1.8333, 0.0, 2.1667, 1.4,
-                        1.466667],
-          "evolution": ["IVYSAUR"],
-          "evolutionPips": 1,
-          "pokedexHeightM": 0.7,
-          "pokedexWeightKg": 6.9,
-          "heightStdDev": 0.0875,
-          "weightStdDev": 0.8625,
-          "familyId": "FAMILY_BULBASAUR",
-          "candyToEvolve": 25,
-          "kmBuddyDistance": 3.0,
-          "modelHeight": 0.7,
-          "evolutionBranch": [{
-            "evolution": "IVYSAUR",
-            "candyCost": 25,
-            "form": "IVYSAUR_NORMAL"
-          }],
-          "modelScaleV2": 0.89,
-          "form": "BULBASAUR_NORMAL",
-          "buddyOffsetMale": [0.0, 0.0, 0.0],
-          "buddyOffsetFemale": [0.0, 0.0, 0.0],
-          "buddyScale": 19.0,
-          "thirdMove": {
-            "stardustToUnlock": 10000,
-            "candyToUnlock": 25
-          },
-          "isTransferable": true,
-          "isDeployable": true,
-          "buddyGroupNumber": 2
-        }
-      }
-    ]
-  )RAW_JSON";
-
-static const size_t JSON1_LEN = array_size( JSON1 );
-
-
-static const char JSON2[] = R"RAW_JSON(
-    {
-      "templateId": "COMBAT_V0309_MOVE_MIRROR_SHOT",
-        "combatMove": {
-          "uniqueId": "MIRROR_SHOT",
-          "type": "POKEMON_TYPE_STEEL",
-          "power": 35.0,
-          "vfxName": "mirror_shot",
-          "energyDelta": -35,
-          "buffs": {
-            "targetAttackStatStageChange": -1,
-            "buffActivationChance": 0.3
-          }
-        }
-    }
-  )RAW_JSON";
-
-static const size_t JSON2_LEN = array_size( JSON2 );
-
-
-static const char JSON3[] = R"RAW_JSON(
-    {
-      "templateId": "COMBAT_V0320_MOVE_CHARM_FAST",
-      "combatMove": {
-        "uniqueId": "CHARM_FAST",
-        "type": "POKEMON_TYPE_FAIRY",
-        "power": 16.0,
-        "vfxName": "charm_fast",
-        "durationTurns": 2,
-        "energyDelta": 6
-      }
-    }
-  )RAW_JSON";
-
-static const size_t JSON3_LEN = array_size( JSON3 );
+#include "data/test/parse_gm_0.h"
+#include "data/test/parse_gm_1.h"
+#include "data/test/parse_gm_2.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -153,9 +45,9 @@ static const size_t JSON3_LEN = array_size( JSON3 );
   static bool
 test_parse_pvp_charged_move( void )
 {
-  parse_gm_json_str( JSON2, tokens, tokens_cnt );
-  assert( 0 < JSON2_PARSER_RSL );
-  size_t buffer_len = JSON2_LEN;
+  parse_gm_json_str( JSON1, tokens, tokens_cnt );
+  assert( 0 < JSON1_PARSER_RSL );
+  size_t buffer_len = JSON1_LEN;
 
   jsmnis_t iter_stack;
   memset( &iter_stack, 0, sizeof( jsmnis_t ) );
@@ -163,7 +55,7 @@ test_parse_pvp_charged_move( void )
   jsmnis_push( &iter_stack, 0 );
   jsmntok_t * key = NULL;
   jsmntok_t * val = NULL;
-  jsmni_find_key_seq( JSON2,
+  jsmni_find_key_seq( JSON1,
                       jsmnis_curr( &iter_stack ),
                       &key,
                       "templateId",
@@ -175,7 +67,7 @@ test_parse_pvp_charged_move( void )
   char *             name = NULL;
   memset( &move, 0, sizeof( pvp_charged_move_t ) );
 
-  uint16_t move_id = parse_pvp_charged_move( JSON2, &iter_stack, &name, &move );
+  uint16_t move_id = parse_pvp_charged_move( JSON1, &iter_stack, &name, &move );
 
   jsmnis_free( &iter_stack );
 
@@ -203,9 +95,9 @@ test_parse_pvp_charged_move( void )
   static bool
 test_parse_pvp_fast_move( void )
 {
-  parse_gm_json_str( JSON3, tokens, tokens_cnt );
-  assert( 0 < JSON3_PARSER_RSL );
-  size_t buffer_len = JSON3_LEN;
+  parse_gm_json_str( JSON2, tokens, tokens_cnt );
+  assert( 0 < JSON2_PARSER_RSL );
+  size_t buffer_len = JSON2_LEN;
 
   jsmnis_t iter_stack;
   memset( &iter_stack, 0, sizeof( jsmnis_t ) );
@@ -213,7 +105,7 @@ test_parse_pvp_fast_move( void )
   jsmnis_push( &iter_stack, 0 );
   jsmntok_t * key = NULL;
   jsmntok_t * val = NULL;
-  jsmni_find_key_seq( JSON3,
+  jsmni_find_key_seq( JSON2,
                       jsmnis_curr( &iter_stack ),
                       &key,
                       "templateId",
@@ -225,7 +117,7 @@ test_parse_pvp_fast_move( void )
   char *             name = NULL;
   memset( & move, 0, sizeof( pvp_fast_move_t ) );
 
-  uint16_t move_id = parse_pvp_fast_move( JSON3, &iter_stack, &name, & move );
+  uint16_t move_id = parse_pvp_fast_move( JSON2, &iter_stack, &name, & move );
 
   jsmnis_free( &iter_stack );
 
@@ -303,11 +195,11 @@ test_parse_gm_type( void )
   expect( parse_gm_type( fairy_str, &tok ) == FAIRY );
 
   /* Try parsing on a full pokemon's GM entry */
-  parse_gm_json_str( JSON1, tokens, tokens_cnt );
-  assert( 0 < JSON1_PARSER_RSL );
-  size_t buffer_len = JSON1_LEN;
+  parse_gm_json_str( JSON0, tokens, tokens_cnt );
+  assert( 0 < JSON0_PARSER_RSL );
+  size_t buffer_len = JSON0_LEN;
 
-  int type_idx = json_find( JSON1,
+  int type_idx = json_find( JSON0,
                             tokens,
                             jsoneq_str_p,
                             (void *) "type1",
@@ -316,13 +208,13 @@ test_parse_gm_type( void )
                           );
   type_idx++; /* Current index is the key, the next is the value. */
 
-  assert( jsoneq_str( JSON1, tokens + type_idx, "POKEMON_TYPE_GRASS" ) );
-  ptype_t type1 = parse_gm_type( JSON1, tokens + type_idx );
+  assert( jsoneq_str( JSON0, tokens + type_idx, "POKEMON_TYPE_GRASS" ) );
+  ptype_t type1 = parse_gm_type( JSON0, tokens + type_idx );
   expect( type1 == GRASS );
 
   type_idx += 2; /* Type 2's value is 2 tokens forward in this case. */
-  assert( jsoneq_str( JSON1, tokens + type_idx, "POKEMON_TYPE_POISON" ) );
-  ptype_t type2 = parse_gm_type( JSON1, tokens + type_idx );
+  assert( jsoneq_str( JSON0, tokens + type_idx, "POKEMON_TYPE_POISON" ) );
+  ptype_t type2 = parse_gm_type( JSON0, tokens + type_idx );
   expect( type2 == POISON );
 
   free( tokens );

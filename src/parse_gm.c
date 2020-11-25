@@ -451,7 +451,8 @@ parse_pdex_mon( const char   *  json,
                                                            json + val->start,
                                                            toklen( val ) - 5
                                                          ) * rsl;
-              assert( 0 != mon->fast_move_ids[idx - 1] );
+              /* Gen 6 has missing fast moves */
+              /* assert( 0 != mon->fast_move_ids[idx - 1] ); */
             }
           jsmnis_pop( iter_stack );
           assert( idx == mon->fast_moves_cnt );
@@ -560,9 +561,11 @@ parse_pdex_mon( const char   *  json,
   assert( mon->name != NULL );
   assert( iter_stack->stack_index == stack_idx );
   assert( mon->types != PT_NONE_M );
+  /* Certain Gen 6 pokemon currently have missing stats.
   assert( mon->base_stats.stamina != 0 );
   assert( mon->base_stats.attack != 0 );
   assert( mon->base_stats.defense != 0 );
+  */
 
   return mon->dex_number;
 }
