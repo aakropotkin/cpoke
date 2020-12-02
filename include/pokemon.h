@@ -175,10 +175,10 @@ const_fn uint16_t get_cp_from_stats( stats_t base, stats_t ivs, float level );
 const_fn stats_t  get_effective_stats( stats_t base, stats_t ivs, float level );
 const_fn uint16_t get_hp_from_stam_lv( uint16_t stam, float lv );
 
-const_fn uint16_t get_pvp_damage( pmove_idx_t     attack_idx,
-                                  pvp_pokemon_t * attacker,
-                                  pvp_pokemon_t * defender
-                                );
+uint16_t get_pvp_damage( pmove_idx_t     attack_idx,
+                         pvp_pokemon_t * attacker,
+                         pvp_pokemon_t * defender
+                       );
 
 
 /* ------------------------------------------------------------------------- */

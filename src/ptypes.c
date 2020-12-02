@@ -50,7 +50,8 @@ get_damage_modifier_MATRIX( ptype_mask_t def_types, ptype_t atk_type )
                popcount( def_types )
              );
       fprint_ptype_mask( stderr, ", ", def_types );
-      fprintf( stderr, "\n" );
+      fprintf( stderr, "\nMask was: " );
+      showbits( def_types );
       return 1.0;
       break;
     }
