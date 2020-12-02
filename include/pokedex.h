@@ -69,6 +69,22 @@ static const region_t REGIONS[] = {
   { "Kalos",   650, 718 }, /* FIXME when legendaries are added */
   { "Unknown", 808, 809 }
 };
+enum region_e {
+  R_KANTO = 0,
+  R_JOHTO,
+  R_HOENN,
+  R_SINNOH,
+  R_UNOVA,
+  R_KALOS,
+  R_UNKNOWN
+};
+static const region_t * KANTO   = REGIONS + R_KANTO;
+static const region_t * JOHTO   = REGIONS + R_JOHTO;
+static const region_t * HOENN   = REGIONS + R_HOENN;
+static const region_t * SINNOH  = REGIONS + R_SINNOH;
+static const region_t * UNOVA   = REGIONS + R_UNOVA;
+static const region_t * KALOS   = REGIONS + R_KALOS;
+static const region_t * UNKNOWN = REGIONS + R_UNKNOWN;
 #endif
 
 static const uint8_t NUM_REGIONS = array_size( REGIONS );
