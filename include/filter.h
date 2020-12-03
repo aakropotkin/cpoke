@@ -43,7 +43,7 @@ base_mon_region_p( base_pokemon_t * mon, region_t * reg )
   static bool
 base_mon_region_pred( base_pokemon_t * mon, void * reg )
 {
-  return pdex_mon_region_p( mon, (region_t *) reg );
+  return base_mon_region_p( mon, (region_t *) reg );
 }
 
 
