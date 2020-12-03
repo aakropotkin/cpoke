@@ -49,6 +49,29 @@ base_mon_region_pred( base_pokemon_t * mon, void * reg )
 
 /* -------------------------------------------------------------------------- */
 
+  static inline bool
+pdex_mon_family_p( pdex_mon_t * mon, uint16_t family )
+{
+  return mon->family == family;
+}
+
+static bool
+pdex_mon_family_pred( pdex_mon_t * mon, void * familyp )
+{
+  return pdex_mon_family_p( mon, *( (uint16_t *) familyp ) );
+}
+
+  static inline bool
+base_mon_family_p( pdex_mon_t * mon, uint16_t family )
+{
+  return mon->pdex_mon->family == family;
+}
+
+  static bool
+base_mon_family_pred( pdex_mon_t * mon, void * familyp )
+{
+  return base_mon_family_p( mon, *( (uint16_t *) familyp ) );
+}
 
 
 /* -------------------------------------------------------------------------- */
