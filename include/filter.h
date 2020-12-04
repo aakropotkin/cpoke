@@ -17,6 +17,27 @@ typedef bool (*base_mon_pred_fn)( base_pokemon_t *, void * );
 typedef bool (*pdex_mon_pred_fn)( pdex_mon_t *, void * );
 typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
 
+/**
+ * Filters come in collections to operate on various types of pokemon, and to
+ * meet the type interface of `pred_fn'.
+ * Explicitly writing each is tedious, since basically all we do is cast from
+ * `(void *)' to make `pred_fn' out of a typed predicate, and unpack extended
+ * structs to convert from `base_pokemon_t' to `pdex_mon_t'.
+ * Instead we have these convenient macros, which will generate the full
+ * collection of functions from a few pieces.
+ * <p>
+ * `FNAME' will be wrapped to create the names of the filter functions,
+ * Ex: foo -> pdex_mon_foo_p, pdex_mon_foo_pred,
+ *            base_mon_foo_p, base_mon_foo_pred
+ * `MNAME' is the name of the `{pdex_mon,base_pokemon}_t *' argument, which will
+ * likely be referred to in the filter's body.
+ * `ARGT' is the typeof the filter's second argument.
+ * `ARGN' is the name of the second argument, which will likely be referenced in
+ * the filter's body.
+ * <p>
+ * The macro is not complex, but if you want to see how it unrolls you can do:
+ * `gcc -I. -E ./filter.h' to dump the preprocessed form of the file.
+ */
 #define DEF_BASE_MON_FILTER( FNAME, MNAME, ARGT, ARGN, BODY )                 \
     static inline bool                                                        \
   base_mon_ ## FNAME ## _p( base_pokemon_t * MNAME, ARGT ARGN ) BODY          \
