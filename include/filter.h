@@ -62,15 +62,42 @@ pdex_mon_family_pred( pdex_mon_t * mon, void * familyp )
 }
 
   static inline bool
-base_mon_family_p( pdex_mon_t * mon, uint16_t family )
+base_mon_family_p( base_pokemon_t * mon, uint16_t family )
 {
   return mon->pdex_mon->family == family;
 }
 
   static bool
-base_mon_family_pred( pdex_mon_t * mon, void * familyp )
+base_mon_family_pred( base_pokemon_t * mon, void * familyp )
 {
   return base_mon_family_p( mon, *( (uint16_t *) familyp ) );
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  static inline bool
+pdex_mon_tags_p( pdex_mon_t * mon, pdex_tag_mask_t tags )
+{
+  return mon->tags | tags;
+}
+
+  static bool
+pdex_mon_tags_pred( pdex_mon_t * mon, void * tagsp )
+{
+  return pdex_mon_tags_p( mon, *( (pdex_tag_mask_t *) tagsp ) );
+}
+
+  static inline bool
+base_mon_tags_p( base_pokemon_t * mon, pdex_tag_mask_t tags )
+{
+  return mon->pdex_mon->tags | tags;
+}
+
+  static bool
+base_mon_tags_pred( base_pokemon_t * mon, void * tagsp )
+{
+  return base_mon_tags_p( mon, *( (pdex_tag_mask_t *) tagsp ) );
 }
 
 
