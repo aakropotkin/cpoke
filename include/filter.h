@@ -23,8 +23,7 @@ typedef bool (*pdex_mon_pred_fn)( pdex_mon_t *, void * );
   static inline bool
 pdex_mon_region_p( pdex_mon_t * mon, region_t * reg )
 {
-  return ( reg->dex_start  <= mon->dex_number ) &&
-         ( mon->dex_number <= reg->dex_end    );
+  return get_region( mon->dex_number ) == reg;
 }
 
   static bool
@@ -36,8 +35,7 @@ pdex_mon_region_pred( pdex_mon_t * mon, void * reg )
   static inline bool
 base_mon_region_p( base_pokemon_t * mon, region_t * reg )
 {
-  return ( reg->dex_start            <= mon->pdex_mon->dex_number ) &&
-         ( mon->pdex_mon->dex_number <= reg->dex_end              );
+  return pdex_mon_region_p( mon->pdex_mon, reg );
 }
 
   static bool
@@ -64,7 +62,7 @@ pdex_mon_family_pred( pdex_mon_t * mon, void * familyp )
   static inline bool
 base_mon_family_p( base_pokemon_t * mon, uint16_t family )
 {
-  return mon->pdex_mon->family == family;
+  return pdex_mon_family_p( mon->pdex_mon, family );
 }
 
   static bool
@@ -91,7 +89,7 @@ pdex_mon_tags_pred( pdex_mon_t * mon, void * tagsp )
   static inline bool
 base_mon_tags_p( base_pokemon_t * mon, pdex_tag_mask_t tags )
 {
-  return !! ( mon->pdex_mon->tags & tags );
+  return pdex_mon_tags_p( mon->pdex_mon, tags );
 }
 
   static bool
@@ -112,13 +110,13 @@ pdex_mon_types_any_p( pdex_mon_t * mon, ptype_mask_t types )
   static bool
 pdex_mon_types_any_pred( pdex_mon_t * mon, void * typesp )
 {
-  return pdex_mon_types_p( mon, *( (ptype_mask_t *) typesp ) );
+  return pdex_mon_types_any_p( mon, *( (ptype_mask_t *) typesp ) );
 }
 
   static inline bool
 base_mon_types_any_p( base_pokemon_t * mon, ptype_mask_t types )
 {
-  return !! ( mon->pdex_mon->types & types );
+  return pdex_mon_types_any_p( mon->pdex_mon, types );
 }
 
   static bool
@@ -139,13 +137,13 @@ pdex_mon_types_all_p( pdex_mon_t * mon, ptype_mask_t types )
   static bool
 pdex_mon_types_all_pred( pdex_mon_t * mon, void * typesp )
 {
-  return pdex_mon_types_p( mon, *( (ptype_mask_t *) typesp ) );
+  return pdex_mon_types_all_p( mon, *( (ptype_mask_t *) typesp ) );
 }
 
   static inline bool
 base_mon_types_all_p( base_pokemon_t * mon, ptype_mask_t types )
 {
-  return types <= ( mon->pdex_mon->types & types );
+  return pdex_mon_types_all_p( mon->pdex_mon, types );
 }
 
   static bool
