@@ -79,7 +79,7 @@ base_mon_family_pred( base_pokemon_t * mon, void * familyp )
   static inline bool
 pdex_mon_tags_p( pdex_mon_t * mon, pdex_tag_mask_t tags )
 {
-  return mon->tags | tags;
+  return  !! ( mon->tags & tags );
 }
 
   static bool
@@ -91,13 +91,67 @@ pdex_mon_tags_pred( pdex_mon_t * mon, void * tagsp )
   static inline bool
 base_mon_tags_p( base_pokemon_t * mon, pdex_tag_mask_t tags )
 {
-  return mon->pdex_mon->tags | tags;
+  return !! ( mon->pdex_mon->tags & tags );
 }
 
   static bool
 base_mon_tags_pred( base_pokemon_t * mon, void * tagsp )
 {
   return base_mon_tags_p( mon, *( (pdex_tag_mask_t *) tagsp ) );
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  static inline bool
+pdex_mon_types_any_p( pdex_mon_t * mon, ptype_mask_t types )
+{
+  return !! ( mon->types & types );
+}
+
+  static bool
+pdex_mon_types_any_pred( pdex_mon_t * mon, void * typesp )
+{
+  return pdex_mon_types_p( mon, *( (ptype_mask_t *) typesp ) );
+}
+
+  static inline bool
+base_mon_types_any_p( base_pokemon_t * mon, ptype_mask_t types )
+{
+  return !! ( mon->pdex_mon->types & types );
+}
+
+  static bool
+base_mon_types_any_pred( base_pokemon_t * mon, void * typesp )
+{
+  return base_mon_types_any_p( mon, *( (ptype_mask_t *) typesp ) );
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  static inline bool
+pdex_mon_types_all_p( pdex_mon_t * mon, ptype_mask_t types )
+{
+  return types <= ( mon->types & types )
+}
+
+  static bool
+pdex_mon_types_all_pred( pdex_mon_t * mon, void * typesp )
+{
+  return pdex_mon_types_p( mon, *( (ptype_mask_t *) typesp ) );
+}
+
+  static inline bool
+base_mon_types_all_p( base_pokemon_t * mon, ptype_mask_t types )
+{
+  return types <= ( mon->pdex_mon->types & types );
+}
+
+  static bool
+base_mon_types_all_pred( base_pokemon_t * mon, void * typesp )
+{
+  return base_mon_types_all_p( mon, *( (ptype_mask_t *) typesp ) );
 }
 
 
