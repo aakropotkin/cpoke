@@ -17,6 +17,13 @@
 
 /* -------------------------------------------------------------------------- */
 
+/* Suppress warnings about casting ints to `void *' */
+pragma_push();
+pragma_ignore( "-Wpointer-to-int-cast" );
+
+
+/* -------------------------------------------------------------------------- */
+
 /**
  * Filters/predicates to narrow rosters and gm_stores.
  */
@@ -54,7 +61,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     static bool                                                               \
   rost_mon_ ## FNAME ## _pred( roster_pokemon_t * MNAME, void * argptr )      \
   {                                                                           \
-    return rost_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
+    return rost_mon_ ## FNAME ## _p( MNAME, (ARGT) argptr );                  \
   }
 
 #define _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )             \
@@ -63,7 +70,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     static bool                                                               \
   base_mon_ ## FNAME ## _pred( base_pokemon_t * MNAME, void * argptr )        \
   {                                                                           \
-    return base_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
+    return base_mon_ ## FNAME ## _p( MNAME, (ARGT) argptr );                  \
   }
 
 #define _DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )             \
@@ -72,7 +79,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     static bool                                                               \
   pdex_mon_ ## FNAME ## _pred( const pdex_mon_t * MNAME, void * argptr )      \
   {                                                                           \
-    return pdex_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
+    return pdex_mon_ ## FNAME ## _p( MNAME, (ARGT) argptr );                  \
   }
 
 #define _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
@@ -409,6 +416,11 @@ DEF_ROST_MON_FILTER_A1( has_charged, mon, uint16_t, move_id, {
     return ( mon->charged_move_ids[0] == move_id ) ||
            ( mon->charged_move_ids[1] == move_id );
   } );
+
+
+/* -------------------------------------------------------------------------- */
+
+pragma_pop();
 
 
 /* -------------------------------------------------------------------------- */

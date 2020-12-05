@@ -10,7 +10,7 @@
 
 /* -------------------------------------------------------------------------- */
 
-const base_move_t vine_whip = {
+static const base_move_t vine_whip = {
   .move_id = 214,
   .type    = GRASS,
   .is_fast = true,
@@ -18,12 +18,12 @@ const base_move_t vine_whip = {
   .energy  = 8,
 };
 
-const pvp_fast_move_t vine_whip_pvp = {
+static const pvp_fast_move_t vine_whip_pvp = {
   vine_whip,
   .turns     = 1
 };
 
-const base_move_t power_whip = {
+static const base_move_t power_whip = {
   .move_id = 118,
   .type    = GRASS,
   .is_fast = false,
@@ -31,15 +31,15 @@ const base_move_t power_whip = {
   .energy  = 50,
 };
 
-const pvp_charged_move_t power_whip_pvp = {
+static const pvp_charged_move_t power_whip_pvp = {
   power_whip,
   .buff      = NO_BUFF
 };
 
-uint16_t bulb_fast_move_ids[]    = { vine_whip.move_id };
-uint16_t bulb_charged_move_ids[] = { power_whip.move_id };
+static uint16_t bulb_fast_move_ids[]    = { vine_whip.move_id };
+static uint16_t bulb_charged_move_ids[] = { power_whip.move_id };
 
-const pdex_mon_t bulbasaur = {
+static const pdex_mon_t bulbasaur = {
   .dex_number        = 1,
   .name              = "BULBASAUR",
   .form_name         = "NORMAL",
@@ -63,7 +63,7 @@ const pdex_mon_t bulbasaur = {
 #define PDEX_0_NOROST
 #else /* defined( PDEX_0_NOBASE ) */
 
-base_pokemon_t base_bulbasaur = {
+static base_pokemon_t base_bulbasaur = {
   .pdex_mon = & bulbasaur,
   .level    = 20,
   .ivs      = { 10, 10, 10 }
@@ -75,7 +75,7 @@ base_pokemon_t base_bulbasaur = {
 
 #ifndef PDEX_0_NOROST
 
-roster_pokemon_t roster_bulbasaur = {
+static roster_pokemon_t roster_bulbasaur = {
   .base             = & base_bulbasaur,
   .fast_move_id     = vine_whip.move_id,
   .charged_move_ids = { power_whip.move_id, 0 }
