@@ -42,53 +42,146 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
  * If you're the kind of person who hates "when people abuse C macros to
  * immitate C++ templates", I can only say "Sorry, not sorry".
  */
-#define DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
+#define _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )             \
+    static inline bool                                                        \
+  rost_mon_ ## FNAME ## _p( roster_pokemon_t * MNAME, ARGT ARGN ) BODY        \
+    static bool                                                               \
+  rost_mon_ ## FNAME ## _pred( roster_pokemon_t * MNAME, void * argptr )      \
+  {                                                                           \
+    return rost_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
+  }
+
+#define _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )             \
     static inline bool                                                        \
   base_mon_ ## FNAME ## _p( base_pokemon_t * MNAME, ARGT ARGN ) BODY          \
     static bool                                                               \
   base_mon_ ## FNAME ## _pred( base_pokemon_t * MNAME, void * argptr )        \
   {                                                                           \
     return base_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
-  }                                                                           \
-  enum {}
-/* `enum {}' swallows the semicolon. */
+  }
 
-#define DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                  \
+#define _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                 \
     static inline bool                                                        \
   pdex_mon_ ## FNAME ## _p( const pdex_mon_t * MNAME, ARGT ARGN ) BODY        \
     static bool                                                               \
   pdex_mon_ ## FNAME ## _pred( const pdex_mon_t * MNAME, void * argptr )      \
   {                                                                           \
     return pdex_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
-  }                                                                           \
-  DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                         \
+  }
+
+#define _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
+  _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                       \
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                        \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon, ARGN );               \
     } )
+
+#define _DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
+  _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                        \
+      return base_mon_ ## FNAME ## _p( MNAME->base, ARGN );                   \
+    } )
+
+#define _DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                  \
+  _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                       \
+  _DEF_BASE_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                            \
+      return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon, ARGN );               \
+    } )                                                                       \
+  _DEF_ROST_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                            \
+      return pdex_mon_ ## FNAME ## _p( MNAME->base->pdex_mon, ARGN );         \
+    } )
+
+
+/* `enum {}' swallows the semicolon. */
+#define DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
+  _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+#define DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+#define DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                  \
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+#define DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                    \
+  _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+#define DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                    \
+  _DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+#define DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
+  _DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+
+
+/* -------------------------------------------------------------------------- */
 
 /**
  * Requires no extra arguments ( "Is this a regional Pokemon?", etc )
  */
-#define DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
+#define _DEF_ROSTER_MON_FILTER_A0( FNAME, MNAME, BODY )                       \
+    static inline bool                                                        \
+  rost_mon_ ## FNAME ## _p( roster_pokemon_t * MNAME ) BODY                   \
+    static bool                                                               \
+  rost_mon_ ## FNAME ## _pred( roster_pokemon_t * MNAME, void * __NOTUSED )   \
+  {                                                                           \
+    return rost_mon_ ## FNAME ## _p( MNAME );                                 \
+  }
+
+#define _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY )                         \
     static inline bool                                                        \
   base_mon_ ## FNAME ## _p( base_pokemon_t * MNAME ) BODY                     \
     static bool                                                               \
   base_mon_ ## FNAME ## _pred( base_pokemon_t * MNAME, void * __NOTUSED )     \
   {                                                                           \
     return base_mon_ ## FNAME ## _p( MNAME );                                 \
-  }                                                                           \
-  enum {}
+  }
 
-#define DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )                              \
+#define _DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )                             \
     static inline bool                                                        \
   pdex_mon_ ## FNAME ## _p( const pdex_mon_t * MNAME ) BODY                   \
     static bool                                                               \
   pdex_mon_ ## FNAME ## _pred( const pdex_mon_t * MNAME, void * __NOTUSED )   \
   {                                                                           \
     return pdex_mon_ ## FNAME ## _p( MNAME );                                 \
-  }                                                                           \
-  DEF_BASE_MON_FILTER_A0( FNAME, MNAME, {                                     \
+  }
+
+#define _DEF_PB_FILTER_A0( FNAME, MNAME, BODY )                               \
+  _DEF_PDEX_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, {                                    \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon );                     \
     } )
+
+#define _DEF_BR_FILTER_A0( FNAME, MNAME, BODY )                               \
+  _DEF_BASE_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, {                                    \
+      return base_mon_ ## FNAME ## _p( MNAME->base );                         \
+    } )
+
+#define _DEF_PBR_FILTER_A0( FNAME, MNAME, BODY )                              \
+  _DEF_PDEX_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, {                                    \
+      return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon );                     \
+    } )                                                                       \
+  _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, {                                    \
+      return pdex_mon_ ## FNAME ## _p( MNAME->base->pdex_mon );               \
+    } )
+
+
+#define DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
+  _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+
+#define DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
+  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+
+#define DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )                              \
+  _DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )  enum {}
+
+#define DEF_PB_FILTER_A0( FNAME, MNAME, BODY )                                \
+  _DEF_PB_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+
+#define DEF_BR_FILTER_A0( FNAME, MNAME, BODY )                                \
+  _DEF_BR_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+
+#define DEF_PBR_FILTER_A0( FNAME, MNAME, BODY )                               \
+  _DEF_PBR_FILTER_A0( FNAME, MNAME, BODY ) enum {}
 
 
 /* -------------------------------------------------------------------------- */
@@ -103,7 +196,7 @@ static bool base_mon_region_pred( base_pokemon_t * mon, void * reg_ptr );
 /**
  * Check if dex number is in the range of the region.
  */
-DEF_PDEX_FILTER_A1( region, mon, enum region_e, reg, {
+DEF_PBR_FILTER_A1( region, mon, enum region_e, reg, {
     return in_eq( REGIONS[reg].dex_start,
                   mon->dex_number,
                   REGIONS[reg].dex_end
@@ -118,7 +211,7 @@ static inline bool base_mon_family_p( base_pokemon_t * mon, uint16_t family );
 static bool pdex_mon_family_pred( const pdex_mon_t * mon, void * family_ptr );
 static bool base_mon_family_pred( base_pokemon_t * mon, void * family_ptr );
 
-DEF_PDEX_FILTER_A1( family, mon, uint16_t, family, {
+DEF_PBR_FILTER_A1( family, mon, uint16_t, family, {
     return mon->family == family;
   } );
 
@@ -129,7 +222,7 @@ DEF_PDEX_FILTER_A1( family, mon, uint16_t, family, {
  * Create a predicate collection foreach region
  */
 #define DEF_REGION_FILTER( FNAME, RNAME )                                     \
-  DEF_PDEX_FILTER_A0( FNAME, mon, {                                           \
+  DEF_PBR_FILTER_A0( FNAME, mon, {                                            \
     return pdex_mon_region_p( mon, RNAME );                                   \
   } )
 
@@ -153,7 +246,7 @@ static inline bool base_mon_tags_p( base_pokemon_t  * mon,
 static bool pdex_mon_tags_pred( const pdex_mon_t * mon, void * tags_ptr );
 static bool base_mon_tags_pred( base_pokemon_t * mon, void * tags_ptr );
 
-DEF_PDEX_FILTER_A1( tags, mon, pdex_tag_mask_t, tags, {
+DEF_PBR_FILTER_A1( tags, mon, pdex_tag_mask_t, tags, {
     return !! ( mon->tags & tags );
   } );
 
@@ -164,7 +257,7 @@ DEF_PDEX_FILTER_A1( tags, mon, pdex_tag_mask_t, tags, {
  * Create a predicate collection foreach `PDEX_TAG'
  */
 #define DEF_PDEX_TAG_FILTER( FNAME, TAG )                                     \
-  DEF_PDEX_FILTER_A0( FNAME, mon, {                                           \
+  DEF_PBR_FILTER_A0( FNAME, mon, {                                            \
     return pdex_mon_tags_p( mon, get_pdex_tag_mask( TAG ) );                  \
   } )
 
@@ -194,7 +287,7 @@ static inline bool base_mon_types_any_p( base_pokemon_t * mon,
 static bool pdex_mon_types_any_pred( const pdex_mon_t * mon, void * types_ptr );
 static bool base_mon_types_any_pred( base_pokemon_t * mon, void * types_ptr );
 
-DEF_PDEX_FILTER_A1( types_any, mon, ptype_mask_t, types, {
+DEF_PBR_FILTER_A1( types_any, mon, ptype_mask_t, types, {
     return !! ( mon->types & types );
   } );
 
@@ -205,7 +298,7 @@ DEF_PDEX_FILTER_A1( types_any, mon, ptype_mask_t, types, {
  * Create a predicate collection foreach Pokemon type.
  */
 #define DEF_PTYPE_FILTER( FNAME, TNAME )                                      \
-  DEF_BASE_MON_FILTER_A0( FNAME, mon, {                                       \
+  DEF_PBR_FILTER_A0( FNAME, mon, {                                        \
       return pdex_mon_types_any_p( mon, get_ptype_mask( TNAME ) );            \
     } )
 
@@ -240,7 +333,7 @@ static inline bool base_mon_types_all_p( base_pokemon_t * mon,
 static bool pdex_mon_types_all_pred( const pdex_mon_t * mon, void * types_ptr );
 static bool base_mon_types_all_pred( base_pokemon_t * mon, void * types_ptr );
 
-DEF_PDEX_FILTER_A1( types_all, mon, ptype_mask_t, types, {
+DEF_PBR_FILTER_A1( types_all, mon, ptype_mask_t, types, {
     return types <= ( mon->types & types );
   } );
 
@@ -253,19 +346,29 @@ static inline bool pdex_mon_has_fast_p( const pdex_mon_t * mon,
 static inline bool base_mon_has_fast_p( base_pokemon_t * mon,
                                         uint16_t         move_id
                                       );
+static inline bool rost_mon_has_fast_p( roster_pokemon_t * mon,
+                                        uint16_t           move_id
+                                      );
 static bool pdex_mon_has_fast_pred( const pdex_mon_t * mon,
                                           void       * move_id_ptr
                                   );
 static bool base_mon_has_fast_pred( base_pokemon_t * mon,
                                     void           * move_id_ptr
                                   );
+static inline bool rost_mon_has_fast_p( roster_pokemon_t * mon,
+                                        void             * move_id_ptr
+                                      );
 
-DEF_BASE_MON_FILTER_A1( has_fast, mon, uint16_t, move_id, {
+DEF_PB_FILTER_A1( has_fast, mon, uint16_t, move_id, {
     for ( uint8_t i = 0; i < mon->fast_moves_cnt; i++ )
       {
         if ( abs( mon->fast_move_ids[i] ) == move_id ) return true;
       }
     return false;
+  } );
+
+DEF_ROST_MON_FILTER_A1( has_fast, mon, uint16_t, move_id, {
+    return mon->fast_move_id == move_id;
   } );
 
 
@@ -283,13 +386,24 @@ static bool pdex_mon_has_charged_pred( const pdex_mon_t * mon,
 static bool base_mon_has_charged_pred( base_pokemon_t * mon,
                                        void           * move_id_ptr
                                      );
+static bool base_mon_has_charged_pred( base_pokemon_t * mon,
+                                       void           * move_id_ptr
+                                     );
+static inline bool rost_mon_has_charged_p( roster_pokemon_t * mon,
+                                           void             * move_id_ptr
+                                         );
 
-DEF_BASE_MON_FILTER_A1( has_charged, mon, uint16_t, move_id, {
+DEF_PB_FILTER_A1( has_charged, mon, uint16_t, move_id, {
     for ( uint8_t i = 0; i < mon->charged_moves_cnt; i++ )
       {
         if ( abs( mon->charged_move_ids[i] ) == move_id ) return true;
       }
     return false;
+  } );
+
+DEF_ROST_MON_FILTER_A1( has_charged, mon, uint16_t, move_id, {
+    return ( mon->charged_move_ids[0] == move_id ) ||
+           ( mon->charged_move_ids[1] == move_id );
   } );
 
 
