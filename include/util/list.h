@@ -4,7 +4,7 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -32,21 +32,22 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/* Linked List:
+/**
+ * Linked List:
  *
  * Expropriated from `linux/kernel/include/list.h`. Modified to reduce
  * dependencies on Kernel libs.
-
+ *
  * Simple doubly linked list implementation.
-
+ *
  * Some of the internal functions ("__xxx") are useful when
  * manipulating whole lists rather than single entries, as
  * sometimes we already know the next/prev entries and we can
  * generate better code by using them directly rather than
  * using the generic single-entry routines.
-
+ *
  * Notable Changes:
  * - All instances of `WRITE_ONCE` and `READ_ONCE` have been removed, and have
  *   instead been replaced with `volatile` reads and writes.
@@ -54,7 +55,7 @@
  */
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 /* DoublyLinked List */
@@ -78,7 +79,7 @@ typedef struct hlist_head hlist_t;
 typedef struct hlist_node hnode_t;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Initial value of a list node should point to itself with
@@ -104,7 +105,7 @@ init_list( list_t * list )
 #define LIST_POISON2  (void *) 0x200
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* Macros to provide branching hints to the compiler  */
 #ifndef likely
@@ -192,7 +193,7 @@ __is_list_del_entry_valid( list_t * entry )
   return true;
 }
 
-#else /* ------------------------------------------------------------------- */
+#else /* -------------------------------------------------------------------- */
 
   static inline bool
 __is_list_add_valid( list_t * new, list_t * prev, list_t * next )
@@ -224,7 +225,7 @@ __list_add( list_t * new, list_t * prev, list_t * next )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_add - add a new entry
@@ -242,7 +243,7 @@ list_add( list_t * new, list_t * head )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_add_tail - add a new entry
@@ -259,7 +260,7 @@ list_add_tail( list_t * new, list_t * head )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /*
  * Delete a list entry by making the prev/next entries
@@ -297,7 +298,7 @@ list_del( list_t * entry )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_replace - replace old entry by new one
@@ -323,7 +324,7 @@ list_replace_init( list_t * old, list_t * new )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_del_init - deletes entry from list and reinitialize it.
@@ -337,7 +338,7 @@ list_del_init( list_t * entry )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_move - delete from one list and add as another's head
@@ -386,7 +387,7 @@ list_bulk_move_tail( list_t * head, list_t * first, list_t * last )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_is_first -- tests whether @list is the first entry in list @head
@@ -441,7 +442,7 @@ is_list_empty_careful( const list_t * head )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_rotate_left - rotate the list to the left
@@ -459,7 +460,7 @@ list_rotate_left( list_t * head )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_is_singular - tests whether a list has just one entry.
@@ -472,7 +473,7 @@ is_list_singular( const list_t * head  )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
   static inline void
 __list_cut_position( list_t * list, list_t * head, list_t * entry )
@@ -545,7 +546,7 @@ list_cut_before( list_t * list, list_t * head, list_t * entry )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
   static inline void
 __list_splice (const list_t * list, list_t * prev, list_t * next)
@@ -618,7 +619,7 @@ list_splice_tail_init( list_t * list, list_t * head )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #ifndef offsetof
 #define offsetof( TYPE, MEMBER ) ( (size_t) &( (TYPE *) 0 )->MEMBER )
@@ -642,7 +643,7 @@ list_splice_tail_init( list_t * list, list_t * head )
 #endif
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_entry - get the struct for this entry
@@ -692,7 +693,7 @@ list_splice_tail_init( list_t * list, list_t * head )
                )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_next_entry - get the next element in list
@@ -711,7 +712,7 @@ list_splice_tail_init( list_t * list, list_t * head )
   list_entry( ( CURR )->MEMBER.prev, typeof( * ( CURR ) ), MEMBER )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_for_each	-	iterate over a list
@@ -751,7 +752,7 @@ list_splice_tail_init( list_t * list, list_t * head )
         CURR != ( HEAD ); CURR = N, N = CURR->prev )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_for_each_entry	-	iterate over list of given type
@@ -774,7 +775,7 @@ list_splice_tail_init( list_t * list, list_t * head )
         & CURR->MEMBER != ( HEAD ); CURR = list_prev_entry( CURR, MEMBER ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_prepare_entry - prepare a pos entry for use in
@@ -817,7 +818,7 @@ list_splice_tail_init( list_t * list, list_t * head )
         CURR = list_prev_entry( CURR, MEMBER ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_for_each_entry_from - iterate over list of given type from the current
@@ -904,7 +905,7 @@ list_splice_tail_init( list_t * list, list_t * head )
         CURR = N, N = list_prev_entry( N, MEMBER ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * list_safe_reset_next - reset a stale list_for_each_entry_safe loop
@@ -922,7 +923,7 @@ list_splice_tail_init( list_t * list, list_t * head )
   n = list_next_entry (pos, member)
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* Compare function to be used with `list_sort' */
 typedef int __attribute__(( nonnull( 2, 3 ) ))
@@ -1179,11 +1180,11 @@ list_sort( void   * priv,
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 /*
  * Double linked lists with a single pointer list head.
@@ -1372,10 +1373,10 @@ static inline void hlist_move_list (struct hlist_head * old,
        pos = hlist_entry_safe (n, typeof (*pos), member))
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #endif /* list.h */

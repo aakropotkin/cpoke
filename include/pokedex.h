@@ -3,7 +3,7 @@
 #ifndef _POKEDEX_H
 #define _POKEDEX_H
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #include "ext/uthash.h"
 #include "hash.h"
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 static const uint16_t MAX_STAT = 999;
 
@@ -26,7 +26,7 @@ struct stats_s { uint16_t attack, stamina, defense; } packed;
 typedef struct stats_s  stats_t;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_ENUM_WITH_FLAGS( pdex_tag, TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
                         TAG_SHADOW_ELIGABLE, TAG_SHADOW, TAG_PURE,
@@ -50,7 +50,7 @@ int fprint_pdex_tag_mask( FILE * fd, const char * sep, pdex_tag_mask_t tm );
   fprintf_pdex_tag_mask( stdout, ( SEP ), ( TM ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 struct region_s {
   char     * name;
@@ -78,19 +78,19 @@ enum region_e {
   R_KALOS,
   R_UNKNOWN
 };
-static const region_t * KANTO   = REGIONS + R_KANTO;
-static const region_t * JOHTO   = REGIONS + R_JOHTO;
-static const region_t * HOENN   = REGIONS + R_HOENN;
-static const region_t * SINNOH  = REGIONS + R_SINNOH;
-static const region_t * UNOVA   = REGIONS + R_UNOVA;
-static const region_t * KALOS   = REGIONS + R_KALOS;
-static const region_t * UNKNOWN = REGIONS + R_UNKNOWN;
+static const region_t * REGION_KANTO   = REGIONS + R_KANTO;
+static const region_t * REGION_JOHTO   = REGIONS + R_JOHTO;
+static const region_t * REGION_HOENN   = REGIONS + R_HOENN;
+static const region_t * REGION_SINNOH  = REGIONS + R_SINNOH;
+static const region_t * REGION_UNOVA   = REGIONS + R_UNOVA;
+static const region_t * REGION_KALOS   = REGIONS + R_KALOS;
+static const region_t * REGION_UNKNOWN = REGIONS + R_UNKNOWN;
 #endif
 
 static const uint8_t NUM_REGIONS = array_size( REGIONS );
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 struct pdex_mon_s {
   uint16_t            dex_number;
@@ -132,7 +132,7 @@ static const pdex_mon_t PDEX_NULL = {
 };
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 static const uint16_t MAX_DEX = 865;
 
@@ -156,7 +156,7 @@ void pdex_mon_init( pdex_mon_t      * mon,
 void pdex_mon_free( pdex_mon_t * mon );
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * This is the "store" key, it may change in different contexts.
@@ -187,7 +187,7 @@ dex_form_store_key( uint16_t dex_num, uint8_t form_idx )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int fprint_pdex_mon( FILE * stream, const pdex_mon_t * mon );
 int fprint_pdex_mon_json( FILE * stream, const pdex_mon_t * mon );
@@ -198,13 +198,13 @@ int fprint_pdex_mon_c( FILE * stream, const pdex_mon_t * mon );
 #define print_pdex_mon_c( MON )  fprint_pdex_mon_c( stdout, ( MON ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int cmp_pdex_mon( pdex_mon_t * a, pdex_mon_t * b );
 int cmp_pdex_mon_practical( pdex_mon_t * a, pdex_mon_t * b );
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
   static inline const region_t *
 get_region( uint16_t dex_number )
@@ -220,7 +220,7 @@ get_region( uint16_t dex_number )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
   static inline bool
 is_starter( uint16_t dex_number )
@@ -237,7 +237,7 @@ is_starter( uint16_t dex_number )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #ifndef REGIONAL_DEX_NUMBERS
 #define REGIONAL_DEX_NUMBERS                                                  \
@@ -259,11 +259,11 @@ is_regional( uint16_t dex_number )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #endif /* pokedex.h */
 
