@@ -125,6 +125,25 @@ DEF_PDEX_FILTER_A1( family, mon, uint16_t, family, {
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Create a predicate collection foreach region
+ */
+#define DEF_REGION_FILTER( FNAME, RNAME )                                     \
+  DEF_PDEX_FILTER_A0( FNAME, mon, {                                           \
+    return pdex_mon_region_p( mon, RNAME );                                   \
+  } )
+
+DEF_REGION_FILTER( kanto,          REGION_KANTO );
+DEF_REGION_FILTER( johto,          REGION_JOHTO );
+DEF_REGION_FILTER( hoenn,          REGION_HOENN );
+DEF_REGION_FILTER( sinnoh,         REGION_SINNOH );
+DEF_REGION_FILTER( unova,          REGION_UNOVA );
+DEF_REGION_FILTER( kalos,          REGION_KALOS );
+DEF_REGION_FILTER( region_unknown, REGION_UNKNOWN );
+
+
+/* -------------------------------------------------------------------------- */
+
 static inline bool pdex_mon_tags_p( const pdex_mon_t      * mon,
                                           pdex_tag_mask_t   tags
                                   );
@@ -137,6 +156,30 @@ static bool base_mon_tags_pred( base_pokemon_t * mon, void * tags_ptr );
 DEF_PDEX_FILTER_A1( tags, mon, pdex_tag_mask_t, tags, {
     return !! ( mon->tags & tags );
   } );
+
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Create a predicate collection foreach `PDEX_TAG'
+ */
+#define DEF_PDEX_TAG_FILTER( FNAME, TAG )                                     \
+  DEF_PDEX_FILTER_A0( FNAME, mon, {                                           \
+    return pdex_mon_tags_p( mon, get_pdex_tag_mask( TAG ) );                  \
+  } )
+
+DEF_PDEX_TAG_FILTER( legendary,       TAG_LEGENDARY );
+DEF_PDEX_TAG_FILTER( mythic,          TAG_MYTHIC );
+DEF_PDEX_TAG_FILTER( mythical,        TAG_MYTHIC );           /* Alias */
+DEF_PDEX_TAG_FILTER( mega,            TAG_MEGA );
+DEF_PDEX_TAG_FILTER( shadow_eligable, TAG_SHADOW_ELIGABLE );
+DEF_PDEX_TAG_FILTER( shadow,          TAG_SHADOW );
+DEF_PDEX_TAG_FILTER( pure,            TAG_PURE );
+DEF_PDEX_TAG_FILTER( purified,        TAG_PURE );             /* Alias */
+DEF_PDEX_TAG_FILTER( alolan,          TAG_ALOLAN );
+DEF_PDEX_TAG_FILTER( galarian,        TAG_GALARIAN );
+DEF_PDEX_TAG_FILTER( starter,         TAG_STARTER );
+DEF_PDEX_TAG_FILTER( regional,        TAG_REGIONAL );
 
 
 /* -------------------------------------------------------------------------- */
@@ -169,26 +212,6 @@ static bool base_mon_types_all_pred( base_pokemon_t * mon, void * types_ptr );
 DEF_PDEX_FILTER_A1( types_all, mon, ptype_mask_t, types, {
     return types <= ( mon->types & types );
   } );
-
-
-/* -------------------------------------------------------------------------- */
-
-static inline bool pdex_mon_regional_p( const pdex_mon_t * mon );
-static inline bool base_mon_regional_p( base_pokemon_t * mon );
-static bool pdex_mon_regional_pred( const pdex_mon_t * mon, void * __NOTUSED );
-static bool base_mon_regional_pred( base_pokemon_t * mon, void * __NOTUSED );
-
-DEF_PDEX_FILTER_A0( regional, mon, { return is_regional( mon->dex_number ); } );
-
-
-/* -------------------------------------------------------------------------- */
-
-static inline bool pdex_mon_starter_p( const pdex_mon_t * mon );
-static inline bool base_mon_starter_p( base_pokemon_t * mon );
-static bool pdex_mon_starter_pred( const pdex_mon_t * mon, void * __NOTUSED );
-static bool base_mon_starter_pred( base_pokemon_t * mon, void * __NOTUSED );
-
-DEF_PDEX_FILTER_A0( starter, mon, { return is_starter( mon->dex_number ); } );
 
 
 /* -------------------------------------------------------------------------- */
