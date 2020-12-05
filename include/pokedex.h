@@ -69,7 +69,7 @@ static const region_t REGIONS[] = {
   { "Kalos",   650, 718 }, /* FIXME when legendaries are added */
   { "Unknown", 808, 809 }
 };
-enum region_e {
+typedef enum {
   R_KANTO = 0,
   R_JOHTO,
   R_HOENN,
@@ -77,7 +77,7 @@ enum region_e {
   R_UNOVA,
   R_KALOS,
   R_UNKNOWN
-};
+} region_e;
 static const region_t * REGION_KANTO   = REGIONS + R_KANTO;
 static const region_t * REGION_JOHTO   = REGIONS + R_JOHTO;
 static const region_t * REGION_HOENN   = REGIONS + R_HOENN;

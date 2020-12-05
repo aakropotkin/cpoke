@@ -67,7 +67,7 @@ NAIVE_AI_OBJECTS := naive_ai.o
 GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
 CSTORE_OBJECTS := cstore.o cstore_data.o
 
-SUBTESTS := json pokemon ptypes parse_gm cstore battle player naive_ai
+SUBTESTS := json pokemon ptypes parse_gm cstore battle player naive_ai filter
 SUBTEST_OBJECTS := $(patsubst %,test_%.o,${SUBTESTS})
 SUBTEST_MAIN_OBJECTS := $(patsubst %,test_%_main.o,${SUBTESTS})
 SUBTEST_BINS := $(patsubst %,test_%,${SUBTESTS})

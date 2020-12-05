@@ -22,6 +22,7 @@ test_all( void )
   rsl &= do_test( player );
   rsl &= do_test( battle );
   rsl &= do_test( naive_ai );
+  rsl &= do_test( filter );
   return rsl;
 }
 

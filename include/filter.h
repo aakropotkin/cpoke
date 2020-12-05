@@ -66,7 +66,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     return base_mon_ ## FNAME ## _p( MNAME, *( (ARGT *) argptr ) );           \
   }
 
-#define _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                 \
+#define _DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )             \
     static inline bool                                                        \
   pdex_mon_ ## FNAME ## _p( const pdex_mon_t * MNAME, ARGT ARGN ) BODY        \
     static bool                                                               \
@@ -76,7 +76,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
   }
 
 #define _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
-  _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                       \
+  _DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
   _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                        \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon, ARGN );               \
     } )
@@ -88,33 +88,36 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     } )
 
 #define _DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                  \
-  _DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                       \
-  _DEF_BASE_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                            \
+  _DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                        \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon, ARGN );               \
     } )                                                                       \
-  _DEF_ROST_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                            \
+  _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, {                        \
       return pdex_mon_ ## FNAME ## _p( MNAME->base->pdex_mon, ARGN );         \
     } )
 
+/* This is purely cosmetic, I hate macros that don't "eat semicolons" */
+#ifndef EAT_SEMI
+#define EAT_SEMI  _Static_assert( true )
+#endif /* ! defined( EAT_SEMI ) */
 
-/* `enum {}' swallows the semicolon. */
 #define DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
-  _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+  _DEF_ROST_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
 #define DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
-  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
-#define DEF_PDEX_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                  \
-  _DEF_BASE_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+#define DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )              \
+  _DEF_PDEX_MON_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
 #define DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                    \
-  _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+  _DEF_PB_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
 #define DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                    \
-  _DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+  _DEF_BR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
 #define DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY )                   \
-  _DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) enum {}
+  _DEF_PBR_FILTER_A1( FNAME, MNAME, ARGT, ARGN, BODY ) EAT_SEMI
 
 
 /* -------------------------------------------------------------------------- */
@@ -122,7 +125,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
 /**
  * Requires no extra arguments ( "Is this a regional Pokemon?", etc )
  */
-#define _DEF_ROSTER_MON_FILTER_A0( FNAME, MNAME, BODY )                       \
+#define _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY )                         \
     static inline bool                                                        \
   rost_mon_ ## FNAME ## _p( roster_pokemon_t * MNAME ) BODY                   \
     static bool                                                               \
@@ -140,7 +143,7 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
     return base_mon_ ## FNAME ## _p( MNAME );                                 \
   }
 
-#define _DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )                             \
+#define _DEF_PDEX_MON_FILTER_A0( FNAME, MNAME, BODY )                         \
     static inline bool                                                        \
   pdex_mon_ ## FNAME ## _p( const pdex_mon_t * MNAME ) BODY                   \
     static bool                                                               \
@@ -150,19 +153,19 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
   }
 
 #define _DEF_PB_FILTER_A0( FNAME, MNAME, BODY )                               \
-  _DEF_PDEX_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_PDEX_MON_FILTER_A0( FNAME, MNAME, BODY )                               \
   _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, {                                    \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon );                     \
     } )
 
 #define _DEF_BR_FILTER_A0( FNAME, MNAME, BODY )                               \
-  _DEF_BASE_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY )                               \
   _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, {                                    \
       return base_mon_ ## FNAME ## _p( MNAME->base );                         \
     } )
 
 #define _DEF_PBR_FILTER_A0( FNAME, MNAME, BODY )                              \
-  _DEF_PDEX_FILTER_A0( FNAME, MNAME )                                         \
+  _DEF_PDEX_MON_FILTER_A0( FNAME, MNAME, BODY )                               \
   _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, {                                    \
       return pdex_mon_ ## FNAME ## _p( MNAME->pdex_mon );                     \
     } )                                                                       \
@@ -172,43 +175,40 @@ typedef bool (*roster_mon_pred_fn)( roster_pokemon_t *, void * );
 
 
 #define DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
-  _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+  _DEF_ROST_MON_FILTER_A0( FNAME, MNAME, BODY ) EAT_SEMI
 
 #define DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
-  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+  _DEF_BASE_MON_FILTER_A0( FNAME, MNAME, BODY ) EAT_SEMI
 
-#define DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )                              \
-  _DEF_PDEX_FILTER_A0( FNAME, MNAME, BODY )  enum {}
+#define DEF_PDEX_MON_FILTER_A0( FNAME, MNAME, BODY )                          \
+  _DEF_PDEX_MON_FILTER_A0( FNAME, MNAME, BODY )  EAT_SEMI
 
 #define DEF_PB_FILTER_A0( FNAME, MNAME, BODY )                                \
-  _DEF_PB_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+  _DEF_PB_FILTER_A0( FNAME, MNAME, BODY ) EAT_SEMI
 
 #define DEF_BR_FILTER_A0( FNAME, MNAME, BODY )                                \
-  _DEF_BR_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+  _DEF_BR_FILTER_A0( FNAME, MNAME, BODY ) EAT_SEMI
 
 #define DEF_PBR_FILTER_A0( FNAME, MNAME, BODY )                               \
-  _DEF_PBR_FILTER_A0( FNAME, MNAME, BODY ) enum {}
+  _DEF_PBR_FILTER_A0( FNAME, MNAME, BODY ) EAT_SEMI
 
 
 /* -------------------------------------------------------------------------- */
 
-static inline bool pdex_mon_region_p( const pdex_mon_t * mon,
-                                      enum  region_e     reg
-                                    );
-static inline bool base_mon_region_p( base_pokemon_t * mon, enum region_e reg );
+static inline bool pdex_mon_region_p( const pdex_mon_t * mon, region_e reg );
+static inline bool base_mon_region_p( base_pokemon_t * mon, region_e reg );
 static bool pdex_mon_region_pred( const pdex_mon_t * mon, void * reg_ptr );
 static bool base_mon_region_pred( base_pokemon_t * mon, void * reg_ptr );
 
 /**
  * Check if dex number is in the range of the region.
  */
-DEF_PBR_FILTER_A1( region, mon, enum region_e, reg, {
+DEF_PBR_FILTER_A1( region, mon, region_e, reg, {
     return in_eq( REGIONS[reg].dex_start,
                   mon->dex_number,
                   REGIONS[reg].dex_end
                 );
   } );
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -230,13 +230,13 @@ DEF_PBR_FILTER_A1( family, mon, uint16_t, family, {
 #define DEF_REGION_FILTER( FNAME, RNAME )                                     \
   DEF_PBR_FILTER_A0( FNAME, mon, { return pdex_mon_region_p( mon, RNAME ); } )
 
-DEF_REGION_FILTER( kanto,          REGION_KANTO );
-DEF_REGION_FILTER( johto,          REGION_JOHTO );
-DEF_REGION_FILTER( hoenn,          REGION_HOENN );
-DEF_REGION_FILTER( sinnoh,         REGION_SINNOH );
-DEF_REGION_FILTER( unova,          REGION_UNOVA );
-DEF_REGION_FILTER( kalos,          REGION_KALOS );
-DEF_REGION_FILTER( region_unknown, REGION_UNKNOWN );
+DEF_REGION_FILTER( kanto,          R_KANTO );
+DEF_REGION_FILTER( johto,          R_JOHTO );
+DEF_REGION_FILTER( hoenn,          R_HOENN );
+DEF_REGION_FILTER( sinnoh,         R_SINNOH );
+DEF_REGION_FILTER( unova,          R_UNOVA );
+DEF_REGION_FILTER( kalos,          R_KALOS );
+DEF_REGION_FILTER( region_unknown, R_UNKNOWN );
 
 
 /* -------------------------------------------------------------------------- */
@@ -359,9 +359,9 @@ static bool pdex_mon_has_fast_pred( const pdex_mon_t * mon,
 static bool base_mon_has_fast_pred( base_pokemon_t * mon,
                                     void           * move_id_ptr
                                   );
-static inline bool rost_mon_has_fast_p( roster_pokemon_t * mon,
-                                        void             * move_id_ptr
-                                      );
+static bool rost_mon_has_fast_pred( roster_pokemon_t * mon,
+                                    void             * move_id_ptr
+                                  );
 
 DEF_PB_FILTER_A1( has_fast, mon, uint16_t, move_id, {
     for ( uint8_t i = 0; i < mon->fast_moves_cnt; i++ )
@@ -384,18 +384,18 @@ static inline bool pdex_mon_has_charged_p( const pdex_mon_t * mon,
 static inline bool base_mon_has_charged_p( base_pokemon_t * mon,
                                            uint16_t         move_id
                                          );
+static inline bool rost_mon_has_charged_p( roster_pokemon_t * mon,
+                                           uint16_t           move_id
+                                         );
 static bool pdex_mon_has_charged_pred( const pdex_mon_t * mon,
                                              void       * move_id_ptr
                                      );
 static bool base_mon_has_charged_pred( base_pokemon_t * mon,
                                        void           * move_id_ptr
                                      );
-static bool base_mon_has_charged_pred( base_pokemon_t * mon,
-                                       void           * move_id_ptr
+static bool rost_mon_has_charged_pred( roster_pokemon_t * mon,
+                                       void             * move_id_ptr
                                      );
-static inline bool rost_mon_has_charged_p( roster_pokemon_t * mon,
-                                           void             * move_id_ptr
-                                         );
 
 DEF_PB_FILTER_A1( has_charged, mon, uint16_t, move_id, {
     for ( uint8_t i = 0; i < mon->charged_moves_cnt; i++ )

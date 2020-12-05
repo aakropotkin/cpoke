@@ -9,13 +9,16 @@
 #include "util/test_util.h"
 #include "filter.h"
 
+#include "../../data/test/pdex_0.h"
+
 
 /* -------------------------------------------------------------------------- */
 
   static bool
 test_pdex_mon_region_p( void )
 {
-  expect( true );
+  expect( pdex_mon_region_p( & bulbasaur, R_KANTO ) == true );
+  expect( pdex_mon_region_p( & bulbasaur, R_JOHTO ) == false );
   return true;
 }
 
@@ -25,7 +28,10 @@ test_pdex_mon_region_p( void )
   static bool
 test_pdex_mon_region_pred( void )
 {
-  expect( true );
+  region_e reg = R_KANTO;
+  expect( pdex_mon_region_pred( & bulbasaur, (void *) & reg ) == true );
+  reg = R_JOHTO;
+  expect( pdex_mon_region_pred( & bulbasaur, (void *) & reg ) == false );
   return true;
 }
 

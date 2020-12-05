@@ -76,13 +76,12 @@ base_pokemon_t base_bulbasaur = {
 #ifndef PDEX_0_NOROST
 
 roster_pokemon_t roster_bulbasaur = {
-  .base             = & base_bulby_boi,
+  .base             = & base_bulbasaur,
   .fast_move_id     = vine_whip.move_id,
   .charged_move_ids = { power_whip.move_id, 0 }
 };
 
 #endif /* ! defined( PDEX_0_NOROST ) */
-
 
 
 /* -------------------------------------------------------------------------- */
