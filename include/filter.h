@@ -5,7 +5,13 @@
 
 /* ========================================================================== */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "moves.h"
+#include "pokedex.h"
 #include "pokemon.h"
+#include "ptypes.h"
 #include "util/macros.h"
 
 
