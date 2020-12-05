@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 
 /* ------------------------------------------------------------------------- */
@@ -67,6 +68,67 @@ levenshtein( const char * s, const char * t )
 	return distance( 0, 0 );
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+struct lev_pair_s {
+  const char * str;
+        int    dst;
+};
+
+  static int
+_cmp_lev_dists( const void * a, const void * b )
+{
+  return ( (const struct lev_pair_s *) a )->dst -
+         ( (const struct lev_pair_s *) b )->dst;
+}
+
+
+  static int
+rank_lev_dist( const char   *  s,
+               const char   ** strings,
+                     size_t    nstrings,
+               const char   ** sranked,
+                     int    *  dranked,
+                     size_t    nranked
+             )
+{
+  assert( s != NULL );
+  assert( strings != NULL );
+  assert( sranked != NULL );
+  assert( dranked != NULL );
+  assert( nstrings <= nranked );
+
+         int          shortest  = INT_MAX;
+  struct lev_pair_s * lev_dists =
+    (struct lev_pair_s *) malloc( sizeof( struct lev_pair_s ) * nstrings );
+
+  assert( lev_dists != NULL );
+
+  for ( size_t i = 0; i < nstrings; i++ )
+    {
+      lev_dists[i].str = strings[i];
+      lev_dists[i].dst = levenshtein( s, strings[i] );
+      if ( lev_dists[i].dst < shortest ) shortest = lev_dists[i].dst;
+    }
+
+  qsort( (void *) lev_dists,
+         nstrings,
+         sizeof( struct lev_pair_s ),
+         _cmp_lev_dists
+       );
+
+  for ( size_t i = 0; i < nranked; i++ )
+    {
+      sranked[i] = lev_dists[i].str;
+      dranked[i] = lev_dists[i].dst;
+    }
+
+  free( lev_dists );
+  lev_dists = NULL;
+
+  return shortest;
+}
 
 
 /* ------------------------------------------------------------------------- */
