@@ -61,3 +61,4 @@ dkms.conf
 iv_store_build
 test_battle
 test_filter
+test_fuzzy

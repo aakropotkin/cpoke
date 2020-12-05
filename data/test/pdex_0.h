@@ -2,7 +2,6 @@
 
 /* ========================================================================== */
 
-#include <stdlib.h>
 #include "pokedex.h"
 #include "pokemon.h"
 #include "ptypes.h"
