@@ -168,6 +168,7 @@ DEF_PDEX_FILTER_A1( tags, mon, pdex_tag_mask_t, tags, {
     return pdex_mon_tags_p( mon, get_pdex_tag_mask( TAG ) );                  \
   } )
 
+/* `pdex_mon_legendary_p( const pdex_mon_t * mon );', etc... */
 DEF_PDEX_TAG_FILTER( legendary,       TAG_LEGENDARY );
 DEF_PDEX_TAG_FILTER( mythic,          TAG_MYTHIC );
 DEF_PDEX_TAG_FILTER( mythical,        TAG_MYTHIC );           /* Alias */
@@ -196,6 +197,36 @@ static bool base_mon_types_any_pred( base_pokemon_t * mon, void * types_ptr );
 DEF_PDEX_FILTER_A1( types_any, mon, ptype_mask_t, types, {
     return !! ( mon->types & types );
   } );
+
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Create a predicate collection foreach Pokemon type.
+ */
+#define DEF_PTYPE_FILTER( FNAME, TNAME )                                      \
+  DEF_BASE_MON_FILTER_A0( FNAME, mon, {                                       \
+      return pdex_mon_types_any_p( mon, get_ptype_mask( TNAME ) );            \
+    } )
+
+DEF_PTYPE_FILTER( bug,      BUG );
+DEF_PTYPE_FILTER( dark,     DARK );
+DEF_PTYPE_FILTER( dragon,   DRAGON );
+DEF_PTYPE_FILTER( electric, ELECTRIC );
+DEF_PTYPE_FILTER( fairy,    FAIRY );
+DEF_PTYPE_FILTER( fighting, FIGHTING );
+DEF_PTYPE_FILTER( fire,     FIRE );
+DEF_PTYPE_FILTER( flying,   FLYING );
+DEF_PTYPE_FILTER( ghost,    GHOST );
+DEF_PTYPE_FILTER( grass,    GRASS );
+DEF_PTYPE_FILTER( ground,   GROUND );
+DEF_PTYPE_FILTER( ice,      ICE );
+DEF_PTYPE_FILTER( normal,   NORMAL );
+DEF_PTYPE_FILTER( poison,   POISON );
+DEF_PTYPE_FILTER( psychic,  PSYCHIC );
+DEF_PTYPE_FILTER( rock,     ROCK );
+DEF_PTYPE_FILTER( steel,    STEEL );
+DEF_PTYPE_FILTER( water,    WATER );
 
 
 /* -------------------------------------------------------------------------- */
