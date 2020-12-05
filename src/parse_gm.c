@@ -264,7 +264,7 @@ stris_pvp_charged_move( const char * str, gm_regexes_t * regs )
 }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
   uint16_t
 parse_gm_dex_num( const char * json, jsmntok_t * token )

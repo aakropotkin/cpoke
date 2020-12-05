@@ -222,9 +222,7 @@ DEF_PBR_FILTER_A1( family, mon, uint16_t, family, {
  * Create a predicate collection foreach region
  */
 #define DEF_REGION_FILTER( FNAME, RNAME )                                     \
-  DEF_PBR_FILTER_A0( FNAME, mon, {                                            \
-    return pdex_mon_region_p( mon, RNAME );                                   \
-  } )
+  DEF_PBR_FILTER_A0( FNAME, mon, { return pdex_mon_region_p( mon, RNAME ); } )
 
 DEF_REGION_FILTER( kanto,          REGION_KANTO );
 DEF_REGION_FILTER( johto,          REGION_JOHTO );
@@ -298,7 +296,7 @@ DEF_PBR_FILTER_A1( types_any, mon, ptype_mask_t, types, {
  * Create a predicate collection foreach Pokemon type.
  */
 #define DEF_PTYPE_FILTER( FNAME, TNAME )                                      \
-  DEF_PBR_FILTER_A0( FNAME, mon, {                                        \
+  DEF_PBR_FILTER_A0( FNAME, mon, {                                            \
       return pdex_mon_types_any_p( mon, get_ptype_mask( TNAME ) );            \
     } )
 

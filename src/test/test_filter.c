@@ -2,26 +2,43 @@
 
 /* ========================================================================== */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "test.h"
 #include "util/test_util.h"
+#include "filter.h"
+
 
 /* -------------------------------------------------------------------------- */
 
-  bool
-test_all( void )
+  static bool
+test_pdex_mon_region_p( void )
+{
+  expect( true );
+  return true;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  static bool
+test_pdex_mon_region_pred( void )
+{
+  expect( true );
+  return true;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+bool
+test_filter( void )
 {
   bool rsl = true;
-  rsl &= do_test( json );
-  rsl &= do_test( pokemon );
-  rsl &= do_test( ptypes );
-  rsl &= do_test( parse_gm );
-  rsl &= do_test( cstore );
-  rsl &= do_test( player );
-  rsl &= do_test( battle );
-  rsl &= do_test( naive_ai );
+  rsl &= do_test( pdex_mon_region_p );
+  rsl &= do_test( pdex_mon_region_pred );
+
   return rsl;
 }
 
@@ -32,12 +49,9 @@ test_all( void )
   int
 main( int argc, char * argv[], char ** envp )
 {
-  return test_all() ? EXIT_SUCCESS : EXIT_FAILURE;
+  return test_filter() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 #endif
-
-
-/* -------------------------------------------------------------------------- */
 
 
 

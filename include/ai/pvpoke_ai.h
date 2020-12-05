@@ -3,7 +3,7 @@
 #ifndef _PVPOKE_AI_H
 #define _PVPOKE_AI_H
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -13,7 +13,7 @@
 struct pvp_battle_s;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * NOTE: Okay so down the line we want the AI decision engine to be modular.
@@ -32,7 +32,7 @@ typedef enum packed {
 typedef pvpoke_ai_level_t  pvpoke_ai_aux_t;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* transparent attribute is applied to `strat_flags_t' */
 DEFINE_ENUM_WITH_FLAGS( strat, DEFAULT_STRAT, SHIELD_STRAT, SWITCH_BASIC,
@@ -47,7 +47,7 @@ const uint8_t NUM_STRATS = SACRIFICIAL_SWAP + 1;
 #define get_strat_mask( strat )  ( (strat_mask_t) to_mask( ( strat ) ) )
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 struct pvpoke_ai_rules_s {
   bool          two_charged_moves     : 1;
@@ -61,7 +61,7 @@ struct pvpoke_ai_rules_s {
 typedef struct pvpoke_ai_rules_s  pvpoke_ai_rules_t;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 const pvpoke_ai_rules_t AI_ARCHETYPES[] = {
   /* User Controlled */ {
@@ -108,7 +108,7 @@ const pvpoke_ai_rules_t AI_ARCHETYPES[] = {
 };
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 typedef enum packed {
   BOTH_BAIT, NEITHER_BAIT, NO_BAIT, FARM
@@ -126,7 +126,7 @@ struct scenario_s {
 typedef struct scenario_s  scenario_t;
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 struct roster_performance_s {
   roster_pokemon_t * pokemon;
@@ -136,7 +136,7 @@ struct roster_performance_s {
 
 typedef struct roster_performance_s  roster_performance_t;
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  * These decisions help AI pick teams from a roster.
@@ -155,7 +155,7 @@ typedef struct decision_option_s  decision_option_t;
 
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 ai_status_t pvpoke_ai_select_team( roster_t   * our_roster,
                                    roster_t   * their_roser,
@@ -172,7 +172,7 @@ ai_status_t pvpoke_ai_init( ai_t * ai, void * init_aux );
 void        pvpoke_ai_free( ai_t * ai );
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #define def_pvpoke_ai()                                                       \
   {                                                                           \
@@ -185,11 +185,11 @@ void        pvpoke_ai_free( ai_t * ai );
   }
 
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 
-/* ========================================================================= */
+/* ========================================================================== */
 
 #endif /* pvpoke_ai.h */
 
