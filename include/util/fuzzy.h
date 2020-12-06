@@ -83,7 +83,14 @@ _cmp_lev_dists( const void * a, const void * b )
          ( (const struct lev_pair_s *) b )->dst;
 }
 
-
+/**
+ * Find the Levenshtein Distance of a string against a collection of strings.
+ * Fill the shortest `nranked' distances in the buffers `sranked' ( strings )
+ * and `dranked' ( distances ).
+ * Returns the shortest distance.
+ * <p>
+ * See `src/test/test_fuzzy.c: test_rank_lev_dist' for a usage example.
+ */
   static int
 rank_lev_dist( const char   *  s,
                const char   ** strings,
