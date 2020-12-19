@@ -12,7 +12,11 @@
 #include "util/jsmn_iterator_stack.h"
 #include "util/json_util.h"
 #include <pokedex.h>
+#ifdef NO_PCRE
+#include <regex.h>
+#else
 #include <pcre.h>
+#endif /* defined( NO_PCRE ) */
 #include <stdint.h>
 #include <string.h>
 
@@ -48,15 +52,13 @@ static const char tmpl_pvp_fast_pat[] = "^COMBAT_V[[:digit:]]{4}_MOVE_"
 #endif /* NO_PCRE */
 
 struct gm_regexes_s {
-  pcre * tmpl_mon;
-  pcre * tmpl_shadow;
-  pcre * tmpl_pure;
-  pcre * tmpl_norm;
-  pcre * tmpl_home;
-  //pcre tmpl_pve_move;
-  pcre * tmpl_pvp_move;
-  pcre * tmpl_pvp_fast;
-  //pcre tmpl_forms;
+  pcre * tmpl_mon;       /** It's a Pokemon...    */
+  pcre * tmpl_shadow;    /** Shadow Form          */
+  pcre * tmpl_pure;      /** Purified Form        */
+  pcre * tmpl_norm;      /** Normal Form          */
+  pcre * tmpl_home;      /** Home Reversion Forms */
+  pcre * tmpl_pvp_move;  /** PvP Charged Move     */
+  pcre * tmpl_pvp_fast;  /** PvP Fast Move        */
 };
 typedef struct gm_regexes_s  gm_regexes_t;
 
@@ -92,7 +94,15 @@ size_t gm_parser_init( gm_parser_t * gm_parser, const char * gm_fpath  );
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * This is intended to detect Charged VS Fast on a `COMBAT_*' Template ID
+ */
 bool     stris_pvp_charged_move( const char * str, gm_regexes_t * regs );
+/**
+ * The following `parse_*' are written for V2 Game Master files.
+ * When a `jsmn' struct is passed as an arg, parses expect their current index
+ * to target a Template ID.
+ */
 ptype_t  parse_gm_type( const char * json, jsmntok_t * token );
 uint16_t parse_pvp_fast_move( const char      *  json,
                               jsmnis_t        *  iter_stack,
@@ -118,6 +128,9 @@ uint16_t parse_pdex_mon( const char   *  json,
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Write parsed data to store.
+ */
 void add_pvp_charged_move_data( gm_parser_t        * gm_parser,
                                 char               * name,
                                 pvp_charged_move_t * move
