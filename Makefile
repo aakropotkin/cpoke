@@ -143,6 +143,10 @@ test_pokemon: ${CSTORE_OBJECTS}
 test: ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
+cpoke.so: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS} ${CORE_OBJECTS} ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
+	${CC} ${LINKERFLAGS} -shared $^ -o $@
+
+
 
 # -------------------------------------------------------------------------- #
 
@@ -185,3 +189,6 @@ print_gcc_info:
 
 # ========================================================================== #
 # vim: set filetype=make :
+
+%.E: ${INCLUDEPATH}/%.h  ${HEADERS}
+	${CC} ${CFLAGS} -E $< > data/headers.h
