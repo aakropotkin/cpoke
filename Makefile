@@ -77,7 +77,7 @@ SUBTEST_BINS := $(patsubst %,test_%,${SUBTESTS})
 # -------------------------------------------------------------------------- #
 
 cpoke: main.o ${CORE_OBJECTS}
-	${CC} ${LINKERFLAGS} $^ -o $@
+	${CC} $^ -o $@ ${LINKERFLAGS}
 
 
 # -------------------------------------------------------------------------- #
@@ -95,7 +95,7 @@ parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_PARSE_GM_BINARY -c $< -o $@
 
 parse_gm: parse_gm_main.o gm_store.o ${CORE_OBJECTS}
-	${CC} ${LINKERFLAGS} $^ -o $@
+	${CC} $^ -o $@ ${LINKERFLAGS}
 
 # -------------------------------------------------------------------------- #
 
@@ -103,7 +103,7 @@ iv_store_build_main.o: ${SRCPATH}/iv_store_build.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_IV_STORE_BUILD_BINARY -c $< -o iv_store_build_main.o
 
 iv_store_build: iv_store_build_main.o cstore_data.o ${CORE_OBJECTS}
-	${CC} ${LINKERFLAGS} $^ -o $@
+	${CC} $^ -o $@ ${LINKERFLAGS}
 
 # -------------------------------------------------------------------------- #
 
@@ -111,7 +111,7 @@ fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
 	${CC} ${CFLAGS} ${CURL_CFLAGS} -c $<
 
 fetch_gm: fetch_gm.o ${CORE_OBJECTS}
-	${CC} ${LINKERFLAGS} ${CURL_LINKERFLAGS} $^ -o $@
+	${CC} $^ -o $@ ${LINKERFLAGS} ${CURL_LINKERFLAGS}
 
 
 # -------------------------------------------------------------------------- #
@@ -135,7 +135,7 @@ ${SUBTEST_MAIN_OBJECTS} test_main.o: %_main.o: ${SRCPATH}/test/%.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_TEST_BINARY -c $< -o $@
 
 ${SUBTEST_BINS} test: %: %_main.o ${CORE_OBJECTS}
-	${CC} ${LINKERFLAGS} $^ -o $@
+	${CC} $^ -o $@ ${LINKERFLAGS}
 
 # Extra Dependencies:
 test_battle: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
