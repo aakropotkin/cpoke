@@ -10,9 +10,9 @@ One of the core issues in PvPoke was it's memory management. While C is signific
 API/headers should operate in such a generalized that data sources ( whether by SQL, JSON Parsing, etc ) are abstracted away from the Simulator. Similarly the codebase should remain in separate modules such that shared objects may be compiled and wrapped by other languages, so that parts of this system might be used by Python, C++, etc without needing to modify the codebase extensively. Our own compilation can of course flatten these modules, optimizing out separations into a single binary for direct usage. See the headers `store.h` and `gm_store.h` for an example of an API/module definition and an implementation of that module.
 
 ## Dependencies
-- `libpcre.so` and `pcre-config`
+- `libpcre.so` and `pcre-config` ( `libpcre3` and `libpcre3-dev` via `apt-get` )
 - `libcurl.so` and `curl-config` ( Optional: Required for `fetch_gm` )
-- GCC ( Note to OSX users: the REAL GCC, provided by `brew`. Not that fake ass Xcode gcc-llvm shit! )
+- GCC ( Note to OSX users: the REAL GCC, provided by `brew`. Not that fake ass Xcode `gcc-llvm` shit! )
 
 
 ## Getting Started
