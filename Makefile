@@ -191,4 +191,9 @@ print_gcc_info:
 # vim: set filetype=make :
 
 %.E: ${INCLUDEPATH}/%.h  ${HEADERS}
-	${CC} ${CFLAGS} -E $< > data/headers.h
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< > data/$@ 2>/dev/null || true
+#	${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > data/$@
+
+all_e: ${HEADERS}
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc ${HEADERS} > data/$@ 2>/dev/null || true
+
