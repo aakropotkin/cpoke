@@ -519,3 +519,7 @@ int cstore_get_move_by_name( cstore_t * cstore,
 
 
 
+const store_t *get_cstore_p();
+int get_pokemon_by_name(        const char *  name,
+                                pdex_mon_t ** mon
+				);

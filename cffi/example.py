@@ -7,6 +7,7 @@
 # function prototypes.
 
 from cffi import FFI
+import pdb
 
 ffi = FFI()
 
@@ -60,5 +61,25 @@ tmp_out = lib.get_cp_from_stats(tmp1[0], tmp2[0], 20.)
 assert tmp_out == 255
 print(tmp_out)
 
-cstore_p = ffi.new('store_t *')
-# lib.cstore_get()
+cstore_p = lib.get_cstore_p()
+mon_pp = ffi.new('pdex_mon_t **')
+lib.cstore_get_pokemon(cstore_p, 1, 0, mon_pp)
+mon_p = mon_pp[0]
+print((mon_p.dex_number, ffi.string(mon_p.name), mon_p.types))
+
+if False:
+    cstore_p = lib.get_cstore_p()
+    name = ffi.new('char[]', b'BULBASAUR')
+    mon_pp = ffi.new('pdex_mon_t **')
+    lib.cstore_get_pokemon_by_name(cstore_p, name, mon_pp)
+    mon_p = mon_pp[0]
+    print((mon_p.dex_number, ffi.string(mon_p.name), mon_p.types))
+
+if False:
+    name = ffi.new('char[]', b'BULBASAUR\x00')
+    mon_pp = ffi.new('pdex_mon_t **')
+    print(lib.get_pokemon_by_name(name, mon_pp))
+
+pdb.set_trace()
+
+

@@ -5,7 +5,7 @@
 .PHONY = clean check_gcc print_gcc_info #gamemaster
 
 BINS := cpoke parse_gm fetch_gm test iv_store_build
-all: ${BINS}
+all: ${BINS} cffi/data/all.E
 
 
 # --------------------------------------------------------------------------- #
@@ -143,7 +143,7 @@ test_pokemon: ${CSTORE_OBJECTS}
 test: ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
-cpoke.so: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS} ${CORE_OBJECTS} ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
+cffi/cpoke.so: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS} ${CORE_OBJECTS} ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 	${CC} ${LINKERFLAGS} -shared $^ -o $@
 
 
@@ -165,7 +165,7 @@ gamemaster: data/GAME_MASTER.json
 # - cstore_data.c is time consuming to rebuild.
 clean:
 	@echo "Cleaning Up..."
-	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
+	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json ./cffi/data/;
 	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
 
 
@@ -190,10 +190,38 @@ print_gcc_info:
 # ========================================================================== #
 # vim: set filetype=make :
 
-%.E: ${INCLUDEPATH}/%.h  ${HEADERS}
-	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< > data/$@ 2>/dev/null || true
+# %.E: ${INCLUDEPATH}/%.h  ${HEADERS}
+# 	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< > data/$@ 2>/dev/null || true
 #	${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > data/$@
 
-all_e: ${HEADERS}
-	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc ${HEADERS} > data/$@ 2>/dev/null || true
+pvpoke_ai.E: ${INCLUDEPATH}/ai/pvpoke_ai.h  ${HEADERS}
+	${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > $@
 
+# all_e: ${HEADERS}
+# 	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc ${HEADERS} > data/$@ 2>/dev/null || true
+
+NO_INCLUDE_CFLAGS = -g -fms-extensions -DJSMN_STATIC -std=gnu11
+cffi/data/%.E: ${INCLUDEPATH}/%.h  ${HEADERS}
+	mkdir -p tmp/$(<D)
+	mkdir -p $(@D)
+	cp $< tmp/$<
+	echo //__FROM__: $< > $@
+	clang ${NO_INCLUDE_CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc tmp/$< >> $@ 2>/dev/null || true
+	rm -fr tmp
+
+cffi/data/all.M:
+	${CC} ${CFLAGS} -MM -MG ${SRCS} > cffi/data/all.M
+
+# This is the "automated" process for making cffi/data/all.E "from scratch."
+# 1) make cffi/data/all.M
+# 2) python cffi/hack_all_M.py
+# 3) copy the result part at the end into this Makefile, below, in place of the ORDERED_E defintion.
+# 4) make cffi/data/all.E
+# Only the last step is necessary if the structure of the .h files has not changed.
+
+ORDERED_E = cffi/data/util/test_util.E cffi/data/util/macros.E cffi/data/util/files.E cffi/data/ext/jsmn.E cffi/data/ext/jsmn_iterator.E cffi/data/util/json_util.E cffi/data/util/jsmn_iterator_stack.E cffi/data/util/fnmacros.E cffi/data/util/enumflags.E cffi/data/util/bits.E cffi/data/test.E cffi/data/store.E cffi/data/pvp_action.E cffi/data/ptypes.E cffi/data/hash.E cffi/data/ext/uthash.E cffi/data/moves.E cffi/data/pokedex.E cffi/data/ai/ai.E cffi/data/battle.E cffi/data/pokemon.E cffi/data/player.E cffi/data/parse_gm.E cffi/data/gm_store.E cffi/data/cstore.E cffi/data/ai/pvpoke_ai.E cffi/data/ai/naive_ai.E
+
+ALL_E = ${subst ${INCLUDEPATH}/,cffi/data/,${subst .h,.E,${HEADERS}}}
+
+cffi/data/all.E: ${ALL_E} ${HEADERS}
+	cat ${ORDERED_E} > cffi/data/all.E
