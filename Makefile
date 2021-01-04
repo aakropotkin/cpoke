@@ -190,15 +190,29 @@ print_gcc_info:
 # ========================================================================== #
 # vim: set filetype=make :
 
-# %.E: ${INCLUDEPATH}/%.h  ${HEADERS}
-# 	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< > data/$@ 2>/dev/null || true
-#	${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > data/$@
+cffi/data/%.proto: ${SRCPATH}/%.c ${HEADERS}
+	mkdir -p cffi/data/test
+	cproto  -I${INCLUDEPATH} -I${DEFSPATH} ${PCRE_CFLAGS} -s -i -v -DJSMN_STATIC -o $@ $< || true
 
-pvpoke_ai.E: ${INCLUDEPATH}/ai/pvpoke_ai.h  ${HEADERS}
-	${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > $@
+ALL_PROTO = ${subst ${SRCPATH}/,cffi/data/,${subst .c,.proto,${SRCS}}}
+cffi/data/all.proto: ${ALL_PROTO} ${HEADERS}
+	cat ${ALL_PROTO} > cffi/data/all.proto
 
-# all_e: ${HEADERS}
-# 	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc ${HEADERS} > data/$@ 2>/dev/null || true
+cffi/data/%.X: ${SRCPATH}/%.c ${HEADERS}
+	mkdir -p cffi/data/test
+	${CC} ${CFLAGS} -E $< > $@
+
+ALL_X = ${subst ${SRCPATH}/,cffi/data/,${subst .c,.X,${SRCS}}}
+cffi/data/all.X: ${ALL_X} ${HEADERS}
+	cat ${ALL_X} > cffi/data/all.X
+
+
+cffi/data/%.EE: ${INCLUDEPATH}/%.h  ${HEADERS}
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< > cffi/data/$@ 2>/dev/null || true
+	#${CC} ${CFLAGS} -D'__attribute__(x)=' -E $< > data/$@
+
+cffi/data/all.EE: ${HEADERS}
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc ${HEADERS} > $@ 2>/dev/null || true
 
 NO_INCLUDE_CFLAGS = -g -fms-extensions -DJSMN_STATIC -std=gnu11
 cffi/data/%.E: ${INCLUDEPATH}/%.h  ${HEADERS}

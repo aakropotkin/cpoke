@@ -70,6 +70,11 @@ if False:
     mon_pp = ffi.new('pdex_mon_t **')
     print(lib.get_pokemon_by_name(name, mon_pp))
 
+
+base_ven = ffi.new('base_pokemon_t *')
+rost_ven = ffi.new('roster_pokemon_t *')
+rost_ven.fast_move_id = 214 # Vine Whip
+rost_ven.charged_move_ids = (296, 90) # Frenzy Plant, Sludge Bomb
 pdb.set_trace()
 
-
+p1_ai = lib.def_naive_ai()

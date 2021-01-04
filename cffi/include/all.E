@@ -140,6 +140,11 @@ typedef enum {
   SS_UNKNOWN, SS_C, SS_JSON, SS_SQL
 } store_sink_t;
 
+static const char * STORE_SINK_NAMES[];
+
+
+
+
 struct store_key_s {
   store_type_t key_type;
   store_type_t val_type;
@@ -200,8 +205,14 @@ DEFINE_ENUM_WITH_FLAGS( pvp_action,
 typedef enum { ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2, SHIELD} pvp_action_t;
 
 typedef unsigned int pvp_action_mask_t;
+static const uint8_t NUM_PVP_ACTIONS;
+static const char * PVP_ACTION_NAMES[];
 
 //__FROM__: include/ptypes.h
+static const float WEAK_DMG_MOD;
+static const float RESIST_DMG_MOD;
+static const float IMMUNE_DMG_MOD;
+static const float STAB_DMG_MOD;
 //@@
 /*
 DEFINE_ENUM_WITH_FLAGS( ptype, PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY,
@@ -212,7 +223,7 @@ DEFINE_ENUM_WITH_FLAGS( ptype, PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY,
 typedef enum { PT_NONE , BUG , DARK , DRAGON , ELECTRIC , FAIRY , FIGHTING , FIRE, FLYING , GHOST , GRASS , GROUND , ICE , NORMAL , POISON , PSYCHIC , ROCK , STEEL , WATER } ptype_t;
 typedef unsigned int ptype_mask_t;
 typedef union { ptype_mask_t mask; struct { unsigned int BUG : 1 ; unsigned int DARK : 1 ; unsigned int DRAGON : 1 ; unsigned int ELECTRIC : 1 ; unsigned int FAIRY : 1 ; unsigned int FIGHTING : 1 ; unsigned int FIRE : 1 ; unsigned int FLYING : 1 ; unsigned int GHOST : 1 ; unsigned int GRASS : 1 ; unsigned int GROUND : 1 ; unsigned int ICE : 1 ; unsigned int NORMAL : 1 ; unsigned int POISON : 1 ; unsigned int PSYCHIC : 1 ; unsigned int ROCK : 1 ; unsigned int STEEL : 1 ; unsigned int WATER : 1; }; } ptype_flags_t;
-
+static const uint8_t NUM_PTYPES;
 
 int fprint_ptype_mask( FILE * fd, const char * sep, ptype_mask_t pm );
 struct ptype_traits_s {
@@ -259,8 +270,9 @@ pt_immunep( ptype_t def, ptype_t atk )
 */
 
 
-
+static const char * PTYPE_NAMES[];
 //__FROM__: include/hash.h
+static const UT_hash_handle HH_NULL;
 
 //__FROM__: include/ext/uthash.h
 typedef struct UT_hash_bucket {
@@ -350,6 +362,9 @@ struct buff_s {
 typedef struct buff_s buff_t;
 
 
+static const buff_t NO_BUFF;
+static const float BUFF_MOD[];
+
 typedef enum packed {
   B_4_8, B_4_7, B_4_6, B_4_5,
   B_4_4,
@@ -365,7 +380,7 @@ struct buff_state_s {
 } packed;
 typedef struct buff_state_s buff_state_t;
 
-
+static const buff_state_t NO_BUFF_STATE;
 
 
 
@@ -386,12 +401,14 @@ struct base_move_s {
 } packed;
 typedef struct base_move_s base_move_t;
 
+static const base_move_t NO_MOVE;
 struct pve_move_s {
   base_move_t base_move; //@@
   uint16_t cooldown;
 } packed;
 typedef struct pve_move_s pve_move_t;
 
+static const pve_move_t NO_MOVE_PVE;
 
 int pve_move_from_store( store_t * store,
                          uint16_t move_id,
@@ -407,6 +424,8 @@ struct pvp_charged_move_s {
 } packed;
 typedef struct pvp_charged_move_s pvp_charged_move_t;
 
+static const pvp_charged_move_t NO_MOVE_PVP_CHARGED;
+
 int pvp_charged_move_from_store( store_t * store,
                                  uint16_t move_id,
                                  pvp_charged_move_t * move
@@ -420,6 +439,8 @@ struct pvp_fast_move_s {
   uint8_t turns : 2;
 } packed;
 typedef struct pvp_fast_move_s pvp_fast_move_t;
+
+static const pvp_fast_move_t NO_MOVE_PVP_FAST;
 
 int pvp_fast_move_from_store( store_t * store,
                               uint16_t move_id,
@@ -440,6 +461,8 @@ struct store_move_s {
   UT_hash_handle hh_move_id;
 };
 typedef struct store_move_s store_move_t;
+
+static const store_move_t NO_MOVE_STORE;
 
 
 
@@ -465,6 +488,7 @@ move_id_store_key( uint16_t move_id )
     .data_h1 = 0
   };
 }
+
 
 
 
@@ -536,6 +560,7 @@ int fprint_store_move_json( FILE * stream, const store_move_t * move );
 
 int fprint_store_move_c( FILE * stream, const store_move_t * move );
 //__FROM__: include/pokedex.h
+static const uint16_t MAX_STAT;
 
 struct stats_s { uint16_t attack, stamina, defense; } packed;
 typedef struct stats_s stats_t;
@@ -556,6 +581,7 @@ typedef enum { TAG_NONE, TAG_LEGENDARY, TAG_MYTHIC, TAG_MEGA,
                         TAG_STARTER, TAG_REGIONAL } pdex_tag_t;
 typedef unsigned int pdex_tag_mask_t;
 
+static const char * PDEX_TAG_NAMES[];
 
 
 
@@ -577,6 +603,8 @@ struct region_s {
 typedef struct region_s region_t;
 
 
+static const region_t REGIONS[];
+
 typedef enum {
   R_KANTO = 0,
   R_JOHTO,
@@ -586,7 +614,13 @@ typedef enum {
   R_KALOS,
   R_UNKNOWN
 } region_e;
-
+static const region_t * REGION_KANTO;
+static const region_t * REGION_JOHTO;
+static const region_t * REGION_HOENN;
+static const region_t * REGION_SINNOH;
+static const region_t * REGION_UNOVA;
+static const region_t * REGION_KALOS;
+static const region_t * REGION_UNKNOWN;
 
 
 
@@ -613,8 +647,12 @@ struct pdex_mon_s {
 };
 typedef struct pdex_mon_s pdex_mon_t;
 
+static const pdex_mon_t PDEX_NULL;
 
 
+
+
+static const uint16_t MAX_DEX;
 
 void pdex_mon_init( pdex_mon_t * mon,
                     uint16_t dex_num,
@@ -712,6 +750,9 @@ is_regional( uint16_t dex_number )
   return false;
 }
 */
+static const uint16_t REGIONALS[];
+static const uint8_t NUM_REGIONALS;
+
 //__FROM__: include/ai/ai.h
 struct pvp_battle_s;
 struct roster_s;
@@ -763,6 +804,63 @@ struct ai_s {
 typedef struct ai_s ai_t;
 //__FROM__: include/battle.h
 struct pvp_player_s;
+static const float PVP_FAST_BONUS_MOD;
+static const float PVP_CHARGE_BONUS_MOD;
+
+
+
+
+
+static const float CHARGE_BASE_MOD;
+static const float CHARGE_NICE_MOD;
+static const float CHARGE_GREAT_MOD;
+static const float CHARGE_EXCELLENT_MOD;
+
+
+
+
+static const float STAB_BONUS;
+static const float SHADOW_ATTACK_MOD;
+static const float SHADOW_DEFENSE_MOD;
+
+
+static const uint8_t MAX_CHARGE;
+
+static const uint8_t CHARGE_RATE;
+static const float CHARGE_DECAY_RATE;
+
+
+
+
+
+static const uint32_t BATTLE_TIME;
+static const uint16_t TURN_TIME;
+
+
+static const uint16_t CHARGED_ANIM_TIME;
+
+static const uint16_t CHARGED_MG_TIME;
+
+
+static const uint16_t CHARGED_TIME;
+
+
+static const uint16_t SWITCH_ANIM_TIME;
+
+static const uint16_t SWITCH_TIMEOUT;
+
+static const uint16_t SWITCH_TIME;
+
+
+static const uint16_t BATTLE_TURNS;
+
+static const uint8_t CHARGED_ANIM_TURNS;
+static const uint8_t CHARGED_MG_TURNS;
+static const uint8_t CHARGED_TURNS;
+
+static const uint8_t SWITCH_ANIM_TURNS;
+static const uint8_t SWITCH_TIMEOUT_TURNS;
+static const uint8_t SWITCH_TURNS;
 
 
 
@@ -772,6 +870,7 @@ typedef enum {
   ULTRA_LEAGUE = 2500,
   MASTER_LEAGUE = 10000
 } league_t;
+static const char * LEAGUE_NAMES[];
 typedef enum packed { SIMULATE, EMULATE } battle_mode_t;
 typedef enum packed { FIRST_FAINT, BOTH_FAINT } battle_end_cond_t;
 typedef enum packed {
