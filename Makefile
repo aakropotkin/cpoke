@@ -2,7 +2,7 @@
 # ============================================================================ #
 
 .DEFAULT_GOAL := cpoke
-.PHONY = clean check_gcc print_gcc_info seegmurl gamemaster get_ordered_e
+.PHONY = clean check_gcc print_gcc_info gamemaster get_ordered_e
 
 BINS := cpoke parse_gm fetch_gm test iv_store_build
 all: ${BINS} cffi/data/all.E
