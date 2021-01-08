@@ -191,7 +191,7 @@ print_gcc_info:
 # ---------------------------------------------------------------------------- #
 
 cffi/data/%.proto: ${SRCPATH}/%.c ${HEADERS}
-	mkdir -p cffi/data/test
+	mkdir -p $(@D)
 	cproto  -I${INCLUDEPATH} -I${DEFSPATH} ${PCRE_CFLAGS} -s -i -v              \
           -DJSMN_STATIC -o $@ $< || true
 
@@ -200,7 +200,7 @@ cffi/data/all.proto: ${ALL_PROTO} ${HEADERS}
 	cat ${ALL_PROTO} > cffi/data/all.proto
 
 cffi/data/%.X: ${SRCPATH}/%.c ${HEADERS}
-	mkdir -p cffi/data/test
+	mkdir -p $(@D)
 	${CC} ${CFLAGS} -E $< > $@
 
 ALL_X = ${subst ${SRCPATH}/,cffi/data/,${subst .c,.X,${SRCS}}}
@@ -233,15 +233,6 @@ cffi/data/all.M:
 
 
 # ---------------------------------------------------------------------------- #
-
-# This is the "automated" process for making cffi/data/all.E "from scratch."
-# 1) make cffi/data/all.M
-# 2) python cffi/hack_all_M.py
-# 3) copy the result part at the end into this Makefile, below, in place of
-#    the ORDERED_E defintion.
-# 4) make cffi/data/all.E
-# Only the last step is necessary if the structure of the .h files has
-# not changed.
 
 ORDERED_E_CMD := "python3 cffi/hack_all_M.py|tail -n1|sed 's/^.* = //';"
 

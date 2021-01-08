@@ -51,6 +51,24 @@ int get_pokemon_by_name(        const char *  name,
   return CS_get_pokemon_by_name(name, mon);
 }
 
+int do_printf(char *s) {
+  printf("%s\n", s);
+  return(0);
+}
+    
+bool test_stuff() {
+  pdex_mon_t * mon = NULL;
+  int          rsl = cstore_get_pokemon_by_name( & CSTORE, "BULBASAUR", & mon );
+
+  expect( rsl == STORE_SUCCESS );
+  expect( mon != NULL );
+  expect( mon->dex_number == 1 );
+  expect( mon->form_idx == 0 );
+  printf("here.\n");
+  return false;
+}
+
+
 #endif
 
 

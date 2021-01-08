@@ -1,4 +1,4 @@
-// sed -e 's/const_fn//g' -e 's/packed//g' <include/all.E >include/all.E2
+// sed -e 's/const_fn//g' -e 's/packed//g' -e 's/transparent;/;/g' <include/all.E >include/all.E2
 
 //__FROM__: include/util/test_util.h
 
@@ -271,8 +271,6 @@ pt_immunep( ptype_t def, ptype_t atk )
 
 
 static const char * PTYPE_NAMES[];
-//__FROM__: include/hash.h
-static const UT_hash_handle HH_NULL;
 
 //__FROM__: include/ext/uthash.h
 typedef struct UT_hash_bucket {
@@ -329,6 +327,10 @@ typedef struct UT_hash_handle {
    unsigned keylen;
    unsigned hashv;
 } UT_hash_handle;
+
+//__FROM__: include/hash.h
+static const UT_hash_handle HH_NULL;
+
 //__FROM__: include/moves.h
 typedef enum packed {
   bc_1000, bc_0500, bc_0300, bc_0125, bc_0100, bc_0000
@@ -1301,3 +1303,24 @@ cstore_set( store_t * cstore, store_key_t key, void * val )
   return STORE_ERROR_NOT_WRITABLE;
 }
 */
+//__FROM__: include/ai/naive_ai.h
+struct pvp_battle_s;
+
+
+
+
+ai_status_t naive_ai_select_team( roster_t * our_roster,
+                                  roster_t * their_roser,
+                                  pvp_pokemon_t * team,
+                                  store_t * store,
+                                  void * aux
+                                );
+
+ai_status_t naive_ai_decide_action( bool decide_p1,
+                                    const struct pvp_battle_s * battle,
+                                    pvp_action_t * choice,
+                                    void * aux
+                                  );
+
+ai_status_t naive_ai_init( ai_t * ai, void * init_aux );
+void naive_ai_free( ai_t * ai );
