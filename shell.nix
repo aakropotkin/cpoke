@@ -10,5 +10,6 @@ stdenv.mkDerivation {
     gcc9
     curlFull.dev
     pcre.dev
+    ( python3.withPackages ( ps: with ps; [ cffi matplotlib networkx ] ) )
   ];
 }
