@@ -6,6 +6,7 @@
 #include "iv_rank.h"
 #include "ptypes.h"
 #include "util/bits.h"
+#include "ai/ai.h"
 
 
 /* -------------------------------------------------------------------------- */
@@ -15,12 +16,11 @@
 main( int argc, char * argv[], char ** envp )
 {
 
-  ishowbits( PT_NONE_M | FIRE_M | GRASS_M );
-
-  //stats_t         ven_base = { .attack = 198, .stamina = 190, .defense = 189 };
-  //stats_combo_t * rankings = rank_ivs_array( ven_base, 10, GREAT_LEAGUE );
-  //fprint_iv_rankings_c( stdout, rankings, 10, GREAT_LEAGUE, 3, 0 );
-  //free( rankings );
+  dl_ai_t * dlai = dlopen_ai( "naive_ai.so" );
+  dlai->ai->init( dlai->ai, NULL );
+  printf( "Name: %s\n", dlai->ai->name );
+  dlclose_ai( dlai );
+  dlai = NULL;
 
   return EXIT_SUCCESS;
 }

@@ -14,7 +14,6 @@
 
 struct pvp_battle_s;
 
-
 /* -------------------------------------------------------------------------- */
 
 ai_status_t naive_ai_select_team( roster_t      * our_roster,
@@ -24,10 +23,22 @@ ai_status_t naive_ai_select_team( roster_t      * our_roster,
                                   void          * aux
                                 );
 
-ai_status_t naive_ai_decide_action( bool                        decide_p1,
+ai_status_t naive_ai_decide_action(              bool           decide_p1,
                                     const struct pvp_battle_s * battle,
-                                    pvp_action_t              * choice,
-                                    void                      * aux
+                                                 pvp_action_t * choice,
+                                                 void         * aux
+                                  );
+
+ai_status_t naive_ai_decide_swap(              bool           decide_p1,
+                                  const struct pvp_battle_s * battle,
+                                               pvp_action_t * choice,
+                                               void         * aux
+                                );
+
+ai_status_t naive_ai_decide_shield(              bool           decide_p1,
+                                    const struct pvp_battle_s * battle,
+                                                 pvp_action_t * choice,
+                                                 void         * aux
                                   );
 
 ai_status_t naive_ai_init( ai_t * ai, void * init_aux );
@@ -41,6 +52,8 @@ void        naive_ai_free( ai_t * ai );
       .name          = "Naive AI",                                            \
       .select_team   = naive_ai_select_team,                                  \
       .decide_action = naive_ai_decide_action,                                \
+      .decide_swap   = naive_ai_decide_swap,                                  \
+      .decide_shield = naive_ai_decide_shield,                                \
       .init          = naive_ai_init,                                         \
       .free          = naive_ai_free,                                         \
       .aux           = NULL                                                   \

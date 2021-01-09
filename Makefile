@@ -1,14 +1,14 @@
 # -*- mode: makefile-gmake -*-
-# =========================================================================== #
+# ============================================================================ #
 
-.DEFAULT_GOAL := cpoke
-.PHONY = clean check_gcc print_gcc_info #gamemaster
+.DEFAULT_GOAL := test
+.PHONY = clean check_gcc print_gcc_info gamemaster
 
 BINS := cpoke parse_gm fetch_gm test iv_store_build
 all: ${BINS}
 
 
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 CC = gcc
 IS_OSX := $(shell ${CC} --version|grep -qi '\(apple\|llvm\|clang\)'           \
@@ -32,7 +32,7 @@ ifeq "${IS_OSX}" "1"
 endif
 
 
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 SRCPATH     = src
 INCLUDEPATH = include
@@ -41,19 +41,29 @@ DEFSPATH    = data/defs
 HEADERS := $(wildcard ${INCLUDEPATH}/*.h) $(wildcard ${INCLUDEPATH}/*/*.h)
 SRCS    := $(wildcard ${SRCPATH}/*.c) $(wildcard ${SRCPATH}/*/*.c)
 
+# If you don't have `curl-config' ( and similar ) scripts, you can try using:
+# `pkg-config --cflags libcurl.pc'
+# or manually filling these fields like:
+# `CURL_CFLAGS = -I/path/to/libcurl/include'
+# `CURL_LINKERFLAGS = -L/path/to/libcurl/lib -lcurl'
 CURL_CFLAGS      = $(shell curl-config --cflags)
 CURL_LINKERFLAGS = $(shell curl-config --libs)
 PCRE_CFLAGS      = $(shell pcre-config --cflags)
 PCRE_LINKERFLAGS = $(shell pcre-config --libs)
 
+DEBUG_FLAGS := -ggdb
+CFLAGS_SO    += -fPIC
+CFLAGS       += -I${INCLUDEPATH} -I${DEFSPATH}
 # `-fms-extensions' enables struct inheritence
-CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH}
-CFLAGS      += -fms-extensions -DJSMN_STATIC -std=gnu11
-CFLAGS      += ${PCRE_CFLAGS}
-LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
+CFLAGS       += -fms-extensions -DJSMN_STATIC -std=gnu11
+CFLAGS       += ${PCRE_CFLAGS} ${DEBUG_FLAGS} ${CFLAGS_SO}
+
+LINKERFLAGS    = -lm -ldl ${PCRE_LINKERFLAGS} ${DEBUG_FLAGS}
+LINKERFLAGS_SO = -shared
 
 
-# --------------------------------------------------------------------------- #
+
+# ---------------------------------------------------------------------------- #
 
 EXT_OBJECTS  := jsmn_iterator.o
 UTIL_OBJECTS := files.o json_util.o
@@ -61,7 +71,7 @@ UTIL_OBJECTS := files.o json_util.o
 CORE_OBJECTS := pokemon.o ptypes.o pokedex.o moves.o
 CORE_OBJECTS += ${UTIL_OBJECTS} ${EXT_OBJECTS}
 
-SIM_OBJECTS := battle.o player.o
+SIM_OBJECTS := battle.o player.o ai.o
 NAIVE_AI_OBJECTS := naive_ai.o
 
 GM_OBJECTS := parse_gm.o gm_store.o fetch_gm.o
@@ -74,13 +84,13 @@ SUBTEST_MAIN_OBJECTS := $(patsubst %,test_%_main.o,${SUBTESTS})
 SUBTEST_BINS := $(patsubst %,test_%,${SUBTESTS})
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
-cpoke: main.o ${CORE_OBJECTS}
+cpoke: main.o ${CORE_OBJECTS} ai.o
 	${CC} $^ -o $@ ${LINKERFLAGS}
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 data/cstore_data.c: parse_gm fetch_gm
 	./fetch_gm
@@ -89,7 +99,7 @@ data/cstore_data.c: parse_gm fetch_gm
 cstore_data.o: data/cstore_data.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 	${CC} ${CFLAGS} -DMK_PARSE_GM_BINARY -c $< -o $@
@@ -97,15 +107,15 @@ parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}
 parse_gm: parse_gm_main.o gm_store.o ${CORE_OBJECTS}
 	${CC} $^ -o $@ ${LINKERFLAGS}
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 iv_store_build_main.o: ${SRCPATH}/iv_store_build.c ${HEADERS}
-	${CC} ${CFLAGS} -DMK_IV_STORE_BUILD_BINARY -c $< -o iv_store_build_main.o
+	${CC} ${CFLAGS} -DMK_IV_STORE_BUILD_BINARY -c $< -o $@
 
 iv_store_build: iv_store_build_main.o cstore_data.o ${CORE_OBJECTS}
 	${CC} $^ -o $@ ${LINKERFLAGS}
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 fetch_gm.o: ${SRCPATH}/fetch_gm.c ${HEADERS}
 	${CC} ${CFLAGS} ${CURL_CFLAGS} -c $<
@@ -114,7 +124,7 @@ fetch_gm: fetch_gm.o ${CORE_OBJECTS}
 	${CC} $^ -o $@ ${LINKERFLAGS} ${CURL_LINKERFLAGS}
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 ${UTIL_OBJECTS}: %.o: ${SRCPATH}/util/%.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
@@ -126,7 +136,7 @@ ${EXT_OBJECTS}: %.o: ${SRCPATH}/ext/%.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 ${SUBTEST_OBJECTS} test.o: %.o: ${SRCPATH}/test/%.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
@@ -144,20 +154,30 @@ test: ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
+
+naive_ai_so.o: ${SRCPATH}/naive_ai.c ${HEADERS}
+	${CC} ${CFLAGS} -DMK_AI_SO -c $< -o $@
+
+naive_ai.so:  naive_ai_so.o ${CORE_OBJECTS} ${SIM_OBJECTS} 
+	${CC} ${LINKERFLAGS_SO} $^ -o $@ ${LINKERFLAGS}
+
+
+# ---------------------------------------------------------------------------- #
 
 # NOTE: `GAME_MASTER.json' files are currently broken since Niantic started
 #       encoding them. For now we are working off of an old un-encrypted copy!
+GM_URL := 'https://raw.githubusercontent.com/pokemongo-dev-contrib/pokemongo-'
+GM_URL := ${GM_URL}'game-master/master/versions/latest/V2_GAME_MASTER.json'
 data/GAME_MASTER.json: FORCE
-	wget -O $@ 'https://raw.githubusercontent.com/pokemongo-dev-contrib/pokemongo-game-master/master/versions/latest/V2_GAME_MASTER.json'
+	wget -O $@ ${GM_URL}
 
 gamemaster: data/GAME_MASTER.json
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 # DO NOT DELETE GAME_MASTER.json or cstore_data.c
-# - GAME_MASTER.json cannot be updated until pokemongo-dev fixes their repo.
 # - cstore_data.c is time consuming to rebuild.
 clean:
 	@echo "Cleaning Up..."
@@ -168,7 +188,7 @@ clean:
 FORCE:
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 print_gcc_info:
 	@echo "IS_OSX    : ${IS_OSX}"
@@ -179,9 +199,9 @@ print_gcc_info:
 	@echo "CC_V_PATCH: ${CC_V_PATCH}"
 
 
-# -------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
 
 
 
-# ========================================================================== #
+# ============================================================================ #
 # vim: set filetype=make :
