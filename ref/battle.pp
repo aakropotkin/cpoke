@@ -8,12 +8,15 @@ program battle_simulator;
   Pseudocode Outline of Battle Simulator.
 
   Pascal was simply a convenient filetype for my editor's syntax highlighting
+
   I am ignoring Pascal's naming conventions so that they match the names used
   in our C code.
 
   `^ variant' is equivelant to `void *'
 
   `^' is used in place of `*' and `&' symbols from C.
+
+  `^.' is used in place of `->' symbols from C.
 }
 
 
@@ -290,6 +293,41 @@ begin
    dispose( battle );
 end;
 
+
+{ ---------------------------------------------------------------------------- }
+
+function decide_action( decide_p1 : bool;
+                        battle    : ^ pvp_battle_t
+                      ) : pvp_action_t;
+begin
+end;
+
+
+{ ---------------------------------------------------------------------------- }
+
+procedure handle_faints( p1_mon_alive, p2_mon_alive : bool;
+                         battle                     : ^ pvp_battle_t
+                       );
+begin
+end;
+
+
+{ ---------------------------------------------------------------------------- }
+
+function eval_turn_simulated( battle : ^ pvp_battle_t ) : bool;
+begin
+end;
+
+function eval_turn( battle : ^ pvp_battle_t ) : bool;
+begin
+end;
+
+
+{ ---------------------------------------------------------------------------- }
+
+function simulate_battle( battle : ^ pvp_battle_t ) : integer;
+begin
+end;
 
 
 { ---------------------------------------------------------------------------- }
