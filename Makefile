@@ -99,6 +99,11 @@ data/cstore_data.c: parse_gm fetch_gm
 cstore_data.o: data/cstore_data.c ${HEADERS}
 	${CC} ${CFLAGS} -c $<
 
+battle_select.o: CFLAGS += -DWITH_GM_STORE
+battle_select.o: ${SRCPATH}/battle.c ${HEADERS}
+	${CC} ${CFLAGS} -c $< -o $@
+
+
 # ---------------------------------------------------------------------------- #
 
 parse_gm_main.o: ${SRCPATH}/parse_gm.c ${HEADERS}

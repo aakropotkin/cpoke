@@ -52,11 +52,52 @@ typedef enum {
 
 /* ------------------------------------------------------------------------- */
 
-DEFINE_ENUM_WITH_FLAGS( store_flag,
-    SF_NONE, SF_WRITABLE, SF_THREAD_SAFE, SF_OFFICIAL_DATA, SF_CUSTOM_DATA,
-    SF_EXPORTABLE, SF_STANDARD_KEY, SF_TYPED, SF_GET_STRING,
-    SF_GET_TYPED_STRING
-  );
+//DEFINE_ENUM_WITH_FLAGS( store_flag,
+//    SF_NONE, SF_WRITABLE, SF_THREAD_SAFE, SF_OFFICIAL_DATA, SF_CUSTOM_DATA,
+//    SF_EXPORTABLE, SF_STANDARD_KEY, SF_TYPED, SF_GET_STRING,
+//    SF_GET_TYPED_STRING
+//  );
+
+typedef enum packed {
+  SF_NONE,
+  SF_WRITABLE,
+  SF_THREAD_SAFE,
+  SF_OFFICIAL_DATA,
+  SF_CUSTOM_DATA,
+  SF_EXPORTABLE,
+  SF_STANDARD_KEY,
+  SF_TYPED,
+  SF_GET_STRING,
+  SF_GET_TYPED_STRING
+} store_flag_t;
+
+typedef enum packed {
+  SF_NONE_M             =         0b0,
+  SF_WRITABLE_M         =         0b1,
+  SF_THREAD_SAFE_M      =        0b10,
+  SF_OFFICIAL_DATA_M    =       0b100,
+  SF_CUSTOM_DATA_M      =      0b1000,
+  SF_EXPORTABLE_M       =     0b10000,
+  SF_STANDARD_KEY_M     =    0b100000,
+  SF_TYPED_M            =   0b1000000,
+  SF_GET_STRING_M       =  0b10000000,
+  SF_GET_TYPED_STRING_M = 0b100000000
+} store_flag_mask_t;
+
+typedef union {
+  store_flag_mask_t mask;
+  struct packed {
+    unsigned int SF_WRITABLE         : 1;
+    unsigned int SF_THREAD_SAFE      : 1;
+    unsigned int SF_OFFICIAL_DATA    : 1;
+    unsigned int SF_CUSTOM_DATA      : 1;
+    unsigned int SF_EXPORTABLE       : 1;
+    unsigned int SF_STANDARD_KEY     : 1;
+    unsigned int SF_TYPED            : 1;
+    unsigned int SF_GET_STRING       : 1;
+    unsigned int SF_GET_TYPED_STRING : 1;
+  };
+} store_flag_flags_t;
 
 
 /* ------------------------------------------------------------------------- */

@@ -9,6 +9,7 @@
 #include "pvp_action.h"
 #include "util/macros.h"
 #include <stdint.h>
+#include "ai/ai.h"
 
 struct pvp_player_s;
 
@@ -115,13 +116,16 @@ static const uint8_t  SWITCH_TURNS         = SWITCH_TIME / TURN_TIME;
 /* ------------------------------------------------------------------------- */
 
 typedef enum {
-  GREAT_LEAGUE  = 1500,
-  ULTRA_LEAGUE  = 2500,
+  LITTLE_LEAGUE =   500,
+  GREAT_LEAGUE  =  1500,
+  ULTRA_LEAGUE  =  2500,
   MASTER_LEAGUE = 10000
 } league_t;
+
 static const char * LEAGUE_NAMES[] = {
-    "GREAT_LEAGUE", "ULTRA_LEAGUE", "MASTER_LEAGUE"
+    "LITTLE_LEAGUE", "GREAT_LEAGUE", "ULTRA_LEAGUE", "MASTER_LEAGUE"
   };
+
 #define get_league_name( LEAGUE )                                             \
   ( ( LEAGUE ) == GREAT_LEAGUE ) ? LEAGUE_NAMES[0] :                          \
   ( ( LEAGUE ) == ULTRA_LEAGUE ) ? LEAGUE_NAMES[1] : LEAGUE_NAMES[2]
@@ -176,6 +180,7 @@ typedef enum packed {
 /**
  * This can often be constructed from a battle timeline, and is not always
  * desired in a simulation, so it is not included in <code>battle_t</code>
+ * FIXME: NOT IMPLEMENTED YET
  */
 struct pvp_pokemon_log_s {
   uint32_t total_damage;
@@ -211,50 +216,140 @@ void pvp_pokemon_log_free( pvp_pokemon_log_t * pokemon_log );
 struct pvp_battle_s {
   struct pvp_player_s * p1;
   struct pvp_player_s * p2;
-  pvp_action_t          p1_action;  /* Queued/Current action */
+  pvp_action_t          p1_action;       /* Queued/Current action */
   pvp_action_t          p2_action;
+  pvp_action_t          stashed_action;  /* For CMP/Shield situations */
   uint32_t              turn;
   battle_phase_t        phase;
   cmp_rule_t            cmp_rule;
   uint8_t               cmp_alt_state : 1;
+  void                * ai_aux_cache[2];
 } packed;
 typedef struct pvp_battle_s pvp_battle_t;
 
 static const pvp_battle_t PVP_BATTLE_NULL = {
-  .p1            = NULL,
-  .p2            = NULL,
-  .p1_action     = ACT_NULL,
-  .p2_action     = ACT_NULL,
-  .turn          = 0,
-  .phase         = COUNTDOWN,
-  .cmp_rule      = CMP_IDEAL,
-  .cmp_alt_state = false
+  .p1             = NULL,
+  .p2             = NULL,
+  .p1_action      = ACT_NULL,
+  .p2_action      = ACT_NULL,
+  .stashed_action = ACT_NULL,
+  .turn           = 0,
+  .phase          = COUNTDOWN,
+  .cmp_rule       = CMP_IDEAL,
+  .cmp_alt_state  = false,
+  .ai_aux_cache   = { NULL, NULL }
 };
 
 
 /* ------------------------------------------------------------------------- */
 
-void pvp_battle_init( pvp_battle_t * battle );
+/**
+ * Initializes Players' AI,  and prepares an uninitialized `pvp_battle_t' to be
+ * simulated.
+ * <p>
+ * This initializer does NOT support `ai_select_team', this functionality is
+ * handled by `pvp_battle_teams_init', which is excluded by default from this
+ * header to eliminate dependency on `store_t'.
+ * `pvp_battle_teams_init' is implemented ( FIXME: not yet )
+ * by `battle_teams.{h,c}'
+ * <p>
+ * Provided auxilary data will be passed to each AI, and cached to perform
+ * resets between rounds by `pvp_battle_reset'.
+ * <p>
+ * This auxilary data will not be modified or copied by the battle handler
+ * and it is suggested that `ai_init' implementations similarly do not modify
+ * this data since it is intended to reset battles to their initial state.
+ * However this suggestion is not enforced, and is ultimately up to the
+ * implementation of each AI module.
+ * <p>
+ * If you want to change the CMP rules for a battle, be sure to do so after
+ * calling `pvp_battle_init' which assumes `CMP_IDEAL'.
+ * CMP Rules are be preserved during `pvp_battle_reset'.
+ */
+void pvp_battle_init( pvp_battle_t  * battle,
+                      ai_t          * p1,
+                      pvp_pokemon_t   team1[3],
+                      void          * aux1,
+                      ai_t          * p2,
+                      pvp_pokemon_t   team2[3],
+                      void          * aux2
+                    );
+
+#ifdef WITH_GM_STORE
+#include "store.h"
+void pvp_battle_init_select( pvp_battle_t * battle,
+                             ai_t          * p1,
+                             roster_t      * roster1,
+                             void          * aux1,
+                             ai_t          * p2,
+                             roster_t      * roster2,
+                             void          * aux2,
+                             store_t       * gm_store
+                           );
+#endif /* defined( WITH_GM_STORE ) */
+
 void pvp_battle_free( pvp_battle_t * battle );
+/**
+ * Reinitalizes a battle to allow repeated simulations to be run.
+ * <p>
+ * This avoids the need to reallocate and reinitialize most resources, making
+ * it more efficient that calling `pvp_battle_free' and `pvp_battle_init'
+ * between simulations.
+ * <p>
+ * Players' AI WILL be reset using `ai_free' and `ai_init', because some AI
+ * modules may rely on a complete reinitialization between rounds.
+ * <p>
+ * Notably `ai_select_team' will not be used to select teams from rosters,
+ * which makes this a convenient option for cases where direct control over
+ * team selection is desired.
+ */
 void pvp_battle_reset( pvp_battle_t * battle );
 
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * Calls the appropriate `ai_decide_{action,swap,shield}' function for each
+ * player based on the current battle state.
+ * <p>
+ * In most cases this will simply be `ai_decide_action', but when a pokemon
+ * faints `ai_decide_swap' will be called, or when an opponent uses a charged
+ * attack and shields are available `ai_decide_shield' will be called.
+ * <p>
+ * This function may be called multiple times for a player in a single turn
+ * when shielding must be decided to replace their original action choice.
+ * ( Consider the scenario where player1 chooses to use a charged attack, but
+ *   losing a CMP tie forces them to decide shielding ).
+ */
 pvp_action_t decide_action( bool decide_p1, const pvp_battle_t * battle );
 
-uint32_t     simulate_battle( pvp_battle_t * battle );
+/**
+ * Evaluates the provided battle until a winner is found, or the timer expires.
+ * This function runs recursively, and cannot be "paused" once it is started.
+ * If you want to "step through" a battle one turn at a time, you should instead
+ * make calls to `decide_action' and `eval_turn' manually.
+ */
+uint32_t simulate_battle( pvp_battle_t * battle );
 
 /**
+ * Evaluates queued PvP actions for a turn, applying damage, performing swaps,
+ * and other necessary changes before the next turn.
  * Returns <code>true</code> when the battle is over.
  */
 bool eval_turn( pvp_battle_t * battle );
 
 bool is_battle_over( pvp_battle_t * battle );
 
+/**
+ * This function should only be used on a completed battle.
+ */
 bool is_p1_winner( pvp_battle_t * battle );
-
+/**
+ * Returns the winning player, or `NULL' for ties.
+ * Again, this should only be called using a completed battle.
+ */
 struct pvp_player_s * get_battle_winner( pvp_battle_t * battle );
+
 
 /**
  * A helper for AI functions/battle handler to restrict available actions

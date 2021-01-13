@@ -592,11 +592,125 @@ valid_actions( bool decide_p1, pvp_battle_t * battle )
 
 /* -------------------------------------------------------------------------- */
 
-  void
-pvp_battle_init( pvp_battle_t * battle )
+/**
+ * Helper function shared by `pvp_battle_init' and `pvp_battle_reset' to
+ * partially initialize a player. ( Excludes Player AI initialization )
+ */
+  static inline void
+pvp_player_soft_reset( pvp_player_t * player )
+{
+  player->active_pokemon = PVP_PLAYER_NULL.active_pokemon;
+  player->shields        = PVP_PLAYER_NULL.shields;
+  player->switch_turns   = PVP_PLAYER_NULL.switch_turns;
+
+  for ( int i = 0; i < 3; i++ )
+    {
+      /* Pokemon level is arbitrarily used to check if a team member exists.
+       * Players are not forced to select 3 Pokemon for simulation. */
+      if ( 0 < player->team[i].level )
+        {
+          player->team[i].hp =
+            get_hp_from_stam_lv( player->team[i].stats.stamina,
+                                 player->team[i].level
+                               );
+          player->team[i].energy   = PVP_MON_NULL.energy;
+          player->team[i].buffs    = PVP_MON_NULL.buffs;
+          player->team[i].cooldown = PVP_MON_NULL.cooldown;
+        }
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+ static inline void
+pvp_battle_shared_init( pvp_battle_t * battle,
+                        ai_t         * p1,
+                        void         * aux1,
+                        ai_t         * p2,
+                        void         * aux2
+                      )
 {
   assert( battle != NULL );
+  assert( p1     != NULL );
+  assert( aux1   != NULL );
+  assert( p2     != NULL );
+  assert( aux2   != NULL );
+
+  ai_status_t rsl = AI_NULL_STATUS;
+
+  memcpy( battle, & PVP_BATTLE_NULL, sizeof( pvp_battle_t ) );
+
+  battle->p1 = (pvp_player_t *) malloc( sizeof( pvp_player_t ) );
+  assert( battle->p1 != NULL );
+  battle->p2 = (pvp_player_t *) malloc( sizeof( pvp_player_t ) );
+  assert( battle->p2 != NULL );
+
+  battle->p1->ai = p1;
+  battle->p2->ai = p2;
+  battle->ai_aux_cache[0] = aux1;
+  battle->ai_aux_cache[1] = aux2;
+
+  rsl = battle->p1->ai->init( battle->p1->ai, aux1 );
+  assert( rsl == AI_SUCCESS );  /* FIXME: Perform real error handling. */
+  rsl = battle->p2->ai->init( battle->p2->ai, aux2 );
+  assert( rsl == AI_SUCCESS );
 }
+
+
+/* -------------------------------------------------------------------------- */
+
+  void
+pvp_battle_init( pvp_battle_t  * battle,
+                 ai_t          * p1,
+                 pvp_pokemon_t   team1[3],
+                 void          * aux1,
+                 ai_t          * p2,
+                 pvp_pokemon_t   team2[3],
+                 void          * aux2
+               )
+{
+  pvp_battle_shared_init( battle, p1, aux1, p2, aux2 );
+  memcpy( battle->p1->team, team1, ( sizeof( pvp_pokemon_t ) * 3 ) );
+  memcpy( battle->p2->team, team2, ( sizeof( pvp_pokemon_t ) * 3 ) );
+  pvp_player_soft_reset( battle->p1 );
+  pvp_player_soft_reset( battle->p2 );
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+#ifdef WITH_GM_STORE
+
+  void
+pvp_battle_init_select( pvp_battle_t * battle,
+                        ai_t         * p1,
+                        roster_t     * roster1,
+                        void         * aux1,
+                        ai_t         * p2,
+                        roster_t     * roster2,
+                        void         * aux2,
+                        store_t      * gm_store
+                      )
+{
+  pvp_battle_shared_init( battle, p1, aux1, p2, aux2 );
+  battle->p1->ai->select_team( roster1,
+                               roster2,
+                               battle->p1->team,
+                               gm_store,
+                               battle->p1->ai->aux
+                             );
+  battle->p2->ai->select_team( roster2,
+                               roster1,
+                               battle->p2->team,
+                               gm_store,
+                               battle->p2->ai->aux
+                             );
+  pvp_player_soft_reset( battle->p1 );
+  pvp_player_soft_reset( battle->p2 );
+}
+
+#endif /* defined( WITH_GM_STORE ) */
 
 
 /* -------------------------------------------------------------------------- */
@@ -605,6 +719,9 @@ pvp_battle_init( pvp_battle_t * battle )
 pvp_battle_free( pvp_battle_t * battle )
 {
   assert( battle != NULL );
+  free( battle->p1 );
+  free( battle->p2 );
+  free( battle );
 }
 
 
@@ -615,49 +732,21 @@ pvp_battle_reset( pvp_battle_t * battle )
 {
   assert( battle != NULL );
 
-  battle->turn          = 0;
-  battle->phase         = COUNTDOWN;
-  battle->cmp_alt_state = false;
-  battle->p1_action     = ACT_NULL;
-  battle->p2_action     = ACT_NULL;
+  battle->p1_action      = PVP_BATTLE_NULL.p1_action;
+  battle->p2_action      = PVP_BATTLE_NULL.p2_action;
+  battle->stashed_action = PVP_BATTLE_NULL.stashed_action;
+  battle->turn           = PVP_BATTLE_NULL.turn;
+  battle->phase          = PVP_BATTLE_NULL.phase;
+  battle->cmp_alt_state  = PVP_BATTLE_NULL.cmp_alt_state;
 
-  battle->p1->active_pokemon = 0;
-  battle->p2->active_pokemon = 0;
-  battle->p1->shields        = 2;
-  battle->p2->shields        = 2;
-  battle->p1->switch_turns   = 0;
-  battle->p2->switch_turns   = 0;
+  pvp_player_soft_reset( battle->p1 );
+  pvp_player_soft_reset( battle->p2 );
 
   /* Reset AIs */
   battle->p1->ai->free( battle->p1->ai );
-  battle->p1->ai->init( battle->p1->ai, battle->p1->ai->aux );
+  battle->p1->ai->init( battle->p1->ai, battle->ai_aux_cache[0] );
   battle->p2->ai->free( battle->p2->ai );
-  battle->p2->ai->init( battle->p2->ai, battle->p2->ai->aux );
-
-  /* Reset Pokemon */
-  for ( int i = 0; i < 3; i++ )
-    {
-      if ( 0 < battle->p1->team[i].level )
-        {
-          battle->p1->team[i].hp =
-            get_hp_from_stam_lv( battle->p1->team[i].stats.stamina,
-                                 battle->p1->team[i].level
-                               );
-          battle->p1->team[i].energy   = 0;
-          battle->p1->team[i].buffs    = NO_BUFF_STATE;
-          battle->p1->team[i].cooldown = 0;
-        }
-      if ( 0 < battle->p2->team[i].level )
-        {
-          battle->p2->team[i].hp =
-            get_hp_from_stam_lv( battle->p2->team[i].stats.stamina,
-                                 battle->p2->team[i].level
-                                 );
-          battle->p2->team[i].energy   = 0;
-          battle->p2->team[i].buffs    = NO_BUFF_STATE;
-          battle->p2->team[i].cooldown = 0;
-        }
-    }
+  battle->p2->ai->init( battle->p2->ai, battle->ai_aux_cache[1] );
 }
 
 

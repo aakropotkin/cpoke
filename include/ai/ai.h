@@ -46,10 +46,10 @@ typedef ai_status_t ( * decide_action_fn ) ( bool,
                                              void *
                                            );
 
-typedef ai_status_t ( * select_team_fn ) ( struct roster_s *,
-                                           struct roster_s *,
+typedef ai_status_t ( * select_team_fn ) ( struct roster_s      *,
+                                           struct roster_s      *,
                                            struct pvp_pokemon_s *, /* team  */
-                                           struct store_s *, /* store */
+                                           struct store_s       *, /* store */
                                            void *
                                          );
 
