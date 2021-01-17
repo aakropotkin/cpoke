@@ -501,8 +501,6 @@ simulate_battle( pvp_battle_t * battle )
       decr_cooldown( battle->p2, 1 );
       battle->turn++;
 
-      battle->p1_action = ACT_NULL;
-      battle->p2_action = ACT_NULL;
       battle->p1_action = decide_action( true, battle );
       battle->p2_action = decide_action( false, battle );
 
@@ -558,10 +556,10 @@ is_valid_action( bool decide_p1, pvp_action_t action, pvp_battle_t * battle )
              );
 
     case SWITCH1:
-      return !!( is_active_alive( self ) ) < get_remaining_pokemon( self );
+      return ( !! is_active_alive( self ) ) < get_remaining_pokemon( self );
 
     case SWITCH2:
-      return ( 1 + !!( is_active_alive( self ) ) ) <
+      return ( 1 + ( !! is_active_alive( self ) ) ) <
              get_remaining_pokemon( self );
 
     case SHIELD:

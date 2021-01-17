@@ -7,17 +7,47 @@ program battle_simulator;
 {
   Pseudocode Outline of Battle Simulator.
 
-  Pascal was simply a convenient filetype for my editor's syntax highlighting
+  The purpose of this file is to express the Battle Simulator's behavior in a
+  language that nearly any programmer can read; and to consolidate the relevant
+  structures/data types in one place for quick reference.
 
-  I am ignoring Pascal's naming conventions so that they match the names used
+  I am ignoring Pascal naming conventions so that they match the names used
   in our C code.
 
-  `^ variant' is equivelant to `void *'
+  Some datatypes that are less relevant have been simplified and some fake
+  functions with descriptive names ( marked by `_NR` for "not real" ) have been
+  concocted to shorten some processes.
 
-  `^' is used in place of `*' and `&' symbols from C.
+  I have not shortened/excluded any of the default values in the `init` and
+  `reset` functions, since those values are likely relevant to those who
+  implement AI modules.
 
-  `^.' is used in place of `->' symbols from C.
+
+  Pascal/C Equivelancies:
+
+  `^ variant` is equivelant to `void *`
+
+  `^` is used in place of `&` and `*` symbols from C.
+  The only difference being that for pointers Pascal does `^ TYPENAME` rather
+  than `TYPENAME *` in C.
+
+  `^.` is used in place of `->` symbols from C.
+
+  `new`/`dispose` are equivelant to `malloc`/`free`.
+
+  `procedure`s as `function`s that do not have a return ( `void` in C ).
+
+  `record`s are equivelant to `struct`s in C.
+
+  Pascal returns values by setting the function name as if it were a variable
+  withing the body `function foo : boolean; begin foo := true; end;`
 }
+
+
+{ ---------------------------------------------------------------------------- }
+
+type
+any_p = ^ variant;
 
 
 { ---------------------------------------------------------------------------- }
@@ -31,7 +61,7 @@ ptype_t = ( PT_NONE, BUG, DARK, DRAGON, ELECTRIC, FAIRY, FIGHTING, FIRE, FLYING,
 ptype_mask_t = longword;  { Represents a set of unique ptype_t values }
 
 stats_t = record
-             attack, stamina defense : integer;
+             attack, stamina, defense : integer;
           end;
 
 
@@ -88,11 +118,14 @@ pvp_pokemon_t = record
                    fast_move            : pvp_fast_move_t;
                    charged_moves        : array[0..1] of pvp_charged_move_t;
                 end;
+pvp_pokemon_p = ^ pvp_pokemon_t;
 
 
 { ---------------------------------------------------------------------------- }
 
-type store_t = variant;  { Not relevant here }
+type
+store_t = variant;  { Not relevant here }
+store_p = ^ store_t;
 
 
 { ---------------------------------------------------------------------------- }
@@ -107,6 +140,7 @@ base_pokemon_t = record
                  end;
 
 roster_t = array of base_pokemon_t;
+roster_p = ^ roster_t;
 
 
 { ---------------------------------------------------------------------------- }
@@ -116,22 +150,22 @@ ai_status_t = ( AI_NULL_STATUS, AI_SUCCESS, AI_ERROR_FAIL, AI_ERROR_BAD_VALUE,
                 AI_ERROR_NOMEM
               );
 
-select_team_fn = function( our_roster   : ^ roster_t,
-                           their_roster : ^ roster_t,
-                           team         : array[0..2] of pvp_pokemon_t,
-                           store        : ^ store_t,
-                           aux          : ^ variant
+select_team_fn = function( our_roster   : roster_p;
+                           their_roster : roster_p;
+                           team         : array[0..2] of pvp_pokemon_t;
+                           store        : store_p;
+                           aux          : any_p
                          ) : ai_status_t;
 
-decide_action_fn = function( decide_p1 : bool,
-                             battle    : ^ pvp_battle_t,
-                             choice    : ^ pvp_action_t,
-                             aux       : ^ variant
+decide_action_fn = function( decide_p1 : boolean;
+                             battle    : pvp_battle_p;
+                             choice    : pvp_action_p;
+                             aux       : any_p
                            ) : ai_status_t;
 
-ai_init_fn = function( ai : ^ ai_t, aux : ^ variant ) : ai_status_t;
+ai_init_fn = function( ai : ai_p; aux : any_p ) : ai_status_t;
 
-ai_free_fn = procedure( ai : ^ ai_t );
+ai_free_fn = procedure( ai : ai_p );
 
 ai_t = record
           name                                      : string;
@@ -139,19 +173,21 @@ ai_t = record
           decide_action, decide_swap, decide_shield : decide_action_fn;
           init                                      : ai_init_fn;
           free                                      : ai_free_fn;
-          aux                                       : ^ variant;
+          aux                                       : any_p;
        end;
+ai_p = ^ ai_t;
 
 
 { ---------------------------------------------------------------------------- }
 
 type
 pvp_player_t = record
-                  ai                      : ^ ai_t;
+                  ai                      : ai_p;
                   team                    : array[0..2] of pvp_pokemon_t;
                   active_pokemon, shields : 0 ... 2;
                   switch_turns            : 0 ... 5;
                end;
+pvp_player_p = ^ pvp_player_t;
 
 
 { ---------------------------------------------------------------------------- }
@@ -160,6 +196,7 @@ type
 pvp_action_t = ( ACT_NULL, FAST, WAIT, CHARGED1, CHARGED2, SWITCH1, SWITCH2,
                  SHIELD
                );
+pvp_action_p = ^ pvp_action_t;
 
 battle_phase_t = ( COUNTDOWN, NEUTRAL, SUSPEND_CHARGED, SUSPEND_CHARGED_ATTACK,
                    SUSPEND_CHARGED_SHIELD, SUSPEND_CHARGED_NO_SHIELD,
@@ -170,32 +207,33 @@ battle_phase_t = ( COUNTDOWN, NEUTRAL, SUSPEND_CHARGED, SUSPEND_CHARGED_ATTACK,
 cmp_rule_t = ( CMP_IDEAL, CMP_ALTERNATE, CMP_FAVOR_P1, CMP_FAVOR_P2 );
 
 pvp_battle_t = record
-                  p1, p2               : ^ pvp_player_t;
+                  p1, p2               : pvp_player_p;
                   p1_action, p2_action : pvp_action_t;
                   stashed_action       : pvp_action_t;
                   turn                 : integer;
                   phase                : battle_phase_t;
                   cmp_rule             : cmp_rule_t;
                   cmp_alt_state        : ( PLAYER1, PLAYER2 );
-                  ai_aux_cache         : array[0..1] of ^ variant;
+                  ai_aux_cache         : array[0..1] of any_p;
                end;
+pvp_battle_p = ^ pvp_battle_t;
 
 
-{ ---------------------------------------------------------------------------- }
+{ ============================================================================ }
 
-procedure pvp_battle_init( battle : ^ pvp_battle_t;
-                           p1     : ^ ai_t;
+procedure pvp_battle_init( battle : pvp_battle_p;
+                           p1     : ai_p;
                            team1  : array[0..2] of pvp_pokemon_t;
-                           aux1   : ^ variant;
-                           p2     : ^ ai_t;
+                           aux1   : any_p;
+                           p2     : ai_p;
                            team2  : array[0..2] of pvp_pokemon_t;
-                           aux2   : ^ variant;
+                           aux2   : any_p;
                          );
 begin
    { Allocate Players }
    new( battle^.p1 );
    new( battle^.p2 );
-   { Cache AI Aux values }
+   { Cache AI Aux Values }
    battle^.ai_aux_cache[0] := aux1;
    battle^.ai_aux_cache[1] := aux2;
    { Initialize AI }
@@ -230,13 +268,13 @@ begin
    { Set Initial Pokemon State }
    for i := 0 to 2 do
       begin
-          battle^.p1^.team[i].hp := calculate_hp( battle^.p1^.team[i] );
+          battle^.p1^.team[i].hp := calculate_hp_NR( battle^.p1^.team[i] );
           battle^.p1^.team[i].energy            := 0;
           battle^.p1^.team[i].buffs.atk_buff_lv := 0;
           battle^.p1^.team[i].buffs.def_buff_lv := 0;
           battle^.p1^.team[i].cooldown          := 0;
 
-          battle^.p2^.team[i].hp := calculate_hp( battle^.p1^.team[i] );
+          battle^.p2^.team[i].hp := calculate_hp_NR( battle^.p2^.team[i] );
           battle^.p2^.team[i].energy            := 0;
           battle^.p2^.team[i].buffs.atk_buff_lv := 0;
           battle^.p2^.team[i].buffs.def_buff_lv := 0;
@@ -247,7 +285,7 @@ end;
 
 { ---------------------------------------------------------------------------- }
 
-procedure pvp_battle_reset( battle : ^ pvp_battle_t );
+procedure pvp_battle_reset( battle : pvp_battle_p );
 begin
    { Reset Battle State }
    battle^.p1_action      := ACT_NULL;
@@ -269,13 +307,13 @@ begin
    { Reset Pokemon State }
    for i := 0 to 2 do
       begin
-          battle^.p1^.team[i].hp := calculate_hp( battle^.p1^.team[i] );
+          battle^.p1^.team[i].hp := calculate_hp_NR( battle^.p1^.team[i] );
           battle^.p1^.team[i].energy            := 0;
           battle^.p1^.team[i].buffs.atk_buff_lv := 0;
           battle^.p1^.team[i].buffs.def_buff_lv := 0;
           battle^.p1^.team[i].cooldown          := 0;
 
-          battle^.p2^.team[i].hp := calculate_hp( battle^.p1^.team[i] );
+          battle^.p2^.team[i].hp := calculate_hp_NR( battle^.p2^.team[i] );
           battle^.p2^.team[i].energy            := 0;
           battle^.p2^.team[i].buffs.atk_buff_lv := 0;
           battle^.p2^.team[i].buffs.def_buff_lv := 0;
@@ -286,7 +324,7 @@ end;
 { ---------------------------------------------------------------------------- }
 
 
-procedure pvp_battle_free( battle : ^ pvp_battle_t );
+procedure pvp_battle_free( battle : pvp_battle_p );
 begin
    dispose( battle^.p1 );
    dispose( battle^.p2 );
@@ -296,17 +334,109 @@ end;
 
 { ---------------------------------------------------------------------------- }
 
-function decide_action( decide_p1 : bool;
-                        battle    : ^ pvp_battle_t
-                      ) : pvp_action_t;
+{ Helper to find the count of un-fainted pokemon for a given player }
+function get_remaining_pokemon( player : pvp_player_p ) : boolean;
 begin
+    get_remaining_pokemon := 0;
+    for i := 0 to 2 do
+        if ( 0 < player^.team[i].hp ) then
+            get_remaining_pokemon := get_remaining_pokemon + 1;
 end;
 
 
 { ---------------------------------------------------------------------------- }
 
-procedure handle_faints( p1_mon_alive, p2_mon_alive : bool;
-                         battle                     : ^ pvp_battle_t
+{ Determine if a given action would be valid for a given player based on the
+  current battle state }
+function is_valid_action( decide_p1 : boolean;
+                          action    : pvp_action_t;
+                          battle    : pvp_battle_p
+                        ) : boolean;
+var
+  self   : pvp_player_p;
+  active : pvp_pokemon_p;
+begin
+  if decide_p1 then self := battle^.p1 else self := battle^.p2;
+  active := @ self^.team[self^.active_pokemon];
+
+  case ( action ) of
+    FAST:
+      is_valid_action := ( battle^.phase = NEUTRAL ) and ( 0 < active^.hp );
+
+    WAIT:
+      is_valid_action := true;
+
+    CHARGED1:
+      is_valid_action := ( battle^.phase = NEUTRAL ) and ( 0 < active^.hp ) and
+                         ( active^.chared_moves[0]^.energy <= active^.energy );
+                         
+    CHARGED2:
+      is_valid_action := ( battle^.phase = NEUTRAL ) and ( 0 < active^.hp ) and
+                         ( active^.charged_moves[1].move_id <> 0 ) and
+                         ( active^.chared_moves[1]^.energy <= active^.energy );
+
+    SWITCH1:
+      begin
+        if ( 0 < active^.hp ) then
+          is_valid_action := 1 < get_remaining_pokemon( player )
+        else
+          is_valid_action := 0 < get_remaining_pokemon( player )
+      end;
+
+    SWITCH2:
+      begin
+        if ( 0 < active^.hp ) then
+          is_valid_action := 2 < get_remaining_pokemon( player )
+        else
+          is_valid_action := 1 < get_remaining_pokemon( player )
+      end;
+
+    SHIELD:
+      is_valid_action := ( battle^.phase == SUSPEND_CHARGED ) and
+                         ( 0 < self^.shields );
+
+    else
+      is_valid_action := false;
+  end;
+end;
+
+
+{ ---------------------------------------------------------------------------- }
+
+{ Decide the next action for the player indicated by `decide_p1` }
+function decide_action( decide_p1 : boolean;
+                        battle    : pvp_battle_p
+                      ) : pvp_action_t;
+var action : pvp_action_t;
+begin
+    action := ACT_NULL;
+    { If player has cooldown remaining from a previous move they must wait. }
+    if ( ( decide_p1 and then ( 0 < get_player_cooldown_NR( battle^.p1 ) ) ) or
+         ( decide_p2 and then ( 0 < get_player_cooldown_NR( battle^.p2 ) ) )
+       ) then
+        action := WAIT
+    else
+    { Call the `decide_action` function for the player AI }
+    if ( decide_p1 ) then
+        battle^.p1^.ai^.decide_action( decide_p1,
+                                       battle,
+                                       @ action, { Set by reference }
+                                       battle^.p1^.ai^.aux
+                                     )
+    else
+        battle^.p2^.ai^.decide_action( decide_p1,
+                                       battle,
+                                       @ action, { Set by reference }
+                                       battle^.p2^.ai^.aux
+                                     );
+    decide_action := action;
+end;
+
+
+{ ---------------------------------------------------------------------------- }
+
+procedure handle_faints( p1_mon_alive, p2_mon_alive : boolean;
+                         battle                     : pvp_battle_p
                        );
 begin
 end;
@@ -314,19 +444,71 @@ end;
 
 { ---------------------------------------------------------------------------- }
 
-function eval_turn_simulated( battle : ^ pvp_battle_t ) : bool;
-begin
-end;
-
-function eval_turn( battle : ^ pvp_battle_t ) : bool;
+function eval_turn_simulated( battle : pvp_battle_p ) : boolean;
 begin
 end;
 
 
 { ---------------------------------------------------------------------------- }
 
-function simulate_battle( battle : ^ pvp_battle_t ) : integer;
+{ Helper to decrement a given Player's Active Pokemon's cooldown timer }
+procedure decr_cooldown( player : pvp_battle_p; x : integer );
+if ( 0 < player^.team[player^.active_pokemon].cooldown ) then
+    player^.team[player^.active_pokemon].coodown :=
+        player^.team[player^.active_pokemon].coodown - 1;
+
+
+{ Simulate a battle, return the number of turns evaluated. }
+function simulate_battle( battle : pvp_battle_p ) : integer;
+var p1_mon_alive, p2_mon_alive : boolean;
 begin
+    assert( battle^.phase = COOLDOWN );
+    { Give opportunity to swap during countdown. }
+    battle^.p1_action := decide_action( true, battle );
+    battle^.p2_action := decide_action( false, battle );
+
+    battle^.phase := NEUTRAL;
+    p1_mon_alive  := true;
+    p2_mon_alive  := true;
+    
+    while ( not eval_turn( battle ) ) do
+        begin
+            { Decrement Player Switch Timers }
+            if ( 0 < battle^.p1^.switch_timer ) then
+                battle^.p1^.switch_timer := battle^.p1^.switch_timer - 1;
+            if ( 0 < battle^.p2^.switch_timer ) then
+                battle^.p2^.switch_timer := battle^.p2^.switch_timer - 1;
+
+            { Decrement Cooldown of Players Active Pokemon }
+            decr_cooldown( battle^.p1, 1 );
+            decr_cooldown( battle^.p2, 1 );
+            
+            battle^.turn := battle^.turn + 1;
+            
+            battle^.p1_action := decide_action( true, battle );
+            battle^.p2_action := decide_action( false, battle );
+
+            { FIXME: Handle Swap }
+            { FIXME: Handle Charged Moves/Shields here }
+            Check CMP Ties when both use Charged;
+            Stash action for Shielder;
+            Decide shield;
+            Apply Charged Damage/Expend Shield;
+            { FIXME: Handle faint for shielder }
+            Pop stashed action;
+            If action is Charged, Decide shield ( no stash );
+            Apply Charged Damage/Expend Shield or apply Fast Damage;
+
+            { Handle Faints }
+            p1_mon_alive := is_active_pokemon_alive( battle^.p1 );
+            p2_mon_alive := is_active_pokemon_alive( battle^.p2 );
+            if ( not ( p1_mon_alive or p2_mon_alive ) ) then
+                handle_faints( p1_mon_alive, p2_mon_alive, battle );
+        end;
+
+    battle^.phase := GAME_OVER;
+
+    simulate_battle := battle^.turn;
 end;
 
 
