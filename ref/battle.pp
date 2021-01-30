@@ -210,13 +210,19 @@ pvp_battle_t = record
                   p1, p2               : pvp_player_p;
                   p1_action, p2_action : pvp_action_t;
                   stashed_action       : pvp_action_t;
-                  turn                 : integer;
+                  turn, countdown      : integer;
                   phase                : battle_phase_t;
                   cmp_rule             : cmp_rule_t;
                   cmp_alt_state        : ( PLAYER1, PLAYER2 );
                   ai_aux_cache         : array[0..1] of any_p;
                end;
 pvp_battle_p = ^ pvp_battle_t;
+
+
+{ ============================================================================ }
+
+const
+   SWITCH_TIMEOUT_TURNS = 26
 
 
 { ============================================================================ }
@@ -369,7 +375,7 @@ begin
     CHARGED1:
       is_valid_action := ( battle^.phase = NEUTRAL ) and ( 0 < active^.hp ) and
                          ( active^.chared_moves[0]^.energy <= active^.energy );
-                         
+
     CHARGED2:
       is_valid_action := ( battle^.phase = NEUTRAL ) and ( 0 < active^.hp ) and
                          ( active^.charged_moves[1].move_id <> 0 ) and
@@ -435,10 +441,53 @@ end;
 
 { ---------------------------------------------------------------------------- }
 
+{ Helper to decrement a given Player's switch timer }
+procedure decr_switch_timer( player : pvp_battle_p; x : integer );
+if ( 0 < player^.switch_turns ) then
+   player^.switch_turns := max( player^.switch_turns - x, 0 );
+
+
 procedure handle_faints( p1_mon_alive, p2_mon_alive : boolean;
                          battle                     : pvp_battle_p
                        );
+var
+   target       : pvp_player_p;
 begin
+   swap_timeout := 0;
+   target       := Nil;
+
+   if ( not ( p1_mon_alive or p2_mon_alive ) ) then { Both Fainted }
+      begin
+         swap_timeout  := SWITCH_TIMEOUT_TURNS;
+         battle^.phase := SUSPEND_SWITCH_TIE;
+         battle^.p1_action = decide_swap( true, battle );
+         battle^.p2_action = decide_swap( false, battle );
+         while ( ( 0 < swap_timeout ) and
+                 ( ( battle^.p1_action = WAIT ) or
+                   ( battle^.p2_action = WAIT )
+                 )
+               ) do
+            begin
+               swap_timeout := swap_timeout - 1;
+               eval_turn( battle );
+               battle^.turn := battle^.turn + 1;
+               decr_switch_timer( battle^.p1, 1 );
+               decr_switch_timer( battle^.p2, 1 );
+
+               if ( battle^.p1_action = WAIT ) then
+                  begin
+                     battle^.p1_action := ACT_NULL;
+                     battle^.p1_action := decide_swap( true, battle );
+                  end;
+               if ( battle^.p2_action = WAIT ) then
+                  begin
+                      battle^.p2_action := ACT_NULL;
+                      battle^.p2_action := decide_swap( false, battle );
+                  end;
+            end;
+         { Check to see if anyone waited out the timer.
+           force SWAP1 if they did }
+      end;
 end;
 
 
@@ -454,8 +503,8 @@ end;
 { Helper to decrement a given Player's Active Pokemon's cooldown timer }
 procedure decr_cooldown( player : pvp_battle_p; x : integer );
 if ( 0 < player^.team[player^.active_pokemon].cooldown ) then
-    player^.team[player^.active_pokemon].coodown :=
-        player^.team[player^.active_pokemon].coodown - 1;
+   player^.team[player^.active_pokemon].coodown :=
+     max( player^.team[player^.active_pokemon].coodown - x, 0 );
 
 
 { Simulate a battle, return the number of turns evaluated. }
@@ -470,7 +519,7 @@ begin
     battle^.phase := NEUTRAL;
     p1_mon_alive  := true;
     p2_mon_alive  := true;
-    
+
     while ( not eval_turn( battle ) ) do
         begin
             { Decrement Player Switch Timers }
@@ -482,22 +531,22 @@ begin
             { Decrement Cooldown of Players Active Pokemon }
             decr_cooldown( battle^.p1, 1 );
             decr_cooldown( battle^.p2, 1 );
-            
+
             battle^.turn := battle^.turn + 1;
-            
+
             battle^.p1_action := decide_action( true, battle );
             battle^.p2_action := decide_action( false, battle );
 
             { FIXME: Handle Swap }
             { FIXME: Handle Charged Moves/Shields here }
-            Check CMP Ties when both use Charged;
-            Stash action for Shielder;
-            Decide shield;
-            Apply Charged Damage/Expend Shield;
+            { FIXME: Check CMP Ties when both use Charged }
+            { FIXME: Stash action for Shielder }
+            { FIXME: Decide shield }
+            { FIXME: Apply Charged Damage/Expend Shield }
             { FIXME: Handle faint for shielder }
-            Pop stashed action;
-            If action is Charged, Decide shield ( no stash );
-            Apply Charged Damage/Expend Shield or apply Fast Damage;
+            { FIXME: Pop stashed action }
+            { FIXME: If action is Charged, Decide shield ( no stash ) }
+            { FIXME: Apply Charged Damage/Expend Shield or apply Fast Damage }
 
             { Handle Faints }
             p1_mon_alive := is_active_pokemon_alive( battle^.p1 );

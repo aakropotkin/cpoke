@@ -131,17 +131,17 @@ do_switch( bool is_switch1, pvp_player_t * player )
   void
 handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
 {
-  uint8_t        swap_timeout = 0;
-  pvp_player_t * target       = NULL;
+  pvp_player_t * target = NULL;
+
+  battle->countdown = SWITCH_TIMEOUT_TURNS;
 
   if ( !( p1_mon_alive || p2_mon_alive ) ) /* Both fainted. Wait for swap */
     {
-      swap_timeout  = SWITCH_TIMEOUT_TURNS;
       battle->phase = SUSPEND_SWITCH_TIE;
       battle->p1_action = decide_action( true, battle );
       battle->p2_action = decide_action( false, battle );
       /* Wait for both to pick */
-      while ( ( 0 < swap_timeout-- )        &&
+      while ( ( 0 < battle->countdown-- )        &&
               ( battle->p1_action == WAIT ) ||
               ( battle->p2_action == WAIT )
             )
@@ -170,8 +170,8 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
     }
   else if ( ! ( p1_mon_alive && p2_mon_alive ) )
     { /* Only 1 fainted. No playing chicken. But player can eat the clock */
-      swap_timeout = SWITCH_TIMEOUT_TURNS;
-      while ( ( 0 < swap_timeout-- ) &&
+      battle->phase = p1_mon_alive ? SUSPEND_SWITCH_P2 : SUSPEND_SWITCH_P2;
+      while ( ( 0 < battle->countdown-- ) &&
               ( ( p1_mon_alive && ( battle->p2_action == WAIT ) ) ||
                 ( p2_mon_alive && ( battle->p1_action == WAIT ) )
               )
@@ -215,6 +215,7 @@ handle_faints( bool p1_mon_alive, bool p2_mon_alive, pvp_battle_t * battle )
   battle->phase     = NEUTRAL;
   battle->p1_action = ACT_NULL;
   battle->p2_action = ACT_NULL;
+  battle->countdown = 0;
   battle->p1_action = decide_action( true, battle );
   battle->p2_action = decide_action( false, battle );
 }

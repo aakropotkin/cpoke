@@ -220,6 +220,7 @@ struct pvp_battle_s {
   pvp_action_t          p2_action;
   pvp_action_t          stashed_action;  /* For CMP/Shield situations */
   uint32_t              turn;
+  uint8_t               countdown;
   battle_phase_t        phase;
   cmp_rule_t            cmp_rule;
   uint8_t               cmp_alt_state : 1;
@@ -234,6 +235,7 @@ static const pvp_battle_t PVP_BATTLE_NULL = {
   .p2_action      = ACT_NULL,
   .stashed_action = ACT_NULL,
   .turn           = 0,
+  .countdown      = 3,
   .phase          = COUNTDOWN,
   .cmp_rule       = CMP_IDEAL,
   .cmp_alt_state  = false,
