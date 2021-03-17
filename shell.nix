@@ -10,5 +10,7 @@ stdenv.mkDerivation {
     gcc9
     curlFull.dev
     pcre.dev
+    autoconf
+    automake
   ];
 }
