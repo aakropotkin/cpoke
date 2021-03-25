@@ -105,8 +105,8 @@ PROGRAMS = $(bin_PROGRAMS)
 cpoke_SOURCES = cpoke.c
 cpoke_OBJECTS = cpoke.$(OBJEXT)
 cpoke_LDADD = $(LDADD)
-fetch_gm_SOURCES = fetch_gm.c
-fetch_gm_OBJECTS = fetch_gm.$(OBJEXT)
+am_fetch_gm_OBJECTS = fetch_gm.$(OBJEXT)
+fetch_gm_OBJECTS = $(am_fetch_gm_OBJECTS)
 fetch_gm_LDADD = $(LDADD)
 iv_store_build_SOURCES = iv_store_build.c
 iv_store_build_OBJECTS = iv_store_build.$(OBJEXT)
@@ -148,8 +148,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = cpoke.c fetch_gm.c iv_store_build.c parse_gm.c test.c
-DIST_SOURCES = cpoke.c fetch_gm.c iv_store_build.c parse_gm.c test.c
+SOURCES = cpoke.c $(fetch_gm_SOURCES) iv_store_build.c parse_gm.c \
+	test.c
+DIST_SOURCES = cpoke.c $(fetch_gm_SOURCES) iv_store_build.c parse_gm.c \
+	test.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -274,10 +276,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CPPFLAGS = -I$(top_builddir)/include
 AM_CFLAGS = -fms-extensions -DJSMN_STATIC -std=gnu11
-#AM_CFLAGS += $(shell curl-config --cflags)
-#AM_CFLAGS += $(shell pcre-config --cflags)
-AM_LDFLAGS = 
+AM_LDFLAGS = -lm -ldl
+test_names = json pokemon ptypes parse_gm cstore battle player \
+	naive_ai filter fuzzy
+ext_sources = ext/jsmn_iterator.c
+util_sources = util/files.c util/json_util.c
+core_sources = pokemon.c ptypes.c pokedex.c moves.c
+sim_sources = naive_ai.c
+gm_sources = parse_gm.c gm_store.c fetch_gm.c
+cstore_sources = cstore.c cstore_data.c
+test_sources = ${test_names:%=test/test_%.c}
+
+#fetch_gm_HEADERS = $(top_builddir)/include/util/curl_util.h
+fetch_gm_SOURCES = fetch_gm.c
 all: all-am
 
 .SUFFIXES:
