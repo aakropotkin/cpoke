@@ -62,3 +62,8 @@ iv_store_build
 test_battle
 test_filter
 test_fuzzy
+Makefile
+autom4te.cache/
+config.h
+config.status
+stamp-h1
