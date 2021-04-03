@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package cpoke.core;
+
+enum ptype {
+  PT_NONE  = 0;
+  BUG      = 1;
+  DARK     = 2;
+  DRAGON   = 4;
+  ELECTRIC = 8;
+  FAIRY    = 16;
+  FIGHTING = 32;
+  FIRE     = 64;
+  FLYING   = 128;
+  GHOST    = 256;
+  GRASS    = 512;
+  GROUND   = 1024;
+  ICE      = 2048;
+  NORMAL   = 4096;
+  POISON   = 8192;
+  PSYCHIC  = 16384;
+  ROCK     = 32768;
+  STEEL    = 65536;
+  WATER    = 131072;
+}
