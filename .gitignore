@@ -62,3 +62,4 @@ iv_store_build
 test_battle
 test_filter
 test_fuzzy
+compile_commands.json

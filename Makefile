@@ -180,9 +180,9 @@ gamemaster: data/GAME_MASTER.json
 # DO NOT DELETE GAME_MASTER.json or cstore_data.c
 # - cstore_data.c is time consuming to rebuild.
 clean:
-	@echo "Cleaning Up..."
-	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
-	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
+	@echo "Cleaning Up...";
+	 $(RM) -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
+	 $(RM) -vf *.o *.so *.a ${BINS} ${SUBTEST_BINS};
 
 
 FORCE:
@@ -191,12 +191,12 @@ FORCE:
 # ---------------------------------------------------------------------------- #
 
 print_gcc_info:
-	@echo "IS_OSX    : ${IS_OSX}"
-	@echo "CC        : ${CC}"
-	@echo "CC_VERSION: ${CC_VERSION}"
-	@echo "CC_V_MAJOR: ${CC_V_MAJOR}"
-	@echo "CC_V_MINOR: ${CC_V_MINOR}"
-	@echo "CC_V_PATCH: ${CC_V_PATCH}"
+	@echo "IS_OSX    : ${IS_OSX}";      \
+	 echo "CC        : ${CC}";          \
+	 echo "CC_VERSION: ${CC_VERSION}";  \
+	 echo "CC_V_MAJOR: ${CC_V_MAJOR}";  \
+	 echo "CC_V_MINOR: ${CC_V_MINOR}";  \
+	 echo "CC_V_PATCH: ${CC_V_PATCH}"
 
 
 # ---------------------------------------------------------------------------- #
