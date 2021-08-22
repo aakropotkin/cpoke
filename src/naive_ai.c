@@ -97,6 +97,32 @@ naive_ai_decide_action( bool           decide_p1,
 /* -------------------------------------------------------------------------- */
 
   ai_status_t
+naive_ai_decide_swap( bool           decide_p1,
+                      pvp_battle_t * battle,
+                      pvp_action_t * choice,
+                      void         * aux
+                    )
+{
+  return AI_ERROR_FAIL;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  ai_status_t
+naive_ai_decide_shield( bool           decide_p1,
+                        pvp_battle_t * battle,
+                        pvp_action_t * choice,
+                        void         * aux
+                      )
+{
+  return AI_ERROR_FAIL;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+  ai_status_t
 naive_ai_init( ai_t * ai, void * init_aux )
 {
   if ( ai == NULL ) return AI_ERROR_BAD_VALUE;
@@ -111,6 +137,57 @@ naive_ai_free( ai_t * ai )
 {
   if ( ai == NULL ) return;
 }
+
+
+/* -------------------------------------------------------------------------- */
+
+#ifdef MK_AI_SO
+
+#ifdef USE_DLLEXPORT
+#define DLLEXPORT  __declspec( dllexport )
+#else /* defined( USE_DLLEXPORT ) */
+#define DLLEXPORT
+#endif /* defined( USE_DLLEXPORT ) */
+
+DLLEXPORT char * ai_name = "Naive AI";
+
+ai_status_t ai_select_team( roster_t      * our_roster,
+                            roster_t      * their_roser,
+                            pvp_pokemon_t * team,
+                            store_t       * store,
+                            void          * aux
+                          )
+  __attribute__(( alias( "naive_ai_select_team" ) )) DLLEXPORT;
+
+ai_status_t ai_decide_action( bool           decide_p1,
+                              pvp_battle_t * battle,
+                              pvp_action_t * choice,
+                              void         * aux
+                            )
+  __attribute__(( alias( "naive_ai_decide_action" ) )) DLLEXPORT;
+
+ai_status_t ai_decide_swap( bool           decide_p1,
+                            pvp_battle_t * battle,
+                            pvp_action_t * choice,
+                            void         * aux
+                          )
+  __attribute__(( alias( "naive_ai_decide_swap" ) )) DLLEXPORT;
+
+ai_status_t ai_decide_shield( bool           decide_p1,
+                              pvp_battle_t * battle,
+                              pvp_action_t * choice,
+                              void         * aux
+                            )
+  __attribute__(( alias( "naive_ai_decide_shield" ) )) DLLEXPORT;
+
+ai_status_t ai_init( ai_t * ai, void * init_aux )
+  __attribute__(( alias( "naive_ai_init" ) )) DLLEXPORT;
+
+void ai_free( ai_t * ai )
+  __attribute__(( alias( "naive_ai_free" ) )) DLLEXPORT;
+
+#endif /* defined( MK_AI_SO ) */
+
 
 
 /* -------------------------------------------------------------------------- */

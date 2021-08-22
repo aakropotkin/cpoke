@@ -63,11 +63,25 @@ struct ai_s {
   char *           name;
   select_team_fn   select_team;
   decide_action_fn decide_action;
+  decide_action_fn decide_swap;
+  decide_action_fn decide_shield;
   ai_init_fn       init;
   ai_free_fn       free;
   void *           aux;
 };
 typedef struct ai_s  ai_t;
+
+
+/* -------------------------------------------------------------------------- */
+
+struct dl_ai_s {
+  ai_t * ai;
+  void * handle;
+};
+typedef struct dl_ai_s  dl_ai_t;
+
+dl_ai_t * dlopen_ai( const char * filename );
+int       dlclose_ai( dl_ai_t * dlai );
 
 
 /* -------------------------------------------------------------------------- */

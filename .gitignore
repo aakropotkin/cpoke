@@ -63,3 +63,4 @@ test_battle
 test_filter
 test_fuzzy
 cffi/data/*.E
+compile_commands.json

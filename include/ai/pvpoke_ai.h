@@ -160,13 +160,27 @@ typedef struct decision_option_s  decision_option_t;
 ai_status_t pvpoke_ai_select_team( roster_t   * our_roster,
                                    roster_t   * their_roser,
                                    pvp_team_t * team,
-                                   void       *
+                                   void       * aux,
                                  );
 
-ai_status_t pvpoke_ai_decide_action( bool                        decide_p1,
+ai_status_t pvpoke_ai_decide_action(              bool           decide_p1,
                                      const struct pvp_battle_s * battle,
-                                     pvp_action_t              * choice
+                                                  pvp_action_t * choice,
+                                                  void         * aux
                                    );
+
+ai_status_t pvpoke_ai_decide_shield(              bool           decide_p1,
+                                     const struct pvp_battle_s * battle,
+                                                  pvp_action_t * choice,
+                                                  void         * aux
+                                   );
+
+ai_status_t pvpoke_ai_decide_swap(              bool           decide_p1,
+                                   const struct pvp_battle_s * battle,
+                                                pvp_action_t * choice,
+                                                void         * aux
+                                 );
+
 
 ai_status_t pvpoke_ai_init( ai_t * ai, void * init_aux );
 void        pvpoke_ai_free( ai_t * ai );
@@ -179,6 +193,8 @@ void        pvpoke_ai_free( ai_t * ai );
     .name          = "PvPoke AI",                                             \
     .select_team   = pvpoke_ai_select_team,                                   \
     .decide_action = pvpoke_ai_decide_action,                                 \
+    .decide_swap   = pvpoke_ai_decide_swap,                                   \
+    .decide_shield = pvpoke_ai_decide_shield,                                 \
     .init          = pvpoke_ai_init,                                          \
     .free          = pvpoke_ai_free,                                          \
     .aux           = NULL                                                     \
