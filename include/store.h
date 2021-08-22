@@ -80,8 +80,9 @@ typedef enum packed {
   STORE_CUSTOM
 } store_type_t;
 
+#if !defined(CFFI)
 _Static_assert( sizeof( store_type_t ) == 1, "store_type_t must be 1 byte" );
-
+#endif
 
 /* ------------------------------------------------------------------------- */
 

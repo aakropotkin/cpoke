@@ -49,7 +49,7 @@ PCRE_LINKERFLAGS = $(shell pcre-config --libs)
 # `-fms-extensions' enables struct inheritence
 CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH}
 CFLAGS      += -fms-extensions -DJSMN_STATIC -std=gnu11 -fPIC
-CFLAGS      += ${PCRE_CFLAGS}
+CFLAGS      += ${PCRE_CFLAGS} -DCFFI
 LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
 
 
@@ -144,7 +144,8 @@ test: ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
 cffi/cpoke.so: $(filter-out fetch_gm.o,${GM_OBJECTS})
-cffi/cpoke.so: ${CORE_OBJECTS} ${SUBTEST_OBJECTS}
+# cffi/cpoke.so: ${CORE_OBJECTS} ${SUBTEST_OBJECTS}
+cffi/cpoke.so: ${CORE_OBJECTS} test_cstore.o
 cffi/cpoke.so: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 	${CC} ${LINKERFLAGS} -shared $^ -o $@
 
@@ -170,7 +171,7 @@ gamemaster: data/GAME_MASTER.json
 clean:
 	@echo "Cleaning Up..."
 	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
-	rm -rvf ./cffi/cpoke.so ./cffi/data/* ./cffi/include/*;
+	rm -rvf ./cffi/cpoke.so ./cffi/data/*
 	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
 
 
@@ -222,6 +223,8 @@ NO_INCLUDE_CFLAGS = -g -fms-extensions -DJSMN_STATIC -std=gnu11
 cffi/data/%.E: ${INCLUDEPATH}/%.h  ${HEADERS}
 	mkdir -p tmp/$(<D)
 	mkdir -p $(@D)
+	mkdir -p tmp/include/util
+	cp include/util/macros.h tmp/include/util
 	cp $< tmp/$<
 	echo //__FROM__: $< > $@
 	clang ${NO_INCLUDE_CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc            \

@@ -161,13 +161,16 @@ cstore_get_pokemon_by_name( store_t    *  cstore,
 cstore_get_move( store_t * cstore, uint16_t move_id, store_move_t ** val)
 {
   store_move_t * move = NULL;
+  printf("here1\n");
   HASH_FIND( hh_move_id,
              as_csa( cstore )->moves_by_id,
              & move_id,
              sizeof( uint16_t ),
              move
            );
+  printf("here2\n");
   if ( val != NULL ) *val = move;
+  printf("here3\n");
   return ( move != NULL ) ? STORE_SUCCESS : STORE_ERROR_NOT_FOUND;
 }
 
