@@ -100,10 +100,13 @@ print(tmp_out)
 
 cstore_p = lib.get_cstore_p()
 mon_pp = ffi.new('pdex_mon_t **')
-lib.cstore_get_pokemon(cstore_p, 1, 0, mon_pp)
-mon_p = mon_pp[0]
-print((mon_p.dex_number, ffi.string(mon_p.name), mon_p.types))
-print(cdata_dict(mon_p))
+lib.cstore_get_pokemon(cstore_p, 3, 0, mon_pp)
+print(cdata_dict(mon_pp[0]))
+print([mon_pp[0].fast_move_ids[i] for i in range(mon_pp[0].fast_moves_cnt)])
+print([mon_pp[0].charged_move_ids[i] for i in range(mon_pp[0].charged_moves_cnt)])
+
+# mon_p = mon_pp[0]
+# print((mon_p.dex_number, ffi.string(mon_p.name), mon_p.types))
 
 if False:
     cstore_p = lib.get_cstore_p()
@@ -142,9 +145,29 @@ def construct_roster_pokemon(dex_num: int, form_idx: int, level: float, attack: 
     base = ffi.new('base_pokemon_t *')
     rost = ffi.new('roster_pokemon_t *')
     rost.base = base
-    rost.fast_move_id = fast_move_id # Vine Whip
+    rost.fast_move_id = fast_move_id
     rost.charged_move_ids = (charge_move_id1, charge_move_id2)
     rsl = lib.base_mon_from_store(cstore_p, dex_num, form_idx, level, attack, stamina, defense, base)
+    assert rsl == lib.STORE_SUCCESS
+    scope.extend((base, rost))
+    return rost
+
+def construct_league_optimal_pokemon(dex_num: int, form_idx: int, max_cp: int, fast_move_id: int, charge_move_id1: int, charge_move_id2: int, scope: list):
+    cstore_p = lib.get_cstore_p()
+    mon_pp = ffi.new('pdex_mon_t **')
+    rsl = lib.cstore_get_pokemon(cstore_p, dex_num, form_idx, mon_pp)
+    assert rsl == lib.STORE_SUCCESS
+    base = ffi.new('base_pokemon_t *')
+    rost = ffi.new('roster_pokemon_t *')
+    new_stats_p = ffi.new('stats_t *')
+    new_lv_p = ffi.new('float *')
+    ok = lib.brute_maximize_ivs(max_cp, mon_pp[0].base_stats, new_stats_p, new_lv_p)
+    assert ok
+    rost.base = base
+    rost.fast_move_id = fast_move_id
+    rost.charged_move_ids = (charge_move_id1, charge_move_id2)
+    rsl = lib.base_mon_from_store(
+        cstore_p, dex_num, form_idx, new_lv_p[0], new_stats_p.attack, new_stats_p.stamina, new_stats_p.defense, base)
     assert rsl == lib.STORE_SUCCESS
     scope.extend((base, rost))
     return rost
@@ -163,10 +186,19 @@ def construct_naive_ai(scope):
     return p1_ai
     
 scope = []
-rost_ven = construct_roster_pokemon(1, 0, 20., 15, 15, 15, 214, 296, 90, scope)
+# rost_ven = construct_roster_pokemon(3, 0, 20., 15, 15, 15, 214, 296, 90, scope)
+rost_ven = construct_league_optimal_pokemon(3, 0, 2500, 214, 296, 90, scope)
+rost_ven1 = construct_league_optimal_pokemon(3, 1, 2500, 214, 296, 90, scope)
 print(cdata_dict(rost_ven))
-rost_vap = construct_roster_pokemon(134, 0, 20., 15, 15, 15, 230, 58, 300, scope)
+assert rost_ven.charged_move_ids[0] == 296
+assert rost_ven.charged_move_ids[1] == 90
+# rost_vap = construct_roster_pokemon(134, 0, 20., 15, 15, 15, 230, 58, 300, scope)
+rost_vap = construct_league_optimal_pokemon(134, 0, 2500, 230, 58, 300, scope)
 print(cdata_dict(rost_vap))
+
+# pokes = [construct_league_optimal_pokemon(i, 0, 2500, 0, 0, 0, scope) for i in range(50)]
+
+pdb.set_trace()
 
 p1_ai = construct_naive_ai(scope)
 p2_ai = construct_naive_ai(scope)
@@ -177,10 +209,13 @@ a1 = ffi.new('pvp_action_t *')
 a2 = ffi.new('pvp_action_t *')
 battle = ffi.new('pvp_battle_t *')
 
-#lib.pvp_pokemon_init(p1.team + 0, rost_ven, cstore_p)
-#lib.pvp_pokemon_init(p2.team + 0, rost_vap, cstore_p)
+# These seg-fault.
+# lib.pvp_pokemon_init(p1.team + 0, rost_ven, cstore_p)
+# lib.pvp_pokemon_init(p2.team + 0, rost_vap, cstore_p)
+## assert p1.team[0].fast_move.base_move.move_id == 214
 
-# assert p1.team[0].fast_move.move_id == 214
 
-pdb.set_trace()
 
+#rost_ven.base.pdex_mon.tags
+# lib.TAG_SHADOW, lib.TAG_PURE, lib.TAG_STARTER
+# rost_ven1.base.pdex_mon.tags

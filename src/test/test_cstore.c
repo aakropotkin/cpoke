@@ -126,7 +126,7 @@ test_cstore_get_pokemon( void )
 
 /* -------------------------------------------------------------------------- */
 
-  static bool
+  bool
 test_cstore_get_pokemon_by_name( void )
 {
   pdex_mon_t * mon = NULL;
