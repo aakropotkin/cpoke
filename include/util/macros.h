@@ -41,6 +41,14 @@
 
 /* Attributes: --------------------------------------------------------- {{{1 */
 
+#if defined(CFFI)
+#define unused         
+#define transparent    
+#define align8         
+#define packed 
+#define pure_fn        
+#define const_fn       
+#else
 /* Tell GCC to SHUT UP about unused variables. */
 #define unused         __attribute__((__unused__))
 #define transparent    __attribute__((__transparent_union__))
@@ -48,7 +56,7 @@
 #define packed         __attribute__((packed))
 #define pure_fn        __attribute__((pure))
 #define const_fn       __attribute__((const))
-
+#endif
 
 /* End Attributes ------------------------------------------------------ }}}1 */
 

@@ -2,10 +2,10 @@
 # ============================================================================ #
 
 .DEFAULT_GOAL := test
-.PHONY = clean check_gcc print_gcc_info gamemaster
+.PHONY = clean check_gcc print_gcc_info gamemaster get_ordered_e
 
 BINS := cpoke parse_gm fetch_gm test iv_store_build
-all: ${BINS}
+all: ${BINS} cffi/data/all.E
 
 
 # ---------------------------------------------------------------------------- #
@@ -55,14 +55,24 @@ DEBUG_FLAGS := -ggdb
 CFLAGS_SO    += -fPIC
 CFLAGS       += -I${INCLUDEPATH} -I${DEFSPATH}
 # `-fms-extensions' enables struct inheritence
+<<<<<<< HEAD
+CFLAGS      += -g -I${INCLUDEPATH} -I${DEFSPATH}
+CFLAGS      += -fms-extensions -DJSMN_STATIC -std=gnu11 -fPIC
+CFLAGS      += ${PCRE_CFLAGS} -DCFFI
+LINKERFLAGS = -g -lm ${PCRE_LINKERFLAGS}
+=======
 CFLAGS       += -fms-extensions -DJSMN_STATIC -std=gnu11
 CFLAGS       += ${PCRE_CFLAGS} ${DEBUG_FLAGS} ${CFLAGS_SO}
+>>>>>>> f8ecf568a9d166487b2798a033976c77005c4f2e
 
 LINKERFLAGS    = -lm -ldl ${PCRE_LINKERFLAGS} ${DEBUG_FLAGS}
 LINKERFLAGS_SO = -shared
 
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> f8ecf568a9d166487b2798a033976c77005c4f2e
 # ---------------------------------------------------------------------------- #
 
 EXT_OBJECTS  := jsmn_iterator.o
@@ -153,7 +163,14 @@ test_pokemon: ${CSTORE_OBJECTS}
 test: ${SUBTEST_OBJECTS} $(filter-out fetch_gm.o,${GM_OBJECTS})
 test: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
 
+cffi/cpoke.so: $(filter-out fetch_gm.o,${GM_OBJECTS})
+# cffi/cpoke.so: ${CORE_OBJECTS} ${SUBTEST_OBJECTS}
+cffi/cpoke.so: ${CORE_OBJECTS} test_cstore.o
+cffi/cpoke.so: ${CSTORE_OBJECTS} ${SIM_OBJECTS} ${NAIVE_AI_OBJECTS}
+	${CC} ${LINKERFLAGS} -shared $^ -o $@
 
+<<<<<<< HEAD
+=======
 # ---------------------------------------------------------------------------- #
 
 naive_ai_so.o: ${SRCPATH}/naive_ai.c ${HEADERS}
@@ -161,6 +178,7 @@ naive_ai_so.o: ${SRCPATH}/naive_ai.c ${HEADERS}
 
 naive_ai.so:  naive_ai_so.o ${CORE_OBJECTS} ${SIM_OBJECTS} 
 	${CC} ${LINKERFLAGS_SO} $^ -o $@ ${LINKERFLAGS}
+>>>>>>> f8ecf568a9d166487b2798a033976c77005c4f2e
 
 
 # ---------------------------------------------------------------------------- #
@@ -180,9 +198,16 @@ gamemaster: data/GAME_MASTER.json
 # DO NOT DELETE GAME_MASTER.json or cstore_data.c
 # - cstore_data.c is time consuming to rebuild.
 clean:
+<<<<<<< HEAD
+	@echo "Cleaning Up..."
+	rm -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
+	rm -rvf ./cffi/cpoke.so ./cffi/data/*
+	rm -rvf *.o ${BINS} ${SUBTEST_BINS};
+=======
 	@echo "Cleaning Up...";
 	 $(RM) -rvf ./data/cstore_data.c ./data/GAME_MASTER.json;
 	 $(RM) -vf *.o *.so *.a ${BINS} ${SUBTEST_BINS};
+>>>>>>> f8ecf568a9d166487b2798a033976c77005c4f2e
 
 
 FORCE:
@@ -200,6 +225,68 @@ print_gcc_info:
 
 
 # ---------------------------------------------------------------------------- #
+<<<<<<< HEAD
+
+cffi/data/%.proto: ${SRCPATH}/%.c ${HEADERS}
+	mkdir -p $(@D)
+	cproto  -I${INCLUDEPATH} -I${DEFSPATH} ${PCRE_CFLAGS} -s -i -v              \
+          -DJSMN_STATIC -o $@ $< || true
+
+ALL_PROTO = ${subst ${SRCPATH}/,cffi/data/,${subst .c,.proto,${SRCS}}}
+cffi/data/all.proto: ${ALL_PROTO} ${HEADERS}
+	cat ${ALL_PROTO} > cffi/data/all.proto
+
+cffi/data/%.X: ${SRCPATH}/%.c ${HEADERS}
+	mkdir -p $(@D)
+	${CC} ${CFLAGS} -E $< > $@
+
+ALL_X = ${subst ${SRCPATH}/,cffi/data/,${subst .c,.X,${SRCS}}}
+cffi/data/all.X: ${ALL_X} ${HEADERS}
+	cat ${ALL_X} > cffi/data/all.X
+
+
+# ---------------------------------------------------------------------------- #
+
+cffi/data/%.EE: ${INCLUDEPATH}/%.h  ${HEADERS}
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc $< \
+    > cffi/data/$@ 2>/dev/null || true
+
+cffi/data/all.EE: ${HEADERS}
+	clang ${CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc -nobuiltininc         \
+    ${HEADERS} > $@ 2>/dev/null || true
+
+NO_INCLUDE_CFLAGS = -g -fms-extensions -DJSMN_STATIC -std=gnu11
+cffi/data/%.E: ${INCLUDEPATH}/%.h  ${HEADERS}
+	mkdir -p tmp/$(<D)
+	mkdir -p $(@D)
+	mkdir -p tmp/include/util
+	cp include/util/macros.h tmp/include/util
+	cp $< tmp/$<
+	echo //__FROM__: $< > $@
+	clang ${NO_INCLUDE_CFLAGS} -D'__attribute__(x)=' -P -E -nostdinc            \
+    -nobuiltininc tmp/$< >> $@ 2>/dev/null || true
+	rm -fr tmp
+
+cffi/data/all.M:
+	${CC} ${CFLAGS} -MM -MG ${SRCS} > cffi/data/all.M
+
+
+# ---------------------------------------------------------------------------- #
+
+ORDERED_E_CMD := "python3 cffi/hack_all_M.py|tail -n1|sed 's/^.* = //';"
+
+get_ordered_e: cffi/data/all.M cffi/hack_all_M.py
+	$(eval ORDERED_E :=$(shell sh -c ${ORDERED_E_CMD}) )
+
+ALL_E := $(subst ${INCLUDEPATH}/,cffi/data/,${subst .h,.E,${HEADERS}})
+
+cffi/data/all.E:  get_ordered_e ${ALL_E} ${HEADERS}
+	cat ${ORDERED_E} > cffi/data/all.E
+
+
+# ---------------------------------------------------------------------------- #
+=======
+>>>>>>> f8ecf568a9d166487b2798a033976c77005c4f2e
 
 
 

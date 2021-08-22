@@ -12,6 +12,65 @@
 #define CSTORE_GLOBAL_STORE
 #include "cstore.h"
 
+#ifdef CSTORE_GLOBAL_STORE
+/*
+#define CS_has( KEY )       cstore_has( & CSTORE, ( KEY ) )
+#define CS_get( KEY, VAL )                                                    \
+  cstore_get( & CSTORE, ( KEY ), (void **) ( VAL ) )
+#define CS_get_str( KEY, VAL )                                                \
+  cstore_get_str( & CSTORE, ( KEY ), (void **) ( VAL ) )
+#define CS_get_str_t( TYPE, KEY, VAL )                                        \
+  cstore_get_str_t( & CSTORE, ( TYPE ), ( KEY ), (void **) ( VAL ) )
+#define CS_add( KEY, VAL )                                                    \
+  cstore_add( & CSTORE, ( KEY ), (void *) ( VAL ) )
+#define CS_set( KEY, VAL )                                                    \
+  cstore_set( & CSTORE, ( KEY ), (void *) ( VAL ) )
+#define CS_init()  cstore_init( & CSTORE, NULL )
+#define CS_free()  cstore_free( & CSTORE )
+#define CS_export( SINK, TARGET )                                             \
+  cstore_export( & CSTORE, ( SINK ), ( TARGET ) )
+
+#define CS_get_pokemon( DEX, FORM, VAL )                                      \
+  cstore_get_pokemon( & CSTORE, ( DEX ), ( FORM ), ( VAL ) )
+#define CS_get_pokemon_by_name( NAME, VAL )                                   \
+  cstore_get_pokemon_by_name( & CSTORE, ( NAME ), ( VAL ) )
+
+#define CS_get_move( MOVE_IDX, VAL )                                          \
+  cstore_get_move( & CSTORE, ( MOVE_IDX ), ( VAL ) )
+#define CS_get_move_by_name( NAME, VAL )                                      \
+  cstore_get_move_by_name( & CSTORE, ( NAME ), ( VAL ) )
+*/
+
+const store_t *get_cstore_p() {
+  return &CSTORE;
+}
+
+int get_pokemon_by_name(        const char *  name,
+                                pdex_mon_t ** mon
+				) {
+  return CS_get_pokemon_by_name(name, mon);
+}
+
+int do_printf(char *s) {
+  printf("%s\n", s);
+  return(0);
+}
+    
+bool test_stuff() {
+  pdex_mon_t * mon = NULL;
+  int          rsl = cstore_get_pokemon_by_name( & CSTORE, "BULBASAUR", & mon );
+
+  expect( rsl == STORE_SUCCESS );
+  expect( mon != NULL );
+  expect( mon->dex_number == 1 );
+  expect( mon->form_idx == 0 );
+  printf("here.\n");
+  return false;
+}
+
+
+#endif
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -67,7 +126,7 @@ test_cstore_get_pokemon( void )
 
 /* -------------------------------------------------------------------------- */
 
-  static bool
+  bool
 test_cstore_get_pokemon_by_name( void )
 {
   pdex_mon_t * mon = NULL;
